@@ -28,16 +28,23 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_Open">
    <property name="text">
-    <string>&amp;Open</string>
+    <string>&amp;Open...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Quit">
+   <property name="text">
+    <string>&amp;Quit</string>
    </property>
   </action>
  </widget>

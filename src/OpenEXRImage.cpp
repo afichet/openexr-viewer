@@ -58,6 +58,12 @@ OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
     }
 }
 
+
+OpenEXRImage::~OpenEXRImage() {
+    delete m_rootItem;
+}
+
+
 QVariant OpenEXRImage::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
@@ -183,6 +189,7 @@ OpenEXRItem *OpenEXRImage::createItem(
         for (Imf::ChannelList::ConstIterator chIt = attr.value().begin(); chIt != attr.value().end(); chIt++) {
             // Create a child
             new OpenEXRItem(attrItem, {chIt.name(), "", "framebuffer"});
+            ++channelCount;
         }
 
         ss << channelCount;
@@ -242,9 +249,14 @@ OpenEXRItem *OpenEXRImage::createItem(
     // Float vector
     else if (strcmp(type, Imf::FloatVectorAttribute::staticTypeName()) == 0) {
         auto attr = Imf::FloatVectorAttribute::cast(attribute);
+        size_t floatCount = 0;
+
         for (std::vector<float>::iterator fIt = attr.value().begin(); fIt != attr.value().end(); fIt++) {
-            ss << std::endl << "\t" << *fIt << std::endl;
+            new OpenEXRItem(attrItem, {*fIt, "", "float"});
+            ++floatCount;
         }
+
+        ss << floatCount;
     }
     // IDManifest
     else if (strcmp(type, Imf::IDManifestAttribute::staticTypeName()) == 0) {
@@ -309,9 +321,15 @@ OpenEXRItem *OpenEXRImage::createItem(
     // String vector
     else if (strcmp(type, Imf::StringVectorAttribute::staticTypeName()) == 0) {
         auto attr = Imf::StringVectorAttribute::cast(attribute);
+        size_t stringCount = 0;
+
         for (std::vector<std::string>::iterator sIt = attr.value().begin(); sIt != attr.value().end(); sIt++) {
-            ss << std::endl << "\t" << *sIt;
+            // Create a child
+            new OpenEXRItem(attrItem, {sIt->c_str(), "", "string"});
+            ++stringCount;
         }
+
+        ss << stringCount;
     }
     // Tile description
     else if (strcmp(type, Imf::TileDescriptionAttribute::staticTypeName()) == 0) {

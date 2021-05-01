@@ -11,18 +11,11 @@ public:
         : m_itemData(data)
         , m_parentItem(parentItem)
     {
-        if (m_parentItem)
+        // If not root item
+        if (m_parentItem) {
             m_parentItem->appendChild(this);
+        }
     }
-
-//    explicit OpenEXRItem(
-//            OpenEXRItem *parentItem = nullptr)
-//        : m_itemData()
-//        , m_parentItem(parentItem)
-//    {
-////        if (m_parentItem)
-////            m_parentItem->appendChild(this);
-//    }
 
     ~OpenEXRItem() {
         qDeleteAll(m_childItems);
@@ -73,7 +66,7 @@ public:
     }
 
 
-//protecte\d:
+protected:
     void appendChild(OpenEXRItem *child) {
         m_childItems.append(child);
     }
@@ -88,11 +81,7 @@ private:
 class OpenEXRImage: public QAbstractItemModel {
 public:
     OpenEXRImage(const QString& filename, QObject *parent);
-
-    ~OpenEXRImage() {
-        delete m_rootItem;
-    }
-
+    ~OpenEXRImage();
 
     QVariant data(const QModelIndex &index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
