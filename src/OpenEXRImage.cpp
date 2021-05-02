@@ -186,13 +186,19 @@ OpenEXRItem *OpenEXRImage::createItem(
         auto attr = Imf::ChannelListAttribute::cast(attribute);
         size_t channelCount = 0;
 
+        OpenEXRChannelHierarchy* ch = new OpenEXRChannelHierarchy;
+
         for (Imf::ChannelList::ConstIterator chIt = attr.value().begin(); chIt != attr.value().end(); chIt++) {
-            // Create a child
-            new OpenEXRItem(attrItem, {chIt.name(), "", "framebuffer"});
+            ch->addLeaf(chIt.name(), &chIt.channel());
             ++channelCount;
         }
 
         ss << channelCount;
+
+        ch->constructItemHierarchy(attrItem);
+
+        // TODO!!!
+//        delete ch;
     }
     // Chromaticities
     else if (strcmp(type, Imf::ChromaticitiesAttribute::staticTypeName()) == 0) {

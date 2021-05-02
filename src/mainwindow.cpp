@@ -51,7 +51,6 @@ void MainWindow::open(QString filename)
     m_treeView->setModel(m_img);
     m_treeView->expandAll();
 
-
 //    QMdiSubWindow *subWindow1 = new QMdiSubWindow;
 
 //    subWindow1->setWidget(new QLabel("Toto"));

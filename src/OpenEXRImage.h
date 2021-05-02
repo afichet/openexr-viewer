@@ -78,6 +78,94 @@ private:
     QVector<QVariant> m_itemData;
 };
 
+#include <OpenEXR/ImfChannelListAttribute.h>
+
+class OpenEXRChannelHierarchy {
+public:
+    OpenEXRChannelHierarchy(OpenEXRChannelHierarchy* parent = nullptr)
+        : m_parentItem(parent)
+        , m_channelPtr(nullptr)
+    {}
+
+    OpenEXRChannelHierarchy* getLeaf(const QString channelName) {
+        QStringList channelHierachy = channelName.split(".");
+
+        OpenEXRChannelHierarchy *leafPtr = this;
+
+        for (auto s : channelHierachy) {
+            if (leafPtr->m_childItems.contains(s)) {
+                leafPtr = leafPtr->m_childItems[s];
+            } else {
+                OpenEXRChannelHierarchy *newPtr = new OpenEXRChannelHierarchy(leafPtr);
+                newPtr->m_rootName = s;
+                leafPtr->m_childItems.insert(s, newPtr);
+                leafPtr = newPtr;
+            }
+        }
+
+        return leafPtr;
+    }
+
+    void addLeaf(
+            const QString channelName,
+            const Imf::Channel* leafChannel)
+    {
+        OpenEXRChannelHierarchy *leafNode = getLeaf(channelName);
+        leafNode->m_channelPtr = leafChannel;
+    }
+
+    // TODO Better data representation...
+    // Consider inherit from same base class
+    OpenEXRItem* constructItemHierarchy(OpenEXRItem* parent) {
+        if (m_childItems.size() == 0) {
+            // This is a terminal leaf
+            assert(m_channelPtr != nullptr);
+            return new OpenEXRItem(parent, {m_rootName, " ", "framebuffer"});
+        }
+
+        // TODO: add + 1 if has a framebuffer
+        OpenEXRItem* currRoot = new OpenEXRItem(
+                    parent, {m_rootName, (int)getNChilds(), "channellist"});
+
+        if (m_channelPtr) {
+            // It's a leaf...
+            // Both are valid but I prefer the nested representation
+            // OpenEXRItem* leafNode = new OpenEXRItem(parent, {m_rootName, "", "framebuffer"});
+            new OpenEXRItem(currRoot, {".", "", "framebuffer"});
+        }
+
+        for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
+            it.value()->constructItemHierarchy(currRoot);
+        }
+
+        return currRoot;
+    }
+
+    size_t getNChilds() const {
+        return m_childItems.size();
+    }
+
+    QString getFullName() const {
+        QString name = m_rootName;
+
+        OpenEXRChannelHierarchy* parent = m_parentItem;
+
+        while(parent) {
+            name += parent->m_rootName + "." + name;
+            parent = parent->m_parentItem;
+        }
+
+        return name;
+    }
+
+private:
+    QMap<QString, OpenEXRChannelHierarchy*> m_childItems;
+    OpenEXRChannelHierarchy* m_parentItem;
+
+    const Imf::Channel* m_channelPtr;
+    QString m_rootName;
+};
+
 class OpenEXRImage: public QAbstractItemModel {
 public:
     OpenEXRImage(const QString& filename, QObject *parent);
