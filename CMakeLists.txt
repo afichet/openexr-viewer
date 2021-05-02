@@ -16,11 +16,15 @@ find_package(OpenEXR CONFIG)
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
-        src/mainwindow.ui
-        src/OpenEXRImage.cpp
-        src/OpenEXRImage.h
+        src/view/mainwindow.cpp
+        src/view/mainwindow.h
+        src/view/mainwindow.ui
+        src/model/OpenEXRImage.cpp
+        src/model/OpenEXRImage.h
+        src/model/OpenEXRLayerItem.cpp
+        src/model/OpenEXRLayerItem.h
+        src/model/OpenEXRHeaderItem.cpp
+        src/model/OpenEXRHeaderItem.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -9,8 +9,7 @@
 #include <QCloseEvent>
 #include <QDropEvent>
 
-#include "OpenEXRImage.h"
-
+#include <model/OpenEXRImage.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

@@ -3,7 +3,6 @@
 #include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfChannelList.h>
 
-
 #include <OpenEXR/ImfAttribute.h>
 #include <OpenEXR/ImfBoxAttribute.h>
 #include <OpenEXR/ImfChannelListAttribute.h>
@@ -37,7 +36,7 @@
 OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
     : QAbstractItemModel(parent)
     , m_exrIn(filename.toStdString().c_str())
-    , m_rootItem(new OpenEXRItem(
+    , m_rootItem(new OpenEXRHeaderItem(
                     nullptr,
                     {tr("Name"), tr("Value"), tr("Type")}))
 {
@@ -45,7 +44,7 @@ OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
 
     // Setup model data
     for (int i = 0; i < m_exrIn.parts(); i++) {
-        OpenEXRItem *child = new OpenEXRItem(
+        OpenEXRHeaderItem *child = new OpenEXRHeaderItem(
                     m_rootItem,
                     {"OpenEXR Image", i, "part"}
                     );
@@ -74,7 +73,7 @@ QVariant OpenEXRImage::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    OpenEXRItem *item = static_cast<OpenEXRItem*>(index.internalPointer());
+    OpenEXRHeaderItem *item = static_cast<OpenEXRHeaderItem*>(index.internalPointer());
 
     return item->data(index.column());
 }
@@ -102,15 +101,15 @@ QModelIndex OpenEXRImage::index(int row, int column, const QModelIndex &parent) 
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
-    OpenEXRItem *parentItem;
+    OpenEXRHeaderItem *parentItem;
 
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<OpenEXRItem*>(parent.internalPointer());
+        parentItem = static_cast<OpenEXRHeaderItem*>(parent.internalPointer());
     }
 
-    OpenEXRItem *childItem = parentItem->child(row);
+    OpenEXRHeaderItem *childItem = parentItem->child(row);
 
     if (childItem) {
         return createIndex(row, column, childItem);
@@ -125,8 +124,8 @@ QModelIndex OpenEXRImage::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    OpenEXRItem *childItem = static_cast<OpenEXRItem*>(index.internalPointer());
-    OpenEXRItem *parentItem = childItem->parentItem();
+    OpenEXRHeaderItem *childItem = static_cast<OpenEXRHeaderItem*>(index.internalPointer());
+    OpenEXRHeaderItem *parentItem = childItem->parentItem();
 
     if (parentItem == m_rootItem) {
         return QModelIndex();
@@ -137,7 +136,7 @@ QModelIndex OpenEXRImage::parent(const QModelIndex &index) const
 
 int OpenEXRImage::rowCount(const QModelIndex &parent) const
 {
-    OpenEXRItem *parentItem;
+    OpenEXRHeaderItem *parentItem;
 
     if (parent.column() > 0) {
         return 0;
@@ -146,7 +145,7 @@ int OpenEXRImage::rowCount(const QModelIndex &parent) const
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<OpenEXRItem*>(parent.internalPointer());
+        parentItem = static_cast<OpenEXRHeaderItem*>(parent.internalPointer());
     }
 
     return parentItem->childCount();
@@ -155,18 +154,18 @@ int OpenEXRImage::rowCount(const QModelIndex &parent) const
 int OpenEXRImage::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        return static_cast<OpenEXRItem*>(parent.internalPointer())->columnCount();
+        return static_cast<OpenEXRHeaderItem*>(parent.internalPointer())->columnCount();
     }
 
     return m_rootItem->columnCount();
 }
 
-OpenEXRItem *OpenEXRImage::createItem(
+OpenEXRHeaderItem *OpenEXRImage::createItem(
         const char *name,
         const Imf_3_0::Attribute &attribute,
-        OpenEXRItem *parent)
+        OpenEXRHeaderItem *parent)
 {
-    OpenEXRItem *attrItem = new OpenEXRItem(parent);
+    OpenEXRHeaderItem *attrItem = new OpenEXRHeaderItem(parent);
 
     const char * type = attribute.typeName();
 
@@ -186,7 +185,7 @@ OpenEXRItem *OpenEXRImage::createItem(
         auto attr = Imf::ChannelListAttribute::cast(attribute);
         size_t channelCount = 0;
 
-        OpenEXRChannelHierarchy* ch = new OpenEXRChannelHierarchy;
+        OpenEXRLayerItem* ch = new OpenEXRLayerItem;
 
         for (Imf::ChannelList::ConstIterator chIt = attr.value().begin(); chIt != attr.value().end(); chIt++) {
             ch->addLeaf(chIt.name(), &chIt.channel());
@@ -258,7 +257,7 @@ OpenEXRItem *OpenEXRImage::createItem(
         size_t floatCount = 0;
 
         for (std::vector<float>::iterator fIt = attr.value().begin(); fIt != attr.value().end(); fIt++) {
-            new OpenEXRItem(attrItem, {*fIt, "", "float"});
+            new OpenEXRHeaderItem(attrItem, {*fIt, "", "float"});
             ++floatCount;
         }
 
@@ -331,7 +330,7 @@ OpenEXRItem *OpenEXRImage::createItem(
 
         for (std::vector<std::string>::iterator sIt = attr.value().begin(); sIt != attr.value().end(); sIt++) {
             // Create a child
-            new OpenEXRItem(attrItem, {sIt->c_str(), "", "string"});
+            new OpenEXRHeaderItem(attrItem, {sIt->c_str(), "", "string"});
             ++stringCount;
         }
 
