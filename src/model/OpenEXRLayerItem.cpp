@@ -6,6 +6,13 @@ OpenEXRLayerItem::OpenEXRLayerItem(OpenEXRLayerItem *parent)
     , m_channelPtr(nullptr)
 {}
 
+OpenEXRLayerItem::~OpenEXRLayerItem()
+{
+    for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
+        delete it.value();
+    }
+}
+
 
 void OpenEXRLayerItem::addLeaf(const QString channelName, const Imf_3_0::Channel *leafChannel)
 {
@@ -84,7 +91,7 @@ OpenEXRLayerItem *OpenEXRLayerItem::getAddLeaf(const QString channelName) {
 
     OpenEXRLayerItem *leafPtr = this;
 
-    for (auto s : channelHierachy) {
+    for (auto& s : channelHierachy) {
         if (leafPtr->m_childItems.contains(s)) {
             leafPtr = leafPtr->m_childItems[s];
         } else {

@@ -25,13 +25,17 @@ public:
 
 protected:
 
-    OpenEXRHeaderItem* createItem(const char* name,
-                            const Imf::Attribute& attr,
-                            OpenEXRHeaderItem *parent);
+    OpenEXRHeaderItem* createItem(
+            const char* name,
+            const Imf::Attribute& attr,
+            OpenEXRHeaderItem *parent,
+            int part_number);
 
 private:
     Imf::MultiPartInputFile m_exrIn;
     std::vector<std::vector<std::string>> m_headerItems;
 
+
     OpenEXRHeaderItem *m_rootItem;
+    std::vector<OpenEXRLayerItem*> m_partRootLayer;
 };

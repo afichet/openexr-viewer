@@ -8,6 +8,8 @@ class OpenEXRLayerItem {
 public:
     OpenEXRLayerItem(OpenEXRLayerItem* parent = nullptr);
 
+    ~OpenEXRLayerItem();
+
     void addLeaf(
             const QString channelName,
             const Imf::Channel* leafChannel);

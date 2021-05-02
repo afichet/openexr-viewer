@@ -41,6 +41,7 @@ OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
                     {tr("Name"), tr("Value"), tr("Type")}))
 {
     m_headerItems.resize(m_exrIn.parts());
+    m_partRootLayer.resize(m_exrIn.parts());
 
     // Setup model data
     for (int i = 0; i < m_exrIn.parts(); i++) {
@@ -51,8 +52,10 @@ OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
 
         const Imf::Header & exrHeader = m_exrIn.header(i);
 
+        m_partRootLayer[i] = nullptr;
+
         for (Imf::Header::ConstIterator it = exrHeader.begin(); it != exrHeader.end(); it++) {
-            createItem(it.name(), it.attribute(), child);
+            createItem(it.name(), it.attribute(), child, i);
         }
     }
 }
@@ -60,6 +63,10 @@ OpenEXRImage::OpenEXRImage(const QString& filename, QObject *parent)
 
 OpenEXRImage::~OpenEXRImage() {
     delete m_rootItem;
+
+    for (OpenEXRLayerItem* it: m_partRootLayer) {
+        delete it;
+    }
 }
 
 
@@ -163,7 +170,8 @@ int OpenEXRImage::columnCount(const QModelIndex &parent) const
 OpenEXRHeaderItem *OpenEXRImage::createItem(
         const char *name,
         const Imf_3_0::Attribute &attribute,
-        OpenEXRHeaderItem *parent)
+        OpenEXRHeaderItem *parent,
+        int part_number)
 {
     OpenEXRHeaderItem *attrItem = new OpenEXRHeaderItem(parent);
 
@@ -185,19 +193,22 @@ OpenEXRHeaderItem *OpenEXRImage::createItem(
         auto attr = Imf::ChannelListAttribute::cast(attribute);
         size_t channelCount = 0;
 
-        OpenEXRLayerItem* ch = new OpenEXRLayerItem;
+        // Sanity check
+        if (m_partRootLayer[part_number]) {
+            delete m_partRootLayer[part_number];
+            m_partRootLayer[part_number] = nullptr;
+        }
+
+        m_partRootLayer[part_number] = new OpenEXRLayerItem;
 
         for (Imf::ChannelList::ConstIterator chIt = attr.value().begin(); chIt != attr.value().end(); chIt++) {
-            ch->addLeaf(chIt.name(), &chIt.channel());
+            m_partRootLayer[part_number]->addLeaf(chIt.name(), &chIt.channel());
             ++channelCount;
         }
 
         ss << channelCount;
 
-        ch->constructItemHierarchy(attrItem);
-
-        // TODO!!!
-//        delete ch;
+        m_partRootLayer[part_number]->constructItemHierarchy(attrItem);
     }
     // Chromaticities
     else if (strcmp(type, Imf::ChromaticitiesAttribute::staticTypeName()) == 0) {
