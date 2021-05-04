@@ -60,14 +60,14 @@ FramebufferModel::FramebufferModel(
 
     m_pixelBuffer = new float[m_width * m_height];
 
+    Imf::Slice graySlice = Imf::Slice::Make(
+                Imf::PixelType::FLOAT,
+                m_pixelBuffer,
+                dw);
+
     Imf::FrameBuffer framebuffer;
-    framebuffer.insert(
-                m_layer.toStdString().c_str(),
-                Imf::Slice(
-                    Imf::PixelType::FLOAT,
-                    (char*)m_pixelBuffer,
-                    sizeof(float), m_width * sizeof(float))
-                );
+
+    framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
 
     part.setFrameBuffer(framebuffer);
     part.readPixels(dw.min.y, dw.max.y);

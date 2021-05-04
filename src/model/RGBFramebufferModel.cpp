@@ -64,29 +64,28 @@ RGBFramebufferModel::RGBFramebufferModel(
     QString bLayer = m_parentLayer + "B";
 
     Imf::FrameBuffer framebuffer;
-    framebuffer.insert(
-                rLayer.toStdString().c_str(),
-                Imf::Slice(
-                    Imf::PixelType::FLOAT,
-                    (char*)&m_pixelBuffer[0],
-                    3 * sizeof(float), 3 * m_width * sizeof(float))
-                );
 
-    framebuffer.insert(
-                gLayer.toStdString().c_str(),
-                Imf::Slice(
-                    Imf::PixelType::FLOAT,
-                    (char*)&m_pixelBuffer[1],
-                    3 * sizeof(float), 3 * m_width * sizeof(float))
-                );
+    Imf::Slice rSlice = Imf::Slice::Make(
+                Imf::PixelType::FLOAT,
+                &m_pixelBuffer[0],
+                dw,
+                3 * sizeof(float), 3 * m_width * sizeof(float));
 
-    framebuffer.insert(
-                bLayer.toStdString().c_str(),
-                Imf::Slice(
-                    Imf::PixelType::FLOAT,
-                    (char*)&m_pixelBuffer[2],
-                    3 * sizeof(float), 3 * m_width * sizeof(float))
-                );
+    Imf::Slice gSlice = Imf::Slice::Make(
+                Imf::PixelType::FLOAT,
+                &m_pixelBuffer[1],
+                dw,
+                3 * sizeof(float), 3 * m_width * sizeof(float));
+
+    Imf::Slice bSlice = Imf::Slice::Make(
+                Imf::PixelType::FLOAT,
+                &m_pixelBuffer[2],
+                dw,
+                3 * sizeof(float), 3 * m_width * sizeof(float));
+
+    framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
+    framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
+    framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
 
     part.setFrameBuffer(framebuffer);
     part.readPixels(dw.min.y, dw.max.y);
