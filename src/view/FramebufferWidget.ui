@@ -38,6 +38,11 @@
        </item>
        <item>
         <property name="text">
+         <string>Magma</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Inferno</string>
         </property>
        </item>
@@ -48,7 +53,12 @@
        </item>
        <item>
         <property name="text">
-         <string>TCL</string>
+         <string>Plasma</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>BBGR</string>
         </property>
        </item>
       </widget>

@@ -29,6 +29,8 @@
 
 #include "ImageModel.h"
 
+#include <util/Colormap.h>
+
 class FramebufferModel: public ImageModel {
 public:
     FramebufferModel(
@@ -45,6 +47,7 @@ public:
 public slots:
     void setMinValue(double value);
     void setMaxValue(double value);
+    void setColormap(const QString& value);
 
 protected:
     void updateImage();
@@ -55,4 +58,6 @@ private:
 
     double m_min;
     double m_max;
+
+    Colormap * m_cmap;
 };

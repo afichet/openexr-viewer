@@ -26,3 +26,23 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #include "YColormap.h"
+
+#include <cstring>
+
+YColormap::YColormap()
+{
+
+}
+
+YColormap::~YColormap()
+{
+
+}
+
+void YColormap::getRGBValue(float v, float RGB[]) const
+{
+//    memset(RGB, v, 3*sizeof(float));
+    for (int c = 0; c < 3; c++) {
+        RGB[c] = v;
+    }
+}

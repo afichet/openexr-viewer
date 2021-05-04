@@ -28,12 +28,13 @@
 #include "BBGRColormap.h"
 
 #include <vector>
+#include <cstddef>
 
-BBGRColorMap::BBGRColorMap() {}
+BBGRColormap::BBGRColormap() {}
 
-BBGRColorMap::~BBGRColorMap() {}
+BBGRColormap::~BBGRColormap() {}
 
-void BBGRColorMap::getRGBValue(float v, float RGB[]) const
+void BBGRColormap::getRGBValue(float v, float RGB[]) const
 {
     v = clamp(v);
 
@@ -81,17 +82,17 @@ void BBGRColorMap::getRGBValue(float v, float RGB[]) const
     }
 }
 
-void BBGRColorMap::getRGBValue(float v, float v_min, float v_max, float RGB[]) const
-{
-    getRGBValue((v - v_min) / (v_max - v_min), RGB);
-}
+//void BBGRColormap::getRGBValue(float v, float v_min, float v_max, float RGB[]) const
+//{
+//    getRGBValue((v - v_min) / (v_max - v_min), RGB);
+//}
 
-float BBGRColorMap::clamp(float v, float v_min, float v_max)
+float BBGRColormap::clamp(float v, float v_min, float v_max)
 {
     return std::min(std::max(v, v_min), v_max);
 }
 
-float BBGRColorMap::place(float v, float v_min, float v_max)
+float BBGRColormap::place(float v, float v_min, float v_max)
 {
     v = clamp(v, v_min, v_max);
     return (v - v_min) / (v_max - v_min);

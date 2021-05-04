@@ -25,28 +25,34 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+#include "ColormapModule.h"
 
-#pragma once
+#include "BBGRColormap.h"
+#include "TabulatedColormap.h"
+#include "YColormap.h"
 
-#include "Colormap.h"
-#include <vector>
+#include <cstring>
 
-class TabulatedColormap: public Colormap
+Colormap *ColormapModule::create(const std::string &name)
 {
-  public:
-    TabulatedColormap();
+    const char *colormap_name = name.c_str();
 
-    TabulatedColormap(const char *name);
+    if (strcmp(colormap_name, "bbgr") == 0) {
+        return new BBGRColormap();
+    } else if (
+               strcmp(colormap_name, "magma") == 0
+               || strcmp(colormap_name, "inferno") == 0
+               || strcmp(colormap_name, "plasma") == 0
+               || strcmp(colormap_name, "viridis") == 0) {
+        return new TabulatedColormap(colormap_name);
+    } else if (strcmp(colormap_name, "grayscale") == 0) {
+        return new YColormap();
+    } else {
+//        std::cout << "[error] Invalid colormap name: " << name << std::endl;
+//        std::cout << "[error] Valid names are: bbgr, magma, inferno, "
+//                         "plasma or viridis"
+//                      << std::endl;
 
-    virtual ~TabulatedColormap();
-
-    virtual void getRGBValue(float v, float RGB[3]) const;
-//    virtual void getRGBValue(float v, float v_min, float v_max, float RGB[3]) const;
-
-  protected:
-    void init(float *array, int n_elems);
-
-  private:
-    std::vector<float> _array;
-    int                _n_elems;
-};
+        throw -1;
+    }
+}

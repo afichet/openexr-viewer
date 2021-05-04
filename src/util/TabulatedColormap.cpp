@@ -25,4 +25,68 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+
 #include "TabulatedColormap.h"
+
+#include <ColormapData.h>
+
+#include <cstring>
+#include <cassert>
+
+TabulatedColormap::TabulatedColormap()
+    : _array(3)
+    , _n_elems(1)
+{}
+
+
+TabulatedColormap::TabulatedColormap(const char *name)
+{
+    if (strcmp(name, "magma") == 0) {
+        init(magma_data, 256);
+    } else if (strcmp(name, "inferno") == 0) {
+        init(inferno_data, 256);
+    } else if (strcmp(name, "plasma") == 0) {
+        init(plasma_data, 256);
+    } else if (strcmp(name, "viridis") == 0) {
+        init(viridis_data, 256);
+    } else {
+//        std::cerr << "[error] unknown color map." << std::endl
+//                  << "[error] You can choose between magma, inferno, "
+//                         "plasma or viridis."
+//                      << std::endl;
+        throw -1;
+    }
+}
+
+
+TabulatedColormap::~TabulatedColormap() {}
+
+
+void TabulatedColormap::getRGBValue(float v, float RGB[]) const
+{
+    v = std::max(0.f, std::min(1.f, v));
+
+    assert(v >= 0.f);
+    assert(v <= 1.f);
+
+    int closet_idx = v * (_n_elems - 1);
+
+    assert(closet_idx < _n_elems);
+    assert(closet_idx >= 0);
+
+    memcpy(RGB, &_array[3 * closet_idx], 3 * sizeof(float));
+}
+
+
+//void TabulatedColormap::getRGBValue(float v, float v_min, float v_max, float RGB[]) const
+//{
+//    getRGBValue((v - v_min) / (v_max - v_min), RGB);
+//}
+
+
+void TabulatedColormap::init(float *array, int n_elems)
+{
+    _array.resize(3 * n_elems);
+    memcpy(_array.data(), array, 3 * n_elems * sizeof(float));
+    _n_elems = n_elems;
+}

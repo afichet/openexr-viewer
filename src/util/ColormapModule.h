@@ -25,28 +25,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
 #pragma once
 
 #include "Colormap.h"
-#include <vector>
 
-class TabulatedColormap: public Colormap
+#include <string>
+
+class ColormapModule
 {
   public:
-    TabulatedColormap();
-
-    TabulatedColormap(const char *name);
-
-    virtual ~TabulatedColormap();
-
-    virtual void getRGBValue(float v, float RGB[3]) const;
-//    virtual void getRGBValue(float v, float v_min, float v_max, float RGB[3]) const;
-
-  protected:
-    void init(float *array, int n_elems);
-
-  private:
-    std::vector<float> _array;
-    int                _n_elems;
+    static Colormap *create(const std::string &name);
 };

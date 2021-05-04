@@ -26,3 +26,16 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #pragma once
+
+#include "Colormap.h"
+
+class YColormap: public Colormap
+{
+public:
+    YColormap();
+
+    virtual ~YColormap();
+
+    virtual void getRGBValue(float v, float RGB[3]) const;
+
+};

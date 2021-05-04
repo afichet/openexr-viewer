@@ -50,7 +50,6 @@ void FramebufferWidget::setModel(FramebufferModel *model)
 }
 
 
-
 void FramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
     ui->sbMaxValue->setMinimum(arg1);
@@ -61,4 +60,9 @@ void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
     m_model->setMaxValue(arg1);
+}
+
+void FramebufferWidget::on_cbColormap_currentIndexChanged(const QString &arg1)
+{
+    m_model->setColormap(arg1);
 }

@@ -50,6 +50,8 @@ private slots:
 
     void on_sbMaxValue_valueChanged(double arg1);
 
+    void on_cbColormap_currentIndexChanged(const QString &arg1);
+
 private:
     Ui::FramebufferWidget *ui;
     FramebufferModel* m_model;

@@ -26,21 +26,20 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #pragma once
+
 #include "Colormap.h"
 
-#include <cstddef>
-
-class BBGRColorMap: public ColorMap
+class BBGRColormap: public Colormap
 {
   public:
-    BBGRColorMap();
+    BBGRColormap();
 
-    virtual ~BBGRColorMap();
+    virtual ~BBGRColormap();
 
     virtual void getRGBValue(float v, float RGB[3]) const;
 
-    virtual void
-    getRGBValue(float v, float v_min, float v_max, float RGB[3]) const;
+//    virtual void
+//    getRGBValue(float v, float v_min, float v_max, float RGB[3]) const;
 
     inline static float clamp(float v, float v_min = 0, float v_max = 1.f);
 

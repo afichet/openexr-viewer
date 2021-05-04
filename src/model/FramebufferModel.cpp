@@ -27,6 +27,8 @@
 //
 #include "FramebufferModel.h"
 
+#include <util/ColormapModule.h>
+
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
 
@@ -46,6 +48,7 @@ FramebufferModel::FramebufferModel(
     , m_layer(layerName)
     , m_min(0.f)
     , m_max(1.f)
+    , m_cmap(ColormapModule::create("grayscale"))
 {
     Imf::InputPart part(file, partId);
 
@@ -74,7 +77,7 @@ FramebufferModel::FramebufferModel(
 
 FramebufferModel::~FramebufferModel()
 {
-
+    delete m_cmap;
 }
 
 void FramebufferModel::setMinValue(double value)
@@ -89,6 +92,24 @@ void FramebufferModel::setMaxValue(double value)
     updateImage();
 }
 
+void FramebufferModel::setColormap(const QString &value)
+{
+    // Bad idea to change the colormap if a process is using it
+    if (m_imageLoadingWatcher->isRunning()) {
+        m_imageLoadingWatcher->cancel();
+        m_imageLoadingWatcher->waitForFinished();
+    }
+
+    if (m_cmap) {
+        delete m_cmap;
+        m_cmap = nullptr;
+    }
+
+    m_cmap = ColormapModule::create(value.toLower().toStdString());
+
+    updateImage();
+}
+
 void FramebufferModel::updateImage()
 {
     // Several call can occur within a short time e.g., when changing exposure
@@ -100,14 +121,19 @@ void FramebufferModel::updateImage()
     }
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_Grayscale8);
+        m_image = QImage(m_width, m_height, QImage::Format_RGB888);
 
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
             for (int x = 0; x < m_image.width(); x++) {
-                float value = (m_pixelBuffer[y * m_width + x] - m_min) / (m_max - m_min);
+                float value = m_pixelBuffer[y * m_width + x];
+                float RGB[3];
 
-                line[x] = qMax(0, qMin(255, int(255 * value)));
+                m_cmap->getRGBValue(value, m_min, m_max, RGB);
+
+                for (int c = 0; c < 3; c++) {
+                    line[3 * x + c] = qMax(0, qMin(255, int(255 * RGB[c])));
+                }
             }
 
             if (m_imageLoadingWatcher->isCanceled()) { break; }

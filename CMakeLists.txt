@@ -70,6 +70,8 @@ set(PROJECT_SOURCES
         src/util/BBGRColormap.h
         src/util/YColormap.cpp
         src/util/YColormap.h
+        src/util/ColormapModule.h
+        src/util/ColormapModule.cpp
 
 )
 
@@ -90,6 +92,7 @@ else()
 endif()
 
 target_include_directories(openexr-viewer PRIVATE src)
+target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})
