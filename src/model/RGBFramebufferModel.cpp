@@ -32,11 +32,11 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
 
-#include <OpenEXR/ImfInputPart.h>
-#include <OpenEXR/ImfHeader.h>
-#include <OpenEXR/ImfFrameBuffer.h>
+#include <ImfInputPart.h>
+#include <ImfHeader.h>
+#include <ImfFrameBuffer.h>
 
-#include <Imath/ImathBox.h>
+#include <ImathBox.h>
 
 
 RGBFramebufferModel::RGBFramebufferModel(
