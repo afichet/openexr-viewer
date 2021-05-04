@@ -134,6 +134,8 @@ void RGBFramebufferModel::updateImage()
 
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
+
+            #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
                 const float r = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 0]);
                 const float g = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 1]);

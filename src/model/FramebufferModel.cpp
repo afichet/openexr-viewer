@@ -144,6 +144,8 @@ void FramebufferModel::updateImage()
 
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
+
+            #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
                 float value = m_pixelBuffer[y * m_width + x];
                 float RGB[3];

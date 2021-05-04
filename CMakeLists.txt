@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
+find_package(OpenMP)
+
 # OpenEXR 3.0 provides its own find_package
 find_package(Imath CONFIG)
 find_package(OpenEXR CONFIG)
@@ -96,3 +98,8 @@ target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})
+
+if((OpenMP_CXX_FOUND) OR (OpenMP_FOUND))
+    target_link_libraries(openexr-viewer PRIVATE OpenMP::OpenMP_CXX)
+#    target_link_libraries(openexr-viewer PRIVATE OpenMP::OpenMP_C)
+endif()
