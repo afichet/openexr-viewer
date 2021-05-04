@@ -58,12 +58,29 @@ FramebufferModel::FramebufferModel(
 
     // TODO viewport
 
-    m_pixelBuffer = new float[m_width * m_height];
+    Imf::Slice graySlice;
+    if (layerName == "BY" || layerName == "RY") {
+        m_width /= 2;
+        m_height /= 2;
 
-    Imf::Slice graySlice = Imf::Slice::Make(
+        m_pixelBuffer = new float[m_width * m_height];
+
+        // Luminance Chroma channels
+        graySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    m_pixelBuffer,
+                    dw,
+                    sizeof(float), m_width * sizeof(float),
+                    2, 2
+        );
+    } else {
+        m_pixelBuffer = new float[m_width * m_height];
+
+        graySlice = Imf::Slice::Make(
                 Imf::PixelType::FLOAT,
                 m_pixelBuffer,
                 dw);
+    }
 
     Imf::FrameBuffer framebuffer;
 
