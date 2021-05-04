@@ -226,7 +226,21 @@ void MainWindow::onDoubleClicked(const QModelIndex &index)
 }
 
 
+void MainWindow::on_action_Tabbed_triggered()
+{
+    m_mdiArea->setViewMode(QMdiArea::TabbedView);
+}
 
 
+void MainWindow::on_action_Cascade_triggered()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->cascadeSubWindows();
+}
 
 
+void MainWindow::on_action_Tiled_triggered()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->tileSubWindows();
+}

@@ -69,6 +69,12 @@ private:
 private slots:
     void onDoubleClicked(const QModelIndex &index);
 
+    void on_action_Tabbed_triggered();
+
+    void on_action_Cascade_triggered();
+
+    void on_action_Tiled_triggered();
+
 private:
     Ui::MainWindow *ui;
 
