@@ -1,9 +1,13 @@
 #include "OpenEXRHeaderItem.h"
 
 
-OpenEXRHeaderItem::OpenEXRHeaderItem(OpenEXRHeaderItem *parentItem, const QVector<QVariant> &data)
+OpenEXRHeaderItem::OpenEXRHeaderItem(OpenEXRHeaderItem *parentItem,
+        const QVector<QVariant> &data,
+        QString name, int partID)
     : m_itemData(data)
     , m_parentItem(parentItem)
+    , m_name(name)
+    , m_partID(partID)
 {
     // If not root item
     if (m_parentItem) {

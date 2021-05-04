@@ -19,12 +19,41 @@ set(PROJECT_SOURCES
         src/view/mainwindow.cpp
         src/view/mainwindow.h
         src/view/mainwindow.ui
+
+        src/view/GraphicsScene.cpp
+        src/view/GraphicsScene.h
+
+        src/view/GraphicsView.cpp
+        src/view/GraphicsView.h
+
+        src/view/RGBFramebufferWidget.cpp
+        src/view/RGBFramebufferWidget.h
+        src/view/RGBFramebufferWidget.ui
+
+        src/view/FramebufferWidget.cpp
+        src/view/FramebufferWidget.h
+        src/view/FramebufferWidget.ui
+
         src/model/OpenEXRImage.cpp
         src/model/OpenEXRImage.h
         src/model/OpenEXRLayerItem.cpp
         src/model/OpenEXRLayerItem.h
         src/model/OpenEXRHeaderItem.cpp
         src/model/OpenEXRHeaderItem.h
+
+        src/model/ImageModel.cpp
+        src/model/ImageModel.h
+
+        src/model/FramebufferModel.cpp
+        src/model/FramebufferModel.h
+
+        src/model/RGBFramebufferModel.cpp
+        src/model/RGBFramebufferModel.h
+
+        src/model/HeaderModel.cpp
+        src/model/HeaderModel.h
+
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

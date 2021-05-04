@@ -18,14 +18,15 @@ void OpenEXRLayerItem::addLeaf(const QString channelName, const Imf_3_0::Channel
 {
     OpenEXRLayerItem *leafNode = getAddLeaf(channelName);
     leafNode->m_channelPtr = leafChannel;
+    leafNode->m_channelName = channelName;
 }
 
 
-OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent) {
+OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID) {
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
         assert(m_channelPtr != nullptr);
-        return new OpenEXRHeaderItem(parent, {m_rootName, " ", "framebuffer"});
+        return new OpenEXRHeaderItem(parent, {m_rootName, " ", "framebuffer"}, m_channelName, partID);
     }
 
     // TODO: add + 1 if has a framebuffer
@@ -36,23 +37,23 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
         // It's a leaf...
         // Both are valid but I prefer the nested representation
         // OpenEXRItem* leafNode = new OpenEXRItem(parent, {m_rootName, "", "framebuffer"});
-        new OpenEXRHeaderItem(currRoot, {".", "", "framebuffer"});
+        new OpenEXRHeaderItem(currRoot, {".", "", "framebuffer"}, m_channelName, partID);
     }
 
     // If we find RGB final leaf, we make a virtual group
     if (hasRGBChilds()) {
         OpenEXRHeaderItem* rgbRoot = new OpenEXRHeaderItem(currRoot, {"RGB", "", "RGB framebuffer"});
-        new OpenEXRHeaderItem(rgbRoot, {"R", "", "framebuffer"});
-        new OpenEXRHeaderItem(rgbRoot, {"G", "", "framebuffer"});
-        new OpenEXRHeaderItem(rgbRoot, {"B", "", "framebuffer"});
+        new OpenEXRHeaderItem(rgbRoot, {"R", "", "framebuffer"}, m_childItems["R"]->m_channelName, partID);
+        new OpenEXRHeaderItem(rgbRoot, {"G", "", "framebuffer"}, m_childItems["G"]->m_channelName, partID);
+        new OpenEXRHeaderItem(rgbRoot, {"B", "", "framebuffer"}, m_childItems["B"]->m_channelName, partID);
 
         for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
             if ((it.key() != "R" && it.key() != "G" && it.key() != "B") || it.value()->getNChilds() != 0)
-                it.value()->constructItemHierarchy(currRoot);
+                it.value()->constructItemHierarchy(currRoot, partID);
         }
     } else {
         for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
-            it.value()->constructItemHierarchy(currRoot);
+            it.value()->constructItemHierarchy(currRoot, partID);
         }
     }
 

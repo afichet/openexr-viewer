@@ -14,7 +14,7 @@ public:
             const QString channelName,
             const Imf::Channel* leafChannel);
 
-    OpenEXRHeaderItem* constructItemHierarchy(OpenEXRHeaderItem* parent);
+    OpenEXRHeaderItem* constructItemHierarchy(OpenEXRHeaderItem* parent, int partID);
 
     size_t getNChilds() const;
 
@@ -31,4 +31,6 @@ private:
 
     const Imf::Channel* m_channelPtr;
     QString m_rootName;
+
+    QString m_channelName;
 };

@@ -40,6 +40,9 @@ private:
     void writeSettings();
     void readSettings();
 
+private slots:
+    void onDoubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
 
