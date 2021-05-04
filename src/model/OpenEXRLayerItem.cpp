@@ -41,7 +41,7 @@ OpenEXRLayerItem::~OpenEXRLayerItem()
 }
 
 
-void OpenEXRLayerItem::addLeaf(const QString channelName, const Imf_3_0::Channel *leafChannel)
+void OpenEXRLayerItem::addLeaf(const QString channelName, const Imf::Channel *leafChannel)
 {
     OpenEXRLayerItem *leafNode = getAddLeaf(channelName);
     leafNode->m_channelPtr = leafChannel;
