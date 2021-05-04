@@ -92,6 +92,8 @@ RGBFramebufferModel::RGBFramebufferModel(
     part.readPixels(dw.min.y, dw.max.y);
 
     updateImage();
+
+    emit imageLoaded(m_width, m_height);
 }
 
 RGBFramebufferModel::~RGBFramebufferModel()
@@ -154,7 +156,6 @@ void RGBFramebufferModel::updateImage()
         if (!m_imageLoadingWatcher->isCanceled()) {
             m_isImageLoaded = true;
 
-            emit imageLoaded(m_width, m_height);
             emit imageChanged();
         }
     });

@@ -127,6 +127,8 @@ void FramebufferModel::setColormap(const QString &value)
     m_cmap = ColormapModule::create(value.toLower().toStdString());
 
     updateImage();
+
+    emit imageLoaded(m_width, m_height);
 }
 
 void FramebufferModel::updateImage()
@@ -165,7 +167,6 @@ void FramebufferModel::updateImage()
         if (!m_imageLoadingWatcher->isCanceled()) {
             m_isImageLoaded = true;
 
-            emit imageLoaded(m_width, m_height);
             emit imageChanged();
         }
     });
