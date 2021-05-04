@@ -27,9 +27,10 @@
 //
 #include "OpenEXRImage.h"
 
-#include <ImfHeader.h>
-#include <ImfChannelList.h>
-#include <ImathBox.h>
+#include <OpenEXR/ImfHeader.h>
+#include <OpenEXR/ImfChannelList.h>
+
+#include <Imath/ImathBox.h>
 
 
 // TODO: Remove
