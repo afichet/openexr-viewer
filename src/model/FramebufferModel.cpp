@@ -59,6 +59,8 @@ FramebufferModel::FramebufferModel(
     // TODO viewport
 
     Imf::Slice graySlice;
+    // TODO: Check it that can be guess from the header
+    // also, check if this can be nested
     if (layerName == "BY" || layerName == "RY") {
         m_width /= 2;
         m_height /= 2;

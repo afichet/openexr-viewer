@@ -56,6 +56,7 @@ RGBFramebufferModel::RGBFramebufferModel(
     m_height = dw.max.y - dw.min.y + 1;
 
     // TODO viewport
+    // TODO Support Luminance Chroma & Y
 
     m_pixelBuffer = new float[3 * m_width * m_height];
 
