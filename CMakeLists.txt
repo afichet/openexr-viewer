@@ -96,6 +96,7 @@ endif()
 target_include_directories(openexr-viewer PRIVATE src)
 target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
 target_include_directories(openexr-viewer PRIVATE ${OpenEXR_INCLUDE_DIR})
+target_include_directories(openexr-viewer PRIVATE ${OpenEXR_INCLUDE_DIR}/OpenEXR)
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})
