@@ -42,7 +42,7 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
 
     // If we find RGB final leaf, we make a virtual group
     if (hasRGBChilds()) {
-        OpenEXRHeaderItem* rgbRoot = new OpenEXRHeaderItem(currRoot, {"RGB", "", "RGB framebuffer"});
+        OpenEXRHeaderItem* rgbRoot = new OpenEXRHeaderItem(currRoot, {"RGB", "", "RGB framebuffer"}, m_childItems["R"]->m_channelName.chopped(1), partID);
         new OpenEXRHeaderItem(rgbRoot, {"R", "", "framebuffer"}, m_childItems["R"]->m_channelName, partID);
         new OpenEXRHeaderItem(rgbRoot, {"G", "", "framebuffer"}, m_childItems["G"]->m_channelName, partID);
         new OpenEXRHeaderItem(rgbRoot, {"B", "", "framebuffer"}, m_childItems["B"]->m_channelName, partID);
