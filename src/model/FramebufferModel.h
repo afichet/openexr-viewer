@@ -37,6 +37,8 @@ public:
             const QString& layerName,
             QObject* parent = nullptr);
 
+    virtual ~FramebufferModel();
+
     const QString & getLayerName() const { return m_layer; }
     const int getPartId() const { return m_partID; }
 

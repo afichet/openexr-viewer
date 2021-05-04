@@ -26,31 +26,23 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #pragma once
+#include "Colormap.h"
 
-#include "ImageModel.h"
+#include <cstddef>
 
-class RGBFramebufferModel: public ImageModel {
-public:
-    RGBFramebufferModel(
-            Imf::MultiPartInputFile& file,
-            int partId,
-            const QString& parentLayerName,
-            QObject *parent = nullptr);
+class BBGRColorMap: public ColorMap
+{
+  public:
+    BBGRColorMap();
 
-    virtual ~RGBFramebufferModel();
+    virtual ~BBGRColorMap();
 
-    static float to_sRGB(float rgb_color);
+    virtual void getRGBValue(float v, float RGB[3]) const;
 
+    virtual void
+    getRGBValue(float v, float v_min, float v_max, float RGB[3]) const;
 
-public slots:
-    void setExposure(double value);
+    inline static float clamp(float v, float v_min = 0, float v_max = 1.f);
 
-protected:
-    void updateImage();
-
-private:
-    int m_partID;
-    QString m_parentLayer;
-
-    double m_exposure;
+    inline static float place(float v, float v_min, float v_max);
 };

@@ -94,6 +94,11 @@ RGBFramebufferModel::RGBFramebufferModel(
     updateImage();
 }
 
+RGBFramebufferModel::~RGBFramebufferModel()
+{
+
+}
+
 
 float RGBFramebufferModel::to_sRGB(float rgb_color)
 {

@@ -27,30 +27,18 @@
 //
 #pragma once
 
-#include "ImageModel.h"
+class ColorMap
+{
+  public:
+    ColorMap() {}
 
-class RGBFramebufferModel: public ImageModel {
-public:
-    RGBFramebufferModel(
-            Imf::MultiPartInputFile& file,
-            int partId,
-            const QString& parentLayerName,
-            QObject *parent = nullptr);
+    virtual ~ColorMap() {}
 
-    virtual ~RGBFramebufferModel();
+    virtual void getRGBValue(float v, float RGB[3]) const = 0;
 
-    static float to_sRGB(float rgb_color);
-
-
-public slots:
-    void setExposure(double value);
-
-protected:
-    void updateImage();
-
-private:
-    int m_partID;
-    QString m_parentLayer;
-
-    double m_exposure;
+    virtual void
+    getRGBValue(float v, float v_min, float v_max, float RGB[3]) const = 0;
+    // {
+    //     getRGBValue((v - v_min) / (v_max - v_min), RGB);
+    // }
 };

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(simple-exr-viewer LANGUAGES CXX)
+project(openexr-viewer LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -11,8 +11,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+
+# OpenEXR 3.0 provides its own find_package
 find_package(Imath CONFIG)
 find_package(OpenEXR CONFIG)
+
+if (OpenEXR_FOUND)
+    set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
+else()
+    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+    find_package(OpenEXR REQUIRED)
+endif()
+
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -43,10 +53,8 @@ set(PROJECT_SOURCES
 
         src/model/ImageModel.cpp
         src/model/ImageModel.h
-
         src/model/FramebufferModel.cpp
         src/model/FramebufferModel.h
-
         src/model/RGBFramebufferModel.cpp
         src/model/RGBFramebufferModel.h
 
@@ -54,28 +62,34 @@ set(PROJECT_SOURCES
         src/model/HeaderModel.h
 
 
+        src/util/Colormap.cpp
+        src/util/Colormap.h
+        src/util/TabulatedColormap.cpp
+        src/util/TabulatedColormap.h
+        src/util/BBGRColormap.cpp
+        src/util/BBGRColormap.h
+        src/util/YColormap.cpp
+        src/util/YColormap.h
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(simple-exr-viewer
+    qt_add_executable(openexr-viewer
         ${PROJECT_SOURCES}
     )
 else()
     if(ANDROID)
-        add_library(simple-exr-viewer SHARED
+        add_library(openexr-viewer SHARED
             ${PROJECT_SOURCES}
         )
     else()
-        add_executable(simple-exr-viewer
+        add_executable(openexr-viewer
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_include_directories(simple-exr-viewer PRIVATE src)
+target_include_directories(openexr-viewer PRIVATE src)
 
-target_link_libraries(simple-exr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(simple-exr-viewer
-    PRIVATE
-        OpenEXR::OpenEXR
-    )
+target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})

@@ -72,6 +72,11 @@ FramebufferModel::FramebufferModel(
     updateImage();
 }
 
+FramebufferModel::~FramebufferModel()
+{
+
+}
+
 void FramebufferModel::setMinValue(double value)
 {
     m_min = value;
