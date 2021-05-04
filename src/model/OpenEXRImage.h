@@ -18,11 +18,11 @@ public:
         return _headerModel;
     }
 
-    ImageModel* createImageModel(int partId, const QString& layer) {
+    FramebufferModel* createImageModel(int partId, const QString& layer) {
         return new FramebufferModel(m_exrIn, partId, layer);
     }
 
-    ImageModel* createRGBImageModel(int partId, const QString& parentLayer) {
+    RGBFramebufferModel* createRGBImageModel(int partId, const QString& parentLayer) {
         return new RGBFramebufferModel(m_exrIn, partId, parentLayer);
     }
 

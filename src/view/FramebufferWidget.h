@@ -2,7 +2,7 @@
 
 #include <QWidget>
 
-#include <model/ImageModel.h>
+#include <model/FramebufferModel.h>
 
 namespace Ui {
 class FramebufferWidget;
@@ -16,9 +16,15 @@ public:
     explicit FramebufferWidget(QWidget *parent = nullptr);
     ~FramebufferWidget();
 
-    void setModel(ImageModel* model);
+    void setModel(FramebufferModel* model);
+
+private slots:
+    void on_sbMinValue_valueChanged(double arg1);
+
+    void on_sbMaxValue_valueChanged(double arg1);
 
 private:
     Ui::FramebufferWidget *ui;
+    FramebufferModel* m_model;
 };
 

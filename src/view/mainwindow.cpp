@@ -45,8 +45,8 @@ MainWindow::~MainWindow()
 void MainWindow::open(QString filename)
 {
     if (m_img) {
-        m_treeView->setModel(nullptr);
         m_mdiArea->closeAllSubWindows();
+        m_treeView->setModel(nullptr);
         delete m_img;
         m_img = nullptr;
     }

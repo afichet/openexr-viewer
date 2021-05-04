@@ -12,7 +12,7 @@ public:
     virtual ~GraphicsView();
 
 public slots:
-    void setModel(ImageModel *model);
+    void setModel(const ImageModel *model);
 
     void onImageLoaded(int width, int height);
     void onImageChanged();
@@ -35,7 +35,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
 private:
-    ImageModel *         _model;
+    const ImageModel *         _model;
     QGraphicsPixmapItem *_imageItem;
 
     QVector<QGraphicsItem *> _chartItems;

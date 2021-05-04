@@ -22,11 +22,3 @@ ImageModel::~ImageModel()
 {
     delete[] m_pixelBuffer;
 }
-
-
-void ImageModel::setExposure(double value)
-{
-    // TODO
-
-    emit exposureChanged(value);
-}

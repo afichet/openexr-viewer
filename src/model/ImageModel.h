@@ -19,11 +19,7 @@ public:
   const QImage &getLoadedImage() const { return m_image; }
 
   void getAveragedPatches(std::vector<float> &values);
-
   bool isImageLoaded() const { return m_isImageLoaded; }
-
-public slots:
-  void setExposure(double value);
 
 signals:
   void imageChanged();
@@ -38,7 +34,7 @@ protected:
 
   int m_width, m_height;
 
-  bool    m_isImageLoaded;
+  bool m_isImageLoaded;
 
 //  QPolygonF          _macbethOutline;
 
