@@ -43,6 +43,7 @@ RGBFramebufferModel::RGBFramebufferModel(
         Imf::MultiPartInputFile &file,
         int partId,
         const QString &parentLayerName,
+        LayerType layerType,
         QObject *parent)
     : ImageModel(parent)
     , m_partID(partId)
@@ -56,40 +57,104 @@ RGBFramebufferModel::RGBFramebufferModel(
     m_height = dw.max.y - dw.min.y + 1;
 
     // TODO viewport
-    // TODO Support Luminance Chroma & Y
 
+    // TODO: optimize
     m_pixelBuffer = new float[3 * m_width * m_height];
 
-    QString rLayer = m_parentLayer + "R";
-    QString gLayer = m_parentLayer + "G";
-    QString bLayer = m_parentLayer + "B";
+    if (layerType == Layer_RGB) {
+        QString rLayer = m_parentLayer + "R";
+        QString gLayer = m_parentLayer + "G";
+        QString bLayer = m_parentLayer + "B";
 
-    Imf::FrameBuffer framebuffer;
+        Imf::FrameBuffer framebuffer;
 
-    Imf::Slice rSlice = Imf::Slice::Make(
-                Imf::PixelType::FLOAT,
-                &m_pixelBuffer[0],
-                dw,
-                3 * sizeof(float), 3 * m_width * sizeof(float));
+        Imf::Slice rSlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &m_pixelBuffer[0],
+                    dw,
+                    3 * sizeof(float), 3 * m_width * sizeof(float));
 
-    Imf::Slice gSlice = Imf::Slice::Make(
-                Imf::PixelType::FLOAT,
-                &m_pixelBuffer[1],
-                dw,
-                3 * sizeof(float), 3 * m_width * sizeof(float));
+        Imf::Slice gSlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &m_pixelBuffer[1],
+                    dw,
+                    3 * sizeof(float), 3 * m_width * sizeof(float));
 
-    Imf::Slice bSlice = Imf::Slice::Make(
-                Imf::PixelType::FLOAT,
-                &m_pixelBuffer[2],
-                dw,
-                3 * sizeof(float), 3 * m_width * sizeof(float));
+        Imf::Slice bSlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &m_pixelBuffer[2],
+                    dw,
+                    3 * sizeof(float), 3 * m_width * sizeof(float));
 
-    framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
-    framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
-    framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
+        framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
+        framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
+        framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
 
-    part.setFrameBuffer(framebuffer);
-    part.readPixels(dw.min.y, dw.max.y);
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(dw.min.y, dw.max.y);
+    } else if (layerType == Layer_YC) {
+        QString yLayer = m_parentLayer + "Y";
+        QString ryLayer = m_parentLayer + "RY";
+        QString byLayer = m_parentLayer + "BY";
+
+        Imf::FrameBuffer framebuffer;
+
+        float *yBuffer = new float[m_width * m_height];
+        float *ryBuffer = new float[m_width/2 * m_height/2];
+        float *byBuffer = new float[m_width/2 * m_height/2];
+
+        Imf::Slice ySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &yBuffer[0],
+                    dw,
+                    sizeof(float), m_width * sizeof(float));
+
+        Imf::Slice rySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &ryBuffer[0],
+                    dw,
+                    sizeof(float), m_width/2 * sizeof(float),
+                    2, 2);
+
+        Imf::Slice bySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &byBuffer[0],
+                    dw,
+                    sizeof(float), m_width/2 * sizeof(float),
+                    2, 2);
+
+        framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
+        framebuffer.insert(ryLayer.toStdString().c_str(), rySlice);
+        framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
+
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(dw.min.y, dw.max.y);
+
+        // Now recompute the image
+        // TODO: use chromaticities from header
+        #pragma omp parallel for
+        for (int y = 0; y < m_height; y++) {
+            for (int x = 0; x < m_width; x++) {
+                float l = yBuffer[y * m_width + x];
+                float ry = ryBuffer[y/2 * m_width/2 + x/2];
+                float by = byBuffer[y/2 * m_width/2 + x/2];
+
+                float r = (ry + 1.f) * l;
+                float b = (by + 1.f) * l;
+                float g = (l - 0.2126 * r - 0.0722 * b) / 0.7152;
+
+                m_pixelBuffer[3 * (y * m_width + x) + 0] = r;
+                m_pixelBuffer[3 * (y * m_width + x) + 1] = g;
+                m_pixelBuffer[3 * (y * m_width + x) + 2] = b;
+
+            }
+        }
+
+        delete[] yBuffer;
+        delete[] ryBuffer;
+        delete[] byBuffer;
+
+    }
 
     updateImage();
 

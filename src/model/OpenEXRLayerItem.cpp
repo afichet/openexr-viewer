@@ -67,6 +67,8 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
         new OpenEXRHeaderItem(currRoot, {".", "", "framebuffer"}, m_channelName, partID);
     }
 
+    QStringList ignoredKeys;
+
     // If we find RGB final leaf, we make a virtual group
     if (hasRGBChilds()) {
         OpenEXRHeaderItem* rgbRoot = new OpenEXRHeaderItem(currRoot, {"RGB", "", "RGB framebuffer"}, m_childItems["R"]->m_channelName.chopped(1), partID);
@@ -74,14 +76,27 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
         new OpenEXRHeaderItem(rgbRoot, {"G", "", "framebuffer"}, m_childItems["G"]->m_channelName, partID);
         new OpenEXRHeaderItem(rgbRoot, {"B", "", "framebuffer"}, m_childItems["B"]->m_channelName, partID);
 
-        for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
-            if ((it.key() != "R" && it.key() != "G" && it.key() != "B") || it.value()->getNChilds() != 0)
-                it.value()->constructItemHierarchy(currRoot, partID);
-        }
-    } else {
-        for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
+        ignoredKeys.append("R");
+        ignoredKeys.append("G");
+        ignoredKeys.append("B");
+    }
+
+    // Same for Luminance Chroma images
+    // Not an else, can be both
+    if (hasYCChilds()) {
+        OpenEXRHeaderItem* ycRoot = new OpenEXRHeaderItem(currRoot, {"YC", "", "YC framebuffer"}, m_childItems["Y"]->m_channelName.chopped(1), partID);
+        new OpenEXRHeaderItem(ycRoot, {"Y", "", "framebuffer"}, m_childItems["Y"]->m_channelName, partID);
+        new OpenEXRHeaderItem(ycRoot, {"RY", "", "framebuffer"}, m_childItems["RY"]->m_channelName, partID);
+        new OpenEXRHeaderItem(ycRoot, {"BY", "", "framebuffer"}, m_childItems["BY"]->m_channelName, partID);
+
+        ignoredKeys.append("Y");
+        ignoredKeys.append("RY");
+        ignoredKeys.append("BY");
+    }
+
+    for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
+        if (!ignoredKeys.contains(it.key()) || it.value()->getNChilds() != 0)
             it.value()->constructItemHierarchy(currRoot, partID);
-        }
     }
 
     return currRoot;
@@ -97,6 +112,13 @@ bool OpenEXRLayerItem::hasRGBChilds() const {
     return m_childItems.contains("R") && m_childItems["R"]->m_channelPtr
             && m_childItems.contains("G") && m_childItems["G"]->m_channelPtr
             && m_childItems.contains("B") && m_childItems["B"]->m_channelPtr;
+}
+
+bool OpenEXRLayerItem::hasYCChilds() const
+{
+    return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr
+        && m_childItems.contains("RY") && m_childItems["RY"]->m_channelPtr
+        && m_childItems.contains("BY") && m_childItems["BY"]->m_channelPtr;
 }
 
 

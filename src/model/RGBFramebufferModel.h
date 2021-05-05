@@ -31,10 +31,17 @@
 
 class RGBFramebufferModel: public ImageModel {
 public:
+    enum LayerType {
+        Layer_RGB,
+//        Layer_Y,
+        Layer_YC,
+    };
+
     RGBFramebufferModel(
             Imf::MultiPartInputFile& file,
             int partId,
             const QString& parentLayerName,
+            LayerType layerType = Layer_RGB,
             QObject *parent = nullptr);
 
     virtual ~RGBFramebufferModel();

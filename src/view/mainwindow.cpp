@@ -222,6 +222,32 @@ void MainWindow::onDoubleClicked(const QModelIndex &index)
             subWindow->setWindowTitle(title);
             subWindow->show();
         }
+    } else if (item->type() == "YC framebuffer") {
+        QString title =
+                QString("Part: ") + QString::number(item->getPartID()) + " " +
+                QString("Layer: ") + item->getName() + "YC";
+
+        // Check if the window already exists
+        bool windowExists = false;
+        for (auto& w: m_mdiArea->subWindowList()) {
+
+            if (w->windowTitle() == title) {
+                w->setFocus();
+                windowExists = true;
+                break;
+            }
+        }
+
+        // If the window does not exist yet, create it
+        if (!windowExists) {
+            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+            graphicView->setModel(m_img->createYCImageModel(item->getPartID(), item->getName()));
+
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        }
     }
 }
 

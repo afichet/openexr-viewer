@@ -50,7 +50,11 @@ public:
     }
 
     RGBFramebufferModel* createRGBImageModel(int partId, const QString& parentLayer) {
-        return new RGBFramebufferModel(m_exrIn, partId, parentLayer);
+        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_RGB);
+    }
+
+    RGBFramebufferModel* createYCImageModel(int partId, const QString& parentLayer) {
+        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_YC);
     }
 
 
