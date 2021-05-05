@@ -81,6 +81,7 @@ void MainWindow::open(QString filename)
     m_img = new OpenEXRImage(filename, m_treeView);
     m_treeView->setModel(m_img->getHeaderModel());
     m_treeView->expandAll();
+    m_treeView->resizeColumnToContents(0);
 }
 
 
