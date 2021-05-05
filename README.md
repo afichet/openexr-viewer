@@ -65,6 +65,8 @@ To help building on Windows, there is two scripts you can use:
 
 It will generate in `build/Release` a shipable binary.
 
+You will have to edit the script to specify the Qt installation folder.
+
 
 License
 =======
