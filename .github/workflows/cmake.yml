@@ -29,6 +29,26 @@ jobs:
       # uses: jurplel/install-qt-action@a10f4d43af43348aab618414b68a9d32cb008977
       uses: jurplel/install-qt-action@v2.13.2
     
+    - name: Install Imath
+      # Now this is quite dirty...
+    - run: |
+        git clone https://github.com/AcademySoftwareFoundation/Imath.git
+        cd Imath
+        mkdir build
+        cd build
+        cmake ..
+        sudo make install
+        
+    - name: Install OpenEXR
+      # Now this is quite dirty...
+    - run: |
+        git clone https://github.com/AcademySoftwareFoundation/openexr.git
+        cd openexr
+        mkdir build
+        cd build
+        cmake ..
+        sudo make install
+    
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
