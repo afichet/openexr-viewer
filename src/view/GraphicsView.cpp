@@ -160,7 +160,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (
-             (event->button() == Qt::MidButton)
+             (event->button() == Qt::MiddleButton)
              || (event->button() == Qt::LeftButton && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
     {
         QGraphicsView::mousePressEvent(event);
@@ -176,7 +176,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (
-             ((event->buttons() & Qt::MidButton) != 0U)
+             ((event->buttons() & Qt::MiddleButton) != 0U)
              || (((event->buttons() & Qt::LeftButton) != 0U) && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
     {
         QScrollBar *        hBar  = horizontalScrollBar();
