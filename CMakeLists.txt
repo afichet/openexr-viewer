@@ -18,20 +18,22 @@ find_package(OpenMP)
 find_package(Imath CONFIG)
 find_package(OpenEXR CONFIG)
 
-if (OpenEXR_FOUND)
+if (OpenEXR_FOUND AND Imath_FOUND)
     set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
 else()
+    set(IMATH_INSTALL OFF CACHE BOOL "" FORCE)
+    set(IMATH_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)
+    set(IMATH_INSTALL_SYM_LINK OFF CACHE BOOL "" FORCE)    
+
+    add_subdirectory(3rdparty/Imath)
+
     set(OPENEXR_BUILD_UTILS OFF CACHE BOOL "" FORCE)
     set(OPENEXR_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)    
     set(OPENEXR_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(OPENEXR_INSTALL_TOOLS OFF CACHE BOOL "" FORCE)
     set(OPENEXR_INSTALL OFF CACHE BOOL "" FORCE)
-    set(IMATH_INSTALL OFF CACHE BOOL "" FORCE)
-    set(IMATH_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)
-    set(IMATH_INSTALL_SYM_LINK OFF CACHE BOOL "" FORCE)    
 
     add_subdirectory(3rdparty/openexr)
-    add_subdirectory(3rdparty/Imath)
 
     set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
 endif()
