@@ -36,6 +36,8 @@
 #include <QDropEvent>
 
 #include <model/OpenEXRImage.h>
+#include <model/OpenEXRHeaderItem.h>
+#include <model/RGBFramebufferModel.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -65,6 +67,10 @@ private:
 
     void writeSettings();
     void readSettings();
+
+    void openItem(OpenEXRHeaderItem* item);
+
+    QString getTitle(int partId, const QString& layer) const;
 
 private slots:
     void onDoubleClicked(const QModelIndex &index);

@@ -47,6 +47,7 @@ public:
 
     bool hasRGBChilds() const;
     bool hasYCChilds() const;
+    bool hasYChild() const;
 
     QString getFullName() const;
 

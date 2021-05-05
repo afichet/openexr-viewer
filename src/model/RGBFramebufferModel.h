@@ -33,7 +33,7 @@ class RGBFramebufferModel: public ImageModel {
 public:
     enum LayerType {
         Layer_RGB,
-//        Layer_Y,
+        Layer_Y,
         Layer_YC,
     };
 

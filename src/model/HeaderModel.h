@@ -52,6 +52,10 @@ public:
 
     void addHeader(const Imf::Header &header, int part);
 
+    const std::vector<OpenEXRLayerItem*>& getLayers() const {
+        return m_partRootLayer;
+    }
+
 private:
     OpenEXRHeaderItem* addItem(
             const char* name,

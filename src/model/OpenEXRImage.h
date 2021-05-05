@@ -57,10 +57,13 @@ public:
         return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_YC);
     }
 
+    RGBFramebufferModel* createYImageModel(int partId, const QString& parentLayer) {
+        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_Y);
+    }
+
 
 private:
     Imf::MultiPartInputFile m_exrIn;
 
     HeaderModel* _headerModel;
-
 };

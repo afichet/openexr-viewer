@@ -53,12 +53,17 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
         assert(m_channelPtr != nullptr);
-        return new OpenEXRHeaderItem(parent, {m_rootName, " ", "framebuffer"}, m_channelName, partID);
+        return new OpenEXRHeaderItem(parent, {m_rootName, "", "framebuffer"}, m_channelName, partID);
     }
 
-    // TODO: add + 1 if has a framebuffer
-    OpenEXRHeaderItem* currRoot = new OpenEXRHeaderItem(
-                parent, {m_rootName, (int)getNChilds(), "channellist"});
+    OpenEXRHeaderItem* currRoot = nullptr;
+
+    // Avoid empty root on top level
+    if (m_parentItem) {
+        currRoot = new OpenEXRHeaderItem(parent, {m_rootName, (int)getNChilds(), "channellist"});
+    } else {
+        currRoot = parent;
+    }
 
     if (m_channelPtr) {
         // It's a leaf...
@@ -92,6 +97,9 @@ OpenEXRHeaderItem *OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *p
         ignoredKeys.append("Y");
         ignoredKeys.append("RY");
         ignoredKeys.append("BY");
+    } else if (hasYChild()) {
+        new OpenEXRHeaderItem(currRoot, {"Y", "", "Luminance framebuffer"}, m_childItems["Y"]->m_channelName.chopped(1), partID);
+        ignoredKeys.append("Y");
     }
 
     for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
@@ -114,11 +122,17 @@ bool OpenEXRLayerItem::hasRGBChilds() const {
             && m_childItems.contains("B") && m_childItems["B"]->m_channelPtr;
 }
 
+
 bool OpenEXRLayerItem::hasYCChilds() const
 {
     return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr
         && m_childItems.contains("RY") && m_childItems["RY"]->m_channelPtr
         && m_childItems.contains("BY") && m_childItems["BY"]->m_channelPtr;
+}
+
+
+bool OpenEXRLayerItem::hasYChild() const {
+    return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr;
 }
 
 

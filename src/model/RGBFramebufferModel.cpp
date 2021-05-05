@@ -153,7 +153,29 @@ RGBFramebufferModel::RGBFramebufferModel(
         delete[] yBuffer;
         delete[] ryBuffer;
         delete[] byBuffer;
+    } else if (layerType == Layer_Y) {
+        QString yLayer = m_parentLayer + "Y";
 
+        Imf::FrameBuffer framebuffer;
+
+        Imf::Slice ySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    &m_pixelBuffer[0],
+                    dw,
+                    3 * sizeof(float), 3 * m_width * sizeof(float));
+
+        framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
+
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(dw.min.y, dw.max.y);
+
+        #pragma omp parallel for
+        for (int y = 0; y < m_height; y++) {
+            for (int x = 0; x < m_width; x++) {
+                m_pixelBuffer[3 * (y * m_width + x) + 1] = m_pixelBuffer[3 * (y * m_width + x) + 0];
+                m_pixelBuffer[3 * (y * m_width + x) + 2] = m_pixelBuffer[3 * (y * m_width + x) + 0];
+            }
+        }
     }
 
     updateImage();

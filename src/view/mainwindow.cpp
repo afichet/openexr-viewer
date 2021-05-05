@@ -37,6 +37,9 @@
 #include "RGBFramebufferWidget.h"
 #include "FramebufferWidget.h"
 
+#include <model/HeaderModel.h>
+#include <model/OpenEXRLayerItem.h>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -82,6 +85,41 @@ void MainWindow::open(QString filename)
     m_treeView->setModel(m_img->getHeaderModel());
     m_treeView->expandAll();
     m_treeView->resizeColumnToContents(0);
+
+    // Detect if there is a root RGB or YC layer group
+    if (m_img->getHeaderModel()->getLayers().size() > 0) {
+        if(m_img->getHeaderModel()->getLayers()[0]->hasRGBChilds()) {
+            QString title = getTitle(0, "RGB");
+
+            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+            graphicView->setModel(m_img->createRGBImageModel(0, m_img->getHeaderModel()->getLayers()[0]->getFullName()));
+
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        } else if (m_img->getHeaderModel()->getLayers()[0]->hasYCChilds()) {
+            QString title = getTitle(0, "YC");
+
+            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+            graphicView->setModel(m_img->createRGBImageModel(0, m_img->getHeaderModel()->getLayers()[0]->getFullName()));
+
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        } else if (m_img->getHeaderModel()->getLayers()[0]->hasYChild()) {
+            QString title = getTitle(0, "Y");
+
+            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+            graphicView->setModel(m_img->createRGBImageModel(0, m_img->getHeaderModel()->getLayers()[0]->getFullName()));
+
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        }
+    }
 }
 
 
@@ -167,19 +205,14 @@ void MainWindow::readSettings()
     settings.endGroup();
 }
 
-void MainWindow::onDoubleClicked(const QModelIndex &index)
+void MainWindow::openItem(OpenEXRHeaderItem *item)
 {
-    OpenEXRHeaderItem* item = static_cast<OpenEXRHeaderItem*>(index.internalPointer());
-
     if (item->type() == "framebuffer") {
-        QString title =
-                QString("Part: ") + QString::number(item->getPartID()) + " " +
-                QString("Layer: ") + item->getName();
+        QString title = getTitle(item->getPartID(), item->getName() + "RGB");
 
         // Check if the window already exists
         bool windowExists = false;
         for (auto& w: m_mdiArea->subWindowList()) {
-
             if (w->windowTitle() == title) {
                 w->setFocus();
                 windowExists = true;
@@ -198,40 +231,13 @@ void MainWindow::onDoubleClicked(const QModelIndex &index)
             subWindow->show();
         }
     } else if (item->type() == "RGB framebuffer") {
-        QString title =
-                QString("Part: ") + QString::number(item->getPartID()) + " " +
-                QString("Layer: ") + item->getName() + "RGB";
 
-        // Check if the window already exists
-        bool windowExists = false;
-        for (auto& w: m_mdiArea->subWindowList()) {
-
-            if (w->windowTitle() == title) {
-                w->setFocus();
-                windowExists = true;
-                break;
-            }
-        }
-
-        // If the window does not exist yet, create it
-        if (!windowExists) {
-            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-            graphicView->setModel(m_img->createRGBImageModel(item->getPartID(), item->getName()));
-
-            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
-
-            subWindow->setWindowTitle(title);
-            subWindow->show();
-        }
     } else if (item->type() == "YC framebuffer") {
-        QString title =
-                QString("Part: ") + QString::number(item->getPartID()) + " " +
-                QString("Layer: ") + item->getName() + "YC";
+        QString title = getTitle(item->getPartID(), item->getName() + "YC");
 
         // Check if the window already exists
         bool windowExists = false;
         for (auto& w: m_mdiArea->subWindowList()) {
-
             if (w->windowTitle() == title) {
                 w->setFocus();
                 windowExists = true;
@@ -249,7 +255,45 @@ void MainWindow::onDoubleClicked(const QModelIndex &index)
             subWindow->setWindowTitle(title);
             subWindow->show();
         }
+    } else if (item->type() == "Luminance framebuffer") {
+        QString title = getTitle(item->getPartID(), item->getName() + "Y");
+
+        // Check if the window already exists
+        bool windowExists = false;
+        for (auto& w: m_mdiArea->subWindowList()) {
+            if (w->windowTitle() == title) {
+                w->setFocus();
+                windowExists = true;
+                break;
+            }
+        }
+
+        // If the window does not exist yet, create it
+        if (!windowExists) {
+            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+            graphicView->setModel(m_img->createYImageModel(item->getPartID(), item->getName()));
+
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        }
     }
+}
+
+QString MainWindow::getTitle(int partId, const QString &layer) const
+{
+    QString title =
+            QString("Part: ") + QString::number(partId) + " " +
+            QString("Layer: ") + layer;
+}
+
+
+
+void MainWindow::onDoubleClicked(const QModelIndex &index)
+{
+    OpenEXRHeaderItem* item = static_cast<OpenEXRHeaderItem*>(index.internalPointer());
+    openItem(item);
 }
 
 
