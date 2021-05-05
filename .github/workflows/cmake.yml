@@ -20,15 +20,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
+    - run: |
+        git submodule init
+        git submodule update
+        
     - name: Install Qt
       # You may pin to the exact commit or the version.
       # uses: jurplel/install-qt-action@a10f4d43af43348aab618414b68a9d32cb008977
       uses: jurplel/install-qt-action@v2.13.2
-      
-    - name: Install dependencies
-      run: sudo apt install libopenexr-dev
-
+    
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
