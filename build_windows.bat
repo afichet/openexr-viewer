@@ -7,7 +7,7 @@ cmake .. ^
   -DOpenEXR_DIR="%~dp0\build\depends\lib\lib\cmake\OpenEXR"^
   -DCMAKE_INSTALL_PREFIX="%~dp0\build\install"
 
-cmake --build . --target install --config Release
+cmake --build . --config Release
 
-cp .\depends\lib\bin\*.dll Release
+xcopy .\depends\lib\bin\*.dll Release
 C:\Qt\6.0.1\msvc2019_64\bin\windeployqt Release/openexr-viewer.exe

@@ -91,18 +91,28 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(openexr-viewer
-        ${PROJECT_SOURCES}
-    )
+    if (WIN32)
+        qt_add_executable(openexr-viewer WIN32
+            ${PROJECT_SOURCES}
+        )
+    else()
+        qt_add_executable(openexr-viewer
+            ${PROJECT_SOURCES}
+        )
+    endif()
 else()
     if(ANDROID)
         add_library(openexr-viewer SHARED
             ${PROJECT_SOURCES}
         )
+    elseif(WIN32)
+        add_executable(openexr-viewer WIN32
+            ${PROJECT_SOURCES}
+        )
     else()
         add_executable(openexr-viewer
             ${PROJECT_SOURCES}
-        )
+        )    
     endif()
 endif()
 
