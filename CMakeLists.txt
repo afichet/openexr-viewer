@@ -99,7 +99,7 @@ target_include_directories(openexr-viewer PRIVATE src)
 target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})
+target_link_libraries(openexr-viewer PRIVATE Imath::Imath OpenEXR::OpenEXR)
 
 if((OpenMP_CXX_FOUND) OR (OpenMP_FOUND))
     target_link_libraries(openexr-viewer PRIVATE OpenMP::OpenMP_CXX)
