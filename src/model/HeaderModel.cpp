@@ -177,7 +177,6 @@ void HeaderModel::addHeader(const Imf_3_0::Header &header, int part)
                 {"OpenEXR Image", part, "part"}
                 );
 
-
     m_partRootLayer[part] = nullptr;
 
     size_t n_headerFields = 0;
@@ -407,6 +406,9 @@ OpenEXRHeaderItem *HeaderModel::addItem(
     else if (strcmp(type, Imf::V3dAttribute::staticTypeName()) == 0) {
         auto attr = Imf::V3dAttribute::cast(attribute);
         ss << attr.value();
+    }
+    else {
+        ss << "Unsupported";
     }
 
     QVector<QVariant> itemData = {name, QString(ss.str().c_str()), type};
