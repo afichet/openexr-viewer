@@ -3,7 +3,6 @@
 #include <QAbstractItemModel>
 
 #include <OpenEXR/ImfHeader.h>
-#include <OpenEXR/ImfAttribute.h>
 
 #include <model/OpenEXRHeaderItem.h>
 //
