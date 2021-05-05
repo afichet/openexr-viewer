@@ -1,6 +1,0 @@
-[submodule "3rdparty/Imath"]
-	path = 3rdparty/Imath
-	url = https://github.com/AcademySoftwareFoundation/Imath.git
-[submodule "3rdparty/openexr"]
-	path = 3rdparty/openexr
-	url = https://github.com/AcademySoftwareFoundation/openexr.git
