@@ -21,8 +21,19 @@ find_package(OpenEXR CONFIG)
 if (OpenEXR_FOUND)
     set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
 else()
-    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-    find_package(OpenEXR REQUIRED)
+    set(OPENEXR_BUILD_UTILS OFF CACHE BOOL "" FORCE)
+    set(OPENEXR_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)    
+    set(OPENEXR_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(OPENEXR_INSTALL_TOOLS OFF CACHE BOOL "" FORCE)
+    set(OPENEXR_INSTALL OFF CACHE BOOL "" FORCE)
+    set(IMATH_INSTALL OFF CACHE BOOL "" FORCE)
+    set(IMATH_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)
+    set(IMATH_INSTALL_SYM_LINK OFF CACHE BOOL "" FORCE)    
+
+    add_subdirectory(3rdparty/openexr)
+    add_subdirectory(3rdparty/Imath)
+
+    set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
 endif()
 
 
@@ -95,8 +106,6 @@ endif()
 
 target_include_directories(openexr-viewer PRIVATE src)
 target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
-target_include_directories(openexr-viewer PRIVATE ${OpenEXR_INCLUDE_DIR})
-target_include_directories(openexr-viewer PRIVATE ${OpenEXR_INCLUDE_DIR}/OpenEXR)
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(openexr-viewer PRIVATE ${OpenEXR_LIBRARIES})
