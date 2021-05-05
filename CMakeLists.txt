@@ -14,30 +14,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 find_package(OpenMP)
 
-# OpenEXR 3.0 provides its own find_package
-find_package(Imath CONFIG)
-find_package(OpenEXR CONFIG)
-
-if (OpenEXR_FOUND AND Imath_FOUND)
-    set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
-else()
-    set(IMATH_INSTALL OFF CACHE BOOL "" FORCE)
-    set(IMATH_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)
-    set(IMATH_INSTALL_SYM_LINK OFF CACHE BOOL "" FORCE)    
-
-    add_subdirectory(3rdparty/Imath)
-
-    set(OPENEXR_BUILD_UTILS OFF CACHE BOOL "" FORCE)
-    set(OPENEXR_INSTALL_PKG_CONFIG OFF CACHE BOOL "" FORCE)    
-    set(OPENEXR_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
-    set(OPENEXR_INSTALL_TOOLS OFF CACHE BOOL "" FORCE)
-    set(OPENEXR_INSTALL OFF CACHE BOOL "" FORCE)
-
-    add_subdirectory(3rdparty/openexr)
-
-    set(OpenEXR_LIBRARIES OpenEXR::OpenEXR Imath::Imath)
-endif()
-
+# Those are provided by Imath and OpenEXR 3.0
+find_package(Imath REQUIRED)
+find_package(OpenEXR REQUIRED)
 
 set(PROJECT_SOURCES
         src/main.cpp
