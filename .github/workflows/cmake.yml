@@ -31,7 +31,7 @@ jobs:
     
     - name: Install Imath
       # Now this is quite dirty...
-    - run: |
+      run: |
         git clone https://github.com/AcademySoftwareFoundation/Imath.git
         cd Imath
         mkdir build
@@ -41,7 +41,7 @@ jobs:
         
     - name: Install OpenEXR
       # Now this is quite dirty...
-    - run: |
+      run: |
         git clone https://github.com/AcademySoftwareFoundation/openexr.git
         cd openexr
         mkdir build
