@@ -9,6 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(GNUInstallDirs)
+
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
@@ -104,4 +106,17 @@ target_link_libraries(openexr-viewer PRIVATE Imath::Imath OpenEXR::OpenEXR)
 if((OpenMP_CXX_FOUND) OR (OpenMP_FOUND))
     target_link_libraries(openexr-viewer PRIVATE OpenMP::OpenMP_CXX)
 #    target_link_libraries(openexr-viewer PRIVATE OpenMP::OpenMP_C)
+endif()
+
+# Install
+
+install(TARGETS openexr-viewer)
+
+if(UNIX AND NOT APPLE)
+    install(
+      FILES deploy/linux/openexr-viewer.desktop
+      DESTINATION share/applications)
+    install(
+      FILES deploy/linux/openexr-viewer.xml
+      DESTINATION share/mime/packages)
 endif()
