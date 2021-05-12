@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(openexr-viewer LANGUAGES CXX)
+project(openexr-viewer 
+    VERSION 0.1.1
+    DESCRIPTION "Simple Viewer for OpenEXR files with detailed metadata display"
+    HOMEPAGE_URL "https://github.com/afichet/openexr-viewer"
+    LANGUAGES CXX 
+    )
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -19,6 +24,8 @@ find_package(OpenMP)
 # Those are provided by Imath and OpenEXR 3.0
 find_package(Imath REQUIRED)
 find_package(OpenEXR REQUIRED)
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -56,7 +63,6 @@ set(PROJECT_SOURCES
 
         src/model/HeaderModel.cpp
         src/model/HeaderModel.h
-
 
         src/util/Colormap.cpp
         src/util/Colormap.h
@@ -111,15 +117,44 @@ endif()
 # Install
 
 install(TARGETS openexr-viewer)
+install(
+    FILES $<TARGET_FILE:Imath::Imath>
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(
+    FILES $<TARGET_FILE:OpenEXR::OpenEXR>
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 if(UNIX AND NOT APPLE)
     install(
-      FILES deploy/linux/openexr-viewer.desktop
-      DESTINATION share/applications)
+        FILES deploy/linux/openexr-viewer.desktop
+        DESTINATION share/applications
+    )
     install(
-      FILES deploy/linux/openexr-viewer.xml
-      DESTINATION share/mime/packages)
+        FILES deploy/linux/openexr-viewer.xml
+        DESTINATION share/mime/packages
+    )
     install(
-      FILES deploy/icon/openexr-viewer.png
-      DESTINATION share/pixmaps)
+        FILES deploy/icon/openexr-viewer.png
+        DESTINATION share/pixmaps
+    )
+elseif(WIN32)
+    include(Windeployqt)
+    windeployqt(openexr-viewer ${CMAKE_INSTALL_LIBDIR})
 endif()
+
+
+# CPack
+include(CPack)
+
+# set(CPACK_PACKAGE_NAME "OpenEXR Viewer")
+# set(CPACK_PACKAGE_VENDOR "")
+set(CPACK_PACKAGE_DESCRIPTION "Simple Viewer for OpenEXR files with detailed metadata display")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenEXR Viewer")
+# set(CPACK_PACKAGE_ICON "")
+# set(CPACK_PACKAGE_CHECKSUM "SHA512")
+set(CPACK_RESOURCE_FILE_LICENSE "LICENSE")
+# set(CPACK_RESOURCE_FILE_README "README.md")
+set(CPACK_MONOLITHIC_INSTALL True)
+set(CPACK_PACKAGE_EXECUTABLES "openexr-viewer;OpenEXR Viewer")
