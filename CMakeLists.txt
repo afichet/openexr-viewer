@@ -119,4 +119,7 @@ if(UNIX AND NOT APPLE)
     install(
       FILES deploy/linux/openexr-viewer.xml
       DESTINATION share/mime/packages)
+    install(
+      FILES deploy/icon/openexr-viewer.png
+      DESTINATION share/pixmaps)
 endif()
