@@ -14,6 +14,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+cmake_policy(SET CMP0074 NEW)
+
 include(GNUInstallDirs)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
@@ -75,6 +77,7 @@ set(PROJECT_SOURCES
         src/util/ColormapModule.h
         src/util/ColormapModule.cpp
 
+        openexr-viewer.rc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -140,8 +143,8 @@ if(UNIX AND NOT APPLE)
         DESTINATION share/pixmaps
     )
 elseif(WIN32)
-    include(Windeployqt)
-    windeployqt(openexr-viewer ${CMAKE_INSTALL_LIBDIR})
+    # include(Windeployqt)
+    # windeployqt(openexr-viewer ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 
