@@ -61,33 +61,9 @@ protected:
     void dropEvent(QDropEvent *ev) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
-    virtual void drawBackground(QPainter *painter, const QRectF &rect) override
-    {
-        int polySize = 16;
+    virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
 
-        QBrush a0(QColor(200, 200, 200));
-        QBrush a1(QColor(255, 255, 255));
-
-        painter->setPen(Qt::NoPen);
-
-        for (int i = 0; i < width()/polySize; i++) {
-            const int x = i * polySize;
-
-            for (int j = 0; j < height()/polySize; j++) {
-                const int y = j * polySize;
-
-                QPolygonF rect = mapToScene(QRect(x, y, polySize, polySize));
-
-                if ((i+j)%2 == 0) {
-                    painter->setBrush(a0);
-                } else {
-                    painter->setBrush(a1);
-                }
-
-                painter->drawPolygon(rect);
-            }
-        }
-    }
+    virtual void scrollContentsBy(int dx, int dy) override;
 
 private:
     const ImageModel *_model;

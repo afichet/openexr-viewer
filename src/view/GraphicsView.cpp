@@ -158,8 +158,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if ((event->button() == Qt::MiddleButton)
-     || (event->button() == Qt::LeftButton))
-    {
+     || (event->button() == Qt::LeftButton)) {
         QGraphicsView::mousePressEvent(event);
         setCursor(Qt::ClosedHandCursor);
         _startDrag = event->pos();
@@ -173,8 +172,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (((event->buttons() & Qt::MiddleButton) != 0U)
-     || ((event->buttons() & Qt::LeftButton) != 0U))
-    {
+     || ((event->buttons() & Qt::LeftButton) != 0U)) {
         QScrollBar *        hBar  = horizontalScrollBar();
         QScrollBar *        vBar  = verticalScrollBar();
         QPoint              delta = event->pos() - _startDrag;
@@ -202,8 +200,7 @@ void GraphicsView::dropEvent(QDropEvent *ev)
 
     QList<QUrl> urls = ev->mimeData()->urls();
 
-    if (!urls.empty())
-    {
+    if (!urls.empty()) {
         QString fileName = urls[0].toString();
         QString startFileTypeString =
         #ifdef _WIN32
@@ -212,8 +209,7 @@ void GraphicsView::dropEvent(QDropEvent *ev)
                 "file://";
 #endif
 
-        if (fileName.startsWith(startFileTypeString))
-        {
+        if (fileName.startsWith(startFileTypeString)) {
             fileName = fileName.remove(0, startFileTypeString.length());
 //            _model->openFile(fileName);
             // TODO
@@ -225,4 +221,41 @@ void GraphicsView::dropEvent(QDropEvent *ev)
 void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
 {
     ev->acceptProposedAction();
+}
+
+
+void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    const int polySize = 16;
+
+    QBrush a0(QColor(200, 200, 200));
+    QBrush a1(QColor(255, 255, 255));
+
+    painter->resetTransform();
+    painter->setPen(Qt::NoPen);
+
+    for (int i = 0; i < width()/polySize; i++) {
+        const int x = i * polySize;
+
+        for (int j = 0; j < height()/polySize; j++) {
+            const int y = j * polySize;
+
+            if ((i+j)%2 == 0) {
+                painter->setBrush(a0);
+            } else {
+                painter->setBrush(a1);
+            }
+
+            painter->drawPolygon(QRect(x, y, polySize, polySize));
+        }
+    }
+}
+
+
+void GraphicsView::scrollContentsBy(int dx, int dy)
+{
+    QGraphicsView::scrollContentsBy(dx, dy);
+
+    // Problem with background drawing if not doing that...
+    scene()->invalidate();
 }
