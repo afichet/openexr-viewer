@@ -38,13 +38,18 @@ public:
     };
 
     RGBFramebufferModel(
-            Imf::MultiPartInputFile& file,
-            int partId,
-            const QString& parentLayerName,
-            LayerType layerType = Layer_RGB,
-            QObject *parent = nullptr);
+        const QString& parentLayerName,
+        LayerType layerType = Layer_RGB,
+        QObject *parent = nullptr
+    );
 
     virtual ~RGBFramebufferModel();
+
+    virtual void load(
+        Imf::MultiPartInputFile& file,
+        int partId,
+        bool hasAlpha = false
+    );
 
     static float to_sRGB(float rgb_color);
 
@@ -58,6 +63,6 @@ protected:
 private:
     int m_partID;
     QString m_parentLayer;
-
+    LayerType m_layerType;
     double m_exposure;
 };

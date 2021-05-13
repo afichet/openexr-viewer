@@ -40,152 +40,191 @@
 
 
 RGBFramebufferModel::RGBFramebufferModel(
-        Imf::MultiPartInputFile &file,
-        int partId,
-        const QString &parentLayerName,
+        const QString& parentLayerName,
         LayerType layerType,
         QObject *parent)
     : ImageModel(parent)
-    , m_partID(partId)
     , m_parentLayer(parentLayerName)
+    , m_layerType(layerType)
     , m_exposure(0.)
-{
-    Imf::InputPart part(file, partId);
+{}
 
-    Imath::Box2i dw = part.header().dataWindow();
-    m_width  = dw.max.x - dw.min.x + 1;
-    m_height = dw.max.y - dw.min.y + 1;
-
-    // TODO viewport
-
-    // TODO: optimize
-    m_pixelBuffer = new float[3 * m_width * m_height];
-
-    if (layerType == Layer_RGB) {
-        QString rLayer = m_parentLayer + "R";
-        QString gLayer = m_parentLayer + "G";
-        QString bLayer = m_parentLayer + "B";
-
-        Imf::FrameBuffer framebuffer;
-
-        Imf::Slice rSlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &m_pixelBuffer[0],
-                    dw,
-                    3 * sizeof(float), 3 * m_width * sizeof(float));
-
-        Imf::Slice gSlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &m_pixelBuffer[1],
-                    dw,
-                    3 * sizeof(float), 3 * m_width * sizeof(float));
-
-        Imf::Slice bSlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &m_pixelBuffer[2],
-                    dw,
-                    3 * sizeof(float), 3 * m_width * sizeof(float));
-
-        framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
-        framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
-        framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
-
-        part.setFrameBuffer(framebuffer);
-        part.readPixels(dw.min.y, dw.max.y);
-    } else if (layerType == Layer_YC) {
-        QString yLayer = m_parentLayer + "Y";
-        QString ryLayer = m_parentLayer + "RY";
-        QString byLayer = m_parentLayer + "BY";
-
-        Imf::FrameBuffer framebuffer;
-
-        float *yBuffer = new float[m_width * m_height];
-        float *ryBuffer = new float[m_width/2 * m_height/2];
-        float *byBuffer = new float[m_width/2 * m_height/2];
-
-        Imf::Slice ySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &yBuffer[0],
-                    dw,
-                    sizeof(float), m_width * sizeof(float));
-
-        Imf::Slice rySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &ryBuffer[0],
-                    dw,
-                    sizeof(float), m_width/2 * sizeof(float),
-                    2, 2);
-
-        Imf::Slice bySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &byBuffer[0],
-                    dw,
-                    sizeof(float), m_width/2 * sizeof(float),
-                    2, 2);
-
-        framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
-        framebuffer.insert(ryLayer.toStdString().c_str(), rySlice);
-        framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
-
-        part.setFrameBuffer(framebuffer);
-        part.readPixels(dw.min.y, dw.max.y);
-
-        // Now recompute the image
-        // TODO: use chromaticities from header
-        #pragma omp parallel for
-        for (int y = 0; y < m_height; y++) {
-            for (int x = 0; x < m_width; x++) {
-                float l = yBuffer[y * m_width + x];
-                float ry = ryBuffer[y/2 * m_width/2 + x/2];
-                float by = byBuffer[y/2 * m_width/2 + x/2];
-
-                float r = (ry + 1.f) * l;
-                float b = (by + 1.f) * l;
-                float g = (l - 0.2126 * r - 0.0722 * b) / 0.7152;
-
-                m_pixelBuffer[3 * (y * m_width + x) + 0] = r;
-                m_pixelBuffer[3 * (y * m_width + x) + 1] = g;
-                m_pixelBuffer[3 * (y * m_width + x) + 2] = b;
-
-            }
-        }
-
-        delete[] yBuffer;
-        delete[] ryBuffer;
-        delete[] byBuffer;
-    } else if (layerType == Layer_Y) {
-        QString yLayer = m_parentLayer + "Y";
-
-        Imf::FrameBuffer framebuffer;
-
-        Imf::Slice ySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    &m_pixelBuffer[0],
-                    dw,
-                    3 * sizeof(float), 3 * m_width * sizeof(float));
-
-        framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
-
-        part.setFrameBuffer(framebuffer);
-        part.readPixels(dw.min.y, dw.max.y);
-
-        #pragma omp parallel for
-        for (int y = 0; y < m_height; y++) {
-            for (int x = 0; x < m_width; x++) {
-                m_pixelBuffer[3 * (y * m_width + x) + 1] = m_pixelBuffer[3 * (y * m_width + x) + 0];
-                m_pixelBuffer[3 * (y * m_width + x) + 2] = m_pixelBuffer[3 * (y * m_width + x) + 0];
-            }
-        }
-    }
-
-    updateImage();
-
-    emit imageLoaded(m_width, m_height);
-}
 
 RGBFramebufferModel::~RGBFramebufferModel()
-{
+{}
 
+
+void RGBFramebufferModel::load(
+    Imf::MultiPartInputFile& file,
+    int partId,
+    bool hasAlpha)
+{
+    QFuture<void> imageLoading = QtConcurrent::run([&]() {
+        Imf::InputPart part(file, partId);
+
+        Imath::Box2i dw = part.header().dataWindow();
+        m_width  = dw.max.x - dw.min.x + 1;
+        m_height = dw.max.y - dw.min.y + 1;
+
+        // TODO viewport
+
+        m_pixelBuffer = new float[4 * m_width * m_height];
+        memset(m_pixelBuffer, 1, 4 * m_width * m_height * sizeof(float));
+
+        // Check if there is alpha channel
+        if (hasAlpha) {
+            QString aLayer = m_parentLayer + "A";
+            Imf::FrameBuffer framebuffer;
+
+            Imf::Slice aSlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[3],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            framebuffer.insert(aLayer.toStdString(), aSlice);
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+        } else {
+            for (int y = 0; y < m_height; y++) {
+                for (int x = 0; x < m_width; x++) {
+                    m_pixelBuffer[4 * (y * m_width + x) + 3] = 1.f;
+                }
+            }
+        }
+
+        switch(m_layerType) {
+        case Layer_RGB: {
+            QString rLayer = m_parentLayer + "R";
+            QString gLayer = m_parentLayer + "G";
+            QString bLayer = m_parentLayer + "B";
+
+            Imf::FrameBuffer framebuffer;
+
+            Imf::Slice rSlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[0],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            Imf::Slice gSlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[1],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            Imf::Slice bSlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[2],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
+            framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
+            framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
+
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+        }
+        break;
+
+        case Layer_YC: {
+            QString yLayer = m_parentLayer + "Y";
+            QString ryLayer = m_parentLayer + "RY";
+            QString byLayer = m_parentLayer + "BY";
+
+            Imf::FrameBuffer framebuffer;
+
+            float *yBuffer = new float[m_width * m_height];
+            float *ryBuffer = new float[m_width/2 * m_height/2];
+            float *byBuffer = new float[m_width/2 * m_height/2];
+
+            Imf::Slice ySlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &yBuffer[0],
+                        dw,
+                        sizeof(float), m_width * sizeof(float));
+
+            Imf::Slice rySlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &ryBuffer[0],
+                        dw,
+                        sizeof(float), m_width/2 * sizeof(float),
+                        2, 2);
+
+            Imf::Slice bySlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &byBuffer[0],
+                        dw,
+                        sizeof(float), m_width/2 * sizeof(float),
+                        2, 2);
+
+            framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
+            framebuffer.insert(ryLayer.toStdString().c_str(), rySlice);
+            framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
+
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+
+            // Now recompute the image
+            // TODO: use chromaticities from header
+            #pragma omp parallel for
+            for (int y = 0; y < m_height; y++) {
+                for (int x = 0; x < m_width; x++) {
+                    float l = yBuffer[y * m_width + x];
+                    float ry = ryBuffer[y/2 * m_width/2 + x/2];
+                    float by = byBuffer[y/2 * m_width/2 + x/2];
+
+                    float r = (ry + 1.f) * l;
+                    float b = (by + 1.f) * l;
+                    float g = (l - 0.2126 * r - 0.0722 * b) / 0.7152;
+
+                    m_pixelBuffer[4 * (y * m_width + x) + 0] = r;
+                    m_pixelBuffer[4 * (y * m_width + x) + 1] = g;
+                    m_pixelBuffer[4 * (y * m_width + x) + 2] = b;
+                }
+            }
+
+            delete[] yBuffer;
+            delete[] ryBuffer;
+            delete[] byBuffer;
+        }
+        break;
+
+        case Layer_Y: {
+            QString yLayer = m_parentLayer + "Y";
+
+            Imf::FrameBuffer framebuffer;
+
+            Imf::Slice ySlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[0],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
+
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+
+            #pragma omp parallel for
+            for (int y = 0; y < m_height; y++) {
+                for (int x = 0; x < m_width; x++) {
+                    m_pixelBuffer[4 * (y * m_width + x) + 1] = m_pixelBuffer[4 * (y * m_width + x) + 0];
+                    m_pixelBuffer[4 * (y * m_width + x) + 2] = m_pixelBuffer[4 * (y * m_width + x) + 0];
+                }
+            }
+        }
+        break;
+        }
+
+        m_isImageLoaded = true;
+        emit imageLoaded(m_width, m_height);
+    });
+
+    m_imageLoadingWatcher->setFuture(imageLoading);
+
+    updateImage();
 }
 
 
@@ -208,44 +247,49 @@ void RGBFramebufferModel::setExposure(double value)
 
 void RGBFramebufferModel::updateImage()
 {
+    if (m_imageLoadingWatcher->isRunning()) {
+        m_imageLoadingWatcher->waitForFinished();
+    }
+
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
     // process to end
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->cancel();
-        m_imageLoadingWatcher->waitForFinished();
+    if (m_imageEditingWatcher->isRunning()) {
+        m_imageEditingWatcher->cancel();
+        m_imageEditingWatcher->waitForFinished();
     }
 
     float m_exposure_mul = std::exp2(m_exposure);
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_RGB888);
+        m_image = QImage(m_width, m_height, QImage::Format_RGBA8888);
 
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
-                const float r = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 0]);
-                const float g = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 1]);
-                const float b = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 2]);
+                const float r = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 0]);
+                const float g = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 1]);
+                const float b = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 2]);
+                
+                const float a = m_pixelBuffer[4 * (y * m_width + x) + 3];
 
-                line[3 * x + 0] = qMax(0, qMin(255, int(255.f * r)));
-                line[3 * x + 1] = qMax(0, qMin(255, int(255.f * g)));
-                line[3 * x + 2] = qMax(0, qMin(255, int(255.f * b)));
+                line[4 * x + 0] = qMax(0, qMin(255, int(255.f * r)));
+                line[4 * x + 1] = qMax(0, qMin(255, int(255.f * g)));
+                line[4 * x + 2] = qMax(0, qMin(255, int(255.f * b)));
+                line[4 * x + 3] = qMax(0, qMin(255, int(255.f * a)));
             }
 
-            if (m_imageLoadingWatcher->isCanceled()) { break; }
+            if (m_imageEditingWatcher->isCanceled()) { break; }
         }
 
         // We do not notify any canceled process: this would result in
         // potentially corrupted conversion
-        if (!m_imageLoadingWatcher->isCanceled()) {
-            m_isImageLoaded = true;
-
+        if (!m_imageEditingWatcher->isCanceled()) {
             emit imageChanged();
         }
     });
 
-    m_imageLoadingWatcher->setFuture(imageConverting);
+    m_imageEditingWatcher->setFuture(imageConverting);
 }

@@ -3,6 +3,7 @@ Type=Application
 Version=0.1
 Name=OpenEXR Viewer
 Comment=Viewer for OpenEXR images
+Icon=openexr-viewer
 TryExec=openexr-viewer
 Exec=openexr-viewer %f
 Categories=Graphics;Viewer;

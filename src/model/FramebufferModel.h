@@ -34,12 +34,15 @@
 class FramebufferModel: public ImageModel {
 public:
     FramebufferModel(
-            Imf::MultiPartInputFile &file,
-            int partId,
             const QString& layerName,
             QObject* parent = nullptr);
 
     virtual ~FramebufferModel();
+
+    virtual void load(
+        Imf::MultiPartInputFile& file,
+        int partId
+    );
 
     const QString & getLayerName() const { return m_layer; }
     const int getPartId() const { return m_partID; }

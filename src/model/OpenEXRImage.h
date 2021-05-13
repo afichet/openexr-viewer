@@ -45,21 +45,7 @@ public:
         return _headerModel;
     }
 
-    FramebufferModel* createImageModel(int partId, const QString& layer) {
-        return new FramebufferModel(m_exrIn, partId, layer);
-    }
-
-    RGBFramebufferModel* createRGBImageModel(int partId, const QString& parentLayer) {
-        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_RGB);
-    }
-
-    RGBFramebufferModel* createYCImageModel(int partId, const QString& parentLayer) {
-        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_YC);
-    }
-
-    RGBFramebufferModel* createYImageModel(int partId, const QString& parentLayer) {
-        return new RGBFramebufferModel(m_exrIn, partId, parentLayer, RGBFramebufferModel::Layer_Y);
-    }
+    Imf::MultiPartInputFile& getEXR() { return m_exrIn; }
 
 
 private:

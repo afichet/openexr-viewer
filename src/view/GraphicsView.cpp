@@ -42,10 +42,6 @@ GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
     , _model(nullptr)
     , _imageItem(nullptr)
-//    , _inSelection(false)
-    , _selection(nullptr)
-    , _showMacbeth(true)
-    , _showPatchNumbers(false)
     , _zoomLevel(1.f)
     , _autoscale(true)
 {
@@ -83,8 +79,7 @@ void GraphicsView::onImageChanged()
 {
     if (_model == nullptr) return;
 
-    if (_imageItem != nullptr)
-    {
+    if (_imageItem != nullptr) {
         scene()->removeItem(_imageItem);
         delete _imageItem;
         _imageItem = nullptr;
@@ -121,23 +116,18 @@ void GraphicsView::zoomOut()
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if ((event->modifiers() & Qt::ControlModifier) != 0U)
-    {
+    if ((event->modifiers() & Qt::ControlModifier) != 0U) {
         QGraphicsView::wheelEvent(event);
-    }
-    else
-    {
+    } 
+    else {
         if (_model == nullptr || !_model->isImageLoaded()) return;
         const QPoint delta = event->angleDelta();
 
-        if (delta.y() != 0)
-        {
-            if (delta.y() > 0)
-            {
+        if (delta.y() != 0) {
+            if (delta.y() > 0) {
                 zoomIn();
             }
-            else
-            {
+            else {
                 zoomOut();
             }
         }
@@ -148,10 +138,18 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
+
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (_autoscale)
+    if (_autoscale) {
         fitInView(0, 0, _model->getLoadedImage().width(), _model->getLoadedImage().height(), Qt::KeepAspectRatio);
+    
+        // We don't want the zoom level above 1 when auto scaling and resizing
+        _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+        if (_zoomLevel > 1.) {
+            setZoomLevel(1.);
+        }
+    }
 }
 
 
@@ -159,10 +157,8 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (
-             (event->button() == Qt::MiddleButton)
-             || (event->button() == Qt::LeftButton && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
-    {
+    if ((event->button() == Qt::MiddleButton)
+     || (event->button() == Qt::LeftButton)) {
         QGraphicsView::mousePressEvent(event);
         setCursor(Qt::ClosedHandCursor);
         _startDrag = event->pos();
@@ -175,10 +171,8 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (
-             ((event->buttons() & Qt::MiddleButton) != 0U)
-             || (((event->buttons() & Qt::LeftButton) != 0U) && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
-    {
+    if (((event->buttons() & Qt::MiddleButton) != 0U)
+     || ((event->buttons() & Qt::LeftButton) != 0U)) {
         QScrollBar *        hBar  = horizontalScrollBar();
         QScrollBar *        vBar  = verticalScrollBar();
         QPoint              delta = event->pos() - _startDrag;
@@ -206,8 +200,7 @@ void GraphicsView::dropEvent(QDropEvent *ev)
 
     QList<QUrl> urls = ev->mimeData()->urls();
 
-    if (!urls.empty())
-    {
+    if (!urls.empty()) {
         QString fileName = urls[0].toString();
         QString startFileTypeString =
         #ifdef _WIN32
@@ -216,8 +209,7 @@ void GraphicsView::dropEvent(QDropEvent *ev)
                 "file://";
 #endif
 
-        if (fileName.startsWith(startFileTypeString))
-        {
+        if (fileName.startsWith(startFileTypeString)) {
             fileName = fileName.remove(0, startFileTypeString.length());
 //            _model->openFile(fileName);
             // TODO
@@ -229,4 +221,41 @@ void GraphicsView::dropEvent(QDropEvent *ev)
 void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
 {
     ev->acceptProposedAction();
+}
+
+
+void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    const int polySize = 16;
+
+    QBrush a0(QColor(200, 200, 200));
+    QBrush a1(QColor(255, 255, 255));
+
+    painter->resetTransform();
+    painter->setPen(Qt::NoPen);
+
+    for (int i = 0; i < width()/polySize; i++) {
+        const int x = i * polySize;
+
+        for (int j = 0; j < height()/polySize; j++) {
+            const int y = j * polySize;
+
+            if ((i+j)%2 == 0) {
+                painter->setBrush(a0);
+            } else {
+                painter->setBrush(a1);
+            }
+
+            painter->drawPolygon(QRect(x, y, polySize, polySize));
+        }
+    }
+}
+
+
+void GraphicsView::scrollContentsBy(int dx, int dy)
+{
+    QGraphicsView::scrollContentsBy(dx, dy);
+
+    // Problem with background drawing if not doing that...
+    scene()->invalidate();
 }

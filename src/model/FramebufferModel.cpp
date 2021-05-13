@@ -40,64 +40,74 @@
 #include <Imath/ImathBox.h>
 
 FramebufferModel::FramebufferModel(
-        Imf::MultiPartInputFile &file,
-        int partId,
         const QString &layerName,
         QObject *parent)
     : ImageModel(parent)
-    , m_partID(partId)
     , m_layer(layerName)
     , m_min(0.f)
     , m_max(1.f)
     , m_cmap(ColormapModule::create("grayscale"))
 {
-    Imf::InputPart part(file, partId);
-
-    Imath::Box2i dw = part.header().dataWindow();
-    m_width  = dw.max.x - dw.min.x + 1;
-    m_height = dw.max.y - dw.min.y + 1;
-
-    // TODO viewport
-
-    Imf::Slice graySlice;
-    // TODO: Check it that can be guess from the header
-    // also, check if this can be nested
-    if (layerName == "BY" || layerName == "RY") {
-        m_width /= 2;
-        m_height /= 2;
-
-        m_pixelBuffer = new float[m_width * m_height];
-
-        // Luminance Chroma channels
-        graySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    m_pixelBuffer,
-                    dw,
-                    sizeof(float), m_width * sizeof(float),
-                    2, 2
-        );
-    } else {
-        m_pixelBuffer = new float[m_width * m_height];
-
-        graySlice = Imf::Slice::Make(
-                Imf::PixelType::FLOAT,
-                m_pixelBuffer,
-                dw);
-    }
-
-    Imf::FrameBuffer framebuffer;
-
-    framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
-
-    part.setFrameBuffer(framebuffer);
-    part.readPixels(dw.min.y, dw.max.y);
-
-    updateImage();
 }
 
 FramebufferModel::~FramebufferModel()
 {
     delete m_cmap;
+}
+
+void FramebufferModel::load(
+    Imf::MultiPartInputFile& file,
+    int partId)
+{
+    QFuture<void> imageLoading = QtConcurrent::run([&]() {
+        Imf::InputPart part(file, partId);
+
+        Imath::Box2i dw = part.header().dataWindow();
+        m_width  = dw.max.x - dw.min.x + 1;
+        m_height = dw.max.y - dw.min.y + 1;
+
+        // TODO viewport
+
+        Imf::Slice graySlice;
+        // TODO: Check it that can be guess from the header
+        // also, check if this can be nested
+        if (m_layer == "BY" || m_layer == "RY") {
+            m_width /= 2;
+            m_height /= 2;
+
+            m_pixelBuffer = new float[m_width * m_height];
+
+            // Luminance Chroma channels
+            graySlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        m_pixelBuffer,
+                        dw,
+                        sizeof(float), m_width * sizeof(float),
+                        2, 2
+            );
+        } else {
+            m_pixelBuffer = new float[m_width * m_height];
+
+            graySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    m_pixelBuffer,
+                    dw);
+        }
+
+        Imf::FrameBuffer framebuffer;
+
+        framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
+
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(dw.min.y, dw.max.y);
+
+        m_isImageLoaded = true;
+        emit imageLoaded(m_width, m_height);
+    });
+
+    m_imageLoadingWatcher->setFuture(imageLoading);
+
+    updateImage();
 }
 
 void FramebufferModel::setMinValue(double value)
@@ -128,18 +138,20 @@ void FramebufferModel::setColormap(const QString &value)
     m_cmap = ColormapModule::create(value.toLower().toStdString());
 
     updateImage();
-
-    emit imageLoaded(m_width, m_height);
 }
 
 void FramebufferModel::updateImage()
 {
+    if (m_imageLoadingWatcher->isRunning()) {
+        m_imageLoadingWatcher->waitForFinished();
+    }
+
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
     // process to end
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->cancel();
-        m_imageLoadingWatcher->waitForFinished();
+    if (m_imageEditingWatcher->isRunning()) {
+        m_imageEditingWatcher->cancel();
+        m_imageEditingWatcher->waitForFinished();
     }
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
@@ -160,17 +172,15 @@ void FramebufferModel::updateImage()
                 }
             }
 
-            if (m_imageLoadingWatcher->isCanceled()) { break; }
+            if (m_imageEditingWatcher->isCanceled()) { break; }
         }
 
         // We do not notify any canceled process: this would result in
         // potentially corrupted conversion
-        if (!m_imageLoadingWatcher->isCanceled()) {
-            m_isImageLoaded = true;
-
+        if (!m_imageEditingWatcher->isCanceled()) {
             emit imageChanged();
         }
     });
 
-    m_imageLoadingWatcher->setFuture(imageConverting);
+    m_imageEditingWatcher->setFuture(imageConverting);
 }

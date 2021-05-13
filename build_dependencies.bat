@@ -8,8 +8,8 @@ mkdir lib
 mkdir src
 cd src
 git clone https://github.com/madler/zlib.git
-git clone https://github.com/AcademySoftwareFoundation/Imath.git
-git clone https://github.com/AcademySoftwareFoundation/openexr.git
+git clone https://github.com/AcademySoftwareFoundation/Imath.git --branch v3.0.1
+git clone https://github.com/AcademySoftwareFoundation/openexr.git --branch v3.0.1
 
 
 cd zlib

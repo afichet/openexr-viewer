@@ -31,6 +31,8 @@
 
 #include <model/ImageModel.h>
 
+#include <iostream>
+
 class GraphicsView: public QGraphicsView
 {
     Q_OBJECT
@@ -43,9 +45,7 @@ public slots:
 
     void onImageLoaded(int width, int height);
     void onImageChanged();
-//    void onMacbethChartChanged();
-//    void setShowMacbeth(bool show);
-//    void setShowPatchNumbers(bool show);
+
     void setZoomLevel(float zoom);
     void zoomIn();
     void zoomOut();
@@ -61,20 +61,15 @@ protected:
     void dropEvent(QDropEvent *ev) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
+    virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+
+    virtual void scrollContentsBy(int dx, int dy) override;
+
 private:
-    const ImageModel *         _model;
+    const ImageModel *_model;
     QGraphicsPixmapItem *_imageItem;
 
-    QVector<QGraphicsItem *> _chartItems;
-
-//    bool                  _inSelection;
-    int                   _selectedIdx;
-    QGraphicsEllipseItem *_selection;
-
     QPoint _startDrag;
-
-    bool _showMacbeth;
-    bool _showPatchNumbers;
 
     float _zoomLevel;
     bool  _autoscale;
