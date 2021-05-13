@@ -117,7 +117,7 @@ void MainWindow::open(QString filename)
         }
 
         graphicView->setModel(imageModel);
-        imageModel->load(m_img->getEXR(), 0);
+        imageModel->load(m_img->getEXR(), 0, m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
         QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
 

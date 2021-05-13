@@ -47,7 +47,8 @@ public:
 
     virtual void load(
         Imf::MultiPartInputFile& file,
-        int partId
+        int partId,
+        bool hasAlpha = false
     );
 
     static float to_sRGB(float rgb_color);

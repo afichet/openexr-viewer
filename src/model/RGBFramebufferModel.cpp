@@ -56,7 +56,8 @@ RGBFramebufferModel::~RGBFramebufferModel()
 
 void RGBFramebufferModel::load(
     Imf::MultiPartInputFile& file,
-    int partId)
+    int partId,
+    bool hasAlpha)
 {
     QFuture<void> imageLoading = QtConcurrent::run([&]() {
         Imf::InputPart part(file, partId);
@@ -67,10 +68,33 @@ void RGBFramebufferModel::load(
 
         // TODO viewport
 
-        // TODO: optimize
-        m_pixelBuffer = new float[3 * m_width * m_height];
+        m_pixelBuffer = new float[4 * m_width * m_height];
+        memset(m_pixelBuffer, 1, 4 * m_width * m_height * sizeof(float));
 
-        if (m_layerType == Layer_RGB) {
+        // Check if there is alpha channel
+        if (hasAlpha) {
+            QString aLayer = m_parentLayer + "A";
+            Imf::FrameBuffer framebuffer;
+
+            Imf::Slice aSlice = Imf::Slice::Make(
+                        Imf::PixelType::FLOAT,
+                        &m_pixelBuffer[3],
+                        dw,
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
+
+            framebuffer.insert(aLayer.toStdString(), aSlice);
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+        } else {
+            for (int y = 0; y < m_height; y++) {
+                for (int x = 0; x < m_width; x++) {
+                    m_pixelBuffer[4 * (y * m_width + x) + 3] = 1.f;
+                }
+            }
+        }
+
+        switch(m_layerType) {
+        case Layer_RGB: {
             QString rLayer = m_parentLayer + "R";
             QString gLayer = m_parentLayer + "G";
             QString bLayer = m_parentLayer + "B";
@@ -81,19 +105,19 @@ void RGBFramebufferModel::load(
                         Imf::PixelType::FLOAT,
                         &m_pixelBuffer[0],
                         dw,
-                        3 * sizeof(float), 3 * m_width * sizeof(float));
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
 
             Imf::Slice gSlice = Imf::Slice::Make(
                         Imf::PixelType::FLOAT,
                         &m_pixelBuffer[1],
                         dw,
-                        3 * sizeof(float), 3 * m_width * sizeof(float));
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
 
             Imf::Slice bSlice = Imf::Slice::Make(
                         Imf::PixelType::FLOAT,
                         &m_pixelBuffer[2],
                         dw,
-                        3 * sizeof(float), 3 * m_width * sizeof(float));
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
 
             framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
             framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
@@ -101,7 +125,10 @@ void RGBFramebufferModel::load(
 
             part.setFrameBuffer(framebuffer);
             part.readPixels(dw.min.y, dw.max.y);
-        } else if (m_layerType == Layer_YC) {
+        }
+        break;
+
+        case Layer_YC: {
             QString yLayer = m_parentLayer + "Y";
             QString ryLayer = m_parentLayer + "RY";
             QString byLayer = m_parentLayer + "BY";
@@ -152,16 +179,19 @@ void RGBFramebufferModel::load(
                     float b = (by + 1.f) * l;
                     float g = (l - 0.2126 * r - 0.0722 * b) / 0.7152;
 
-                    m_pixelBuffer[3 * (y * m_width + x) + 0] = r;
-                    m_pixelBuffer[3 * (y * m_width + x) + 1] = g;
-                    m_pixelBuffer[3 * (y * m_width + x) + 2] = b;
+                    m_pixelBuffer[4 * (y * m_width + x) + 0] = r;
+                    m_pixelBuffer[4 * (y * m_width + x) + 1] = g;
+                    m_pixelBuffer[4 * (y * m_width + x) + 2] = b;
                 }
             }
 
             delete[] yBuffer;
             delete[] ryBuffer;
             delete[] byBuffer;
-        } else if (m_layerType == Layer_Y) {
+        }
+        break;
+
+        case Layer_Y: {
             QString yLayer = m_parentLayer + "Y";
 
             Imf::FrameBuffer framebuffer;
@@ -170,7 +200,7 @@ void RGBFramebufferModel::load(
                         Imf::PixelType::FLOAT,
                         &m_pixelBuffer[0],
                         dw,
-                        3 * sizeof(float), 3 * m_width * sizeof(float));
+                        4 * sizeof(float), 4 * m_width * sizeof(float));
 
             framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
 
@@ -180,10 +210,12 @@ void RGBFramebufferModel::load(
             #pragma omp parallel for
             for (int y = 0; y < m_height; y++) {
                 for (int x = 0; x < m_width; x++) {
-                    m_pixelBuffer[3 * (y * m_width + x) + 1] = m_pixelBuffer[3 * (y * m_width + x) + 0];
-                    m_pixelBuffer[3 * (y * m_width + x) + 2] = m_pixelBuffer[3 * (y * m_width + x) + 0];
+                    m_pixelBuffer[4 * (y * m_width + x) + 1] = m_pixelBuffer[4 * (y * m_width + x) + 0];
+                    m_pixelBuffer[4 * (y * m_width + x) + 2] = m_pixelBuffer[4 * (y * m_width + x) + 0];
                 }
             }
+        }
+        break;
         }
 
         m_isImageLoaded = true;
@@ -230,20 +262,23 @@ void RGBFramebufferModel::updateImage()
     float m_exposure_mul = std::exp2(m_exposure);
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_RGB888);
+        m_image = QImage(m_width, m_height, QImage::Format_RGBA8888);
 
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
-                const float r = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 0]);
-                const float g = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 1]);
-                const float b = to_sRGB(m_exposure_mul * m_pixelBuffer[3 * (y * m_width + x) + 2]);
+                const float r = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 0]);
+                const float g = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 1]);
+                const float b = to_sRGB(m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 2]);
+                
+                const float a = m_pixelBuffer[4 * (y * m_width + x) + 3];
 
-                line[3 * x + 0] = qMax(0, qMin(255, int(255.f * r)));
-                line[3 * x + 1] = qMax(0, qMin(255, int(255.f * g)));
-                line[3 * x + 2] = qMax(0, qMin(255, int(255.f * b)));
+                line[4 * x + 0] = qMax(0, qMin(255, int(255.f * r)));
+                line[4 * x + 1] = qMax(0, qMin(255, int(255.f * g)));
+                line[4 * x + 2] = qMax(0, qMin(255, int(255.f * b)));
+                line[4 * x + 3] = qMax(0, qMin(255, int(255.f * a)));
             }
 
             if (m_imageEditingWatcher->isCanceled()) { break; }

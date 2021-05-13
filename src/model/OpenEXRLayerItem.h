@@ -46,8 +46,12 @@ public:
     size_t getNChilds() const;
 
     bool hasRGBChilds() const;
+    bool hasRGBAChilds() const;
     bool hasYCChilds() const;
+    bool hasYCAChilds() const;
     bool hasYChild() const;
+    bool hasYAChilds() const;
+    bool hasAChild() const;
 
     QString getFullName() const;
 
