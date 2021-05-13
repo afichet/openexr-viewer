@@ -42,10 +42,6 @@ GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
     , _model(nullptr)
     , _imageItem(nullptr)
-//    , _inSelection(false)
-    , _selection(nullptr)
-    , _showMacbeth(true)
-    , _showPatchNumbers(false)
     , _zoomLevel(1.f)
     , _autoscale(true)
 {
@@ -83,8 +79,7 @@ void GraphicsView::onImageChanged()
 {
     if (_model == nullptr) return;
 
-    if (_imageItem != nullptr)
-    {
+    if (_imageItem != nullptr) {
         scene()->removeItem(_imageItem);
         delete _imageItem;
         _imageItem = nullptr;
@@ -121,23 +116,18 @@ void GraphicsView::zoomOut()
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if ((event->modifiers() & Qt::ControlModifier) != 0U)
-    {
+    if ((event->modifiers() & Qt::ControlModifier) != 0U) {
         QGraphicsView::wheelEvent(event);
-    }
-    else
-    {
+    } 
+    else {
         if (_model == nullptr || !_model->isImageLoaded()) return;
         const QPoint delta = event->angleDelta();
 
-        if (delta.y() != 0)
-        {
-            if (delta.y() > 0)
-            {
+        if (delta.y() != 0) {
+            if (delta.y() > 0) {
                 zoomIn();
             }
-            else
-            {
+            else {
                 zoomOut();
             }
         }
@@ -148,10 +138,18 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
+
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (_autoscale)
+    if (_autoscale) {
         fitInView(0, 0, _model->getLoadedImage().width(), _model->getLoadedImage().height(), Qt::KeepAspectRatio);
+    
+        // We don't want the zoom level above 1 when auto scaling and resizing
+        _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+        if (_zoomLevel > 1.) {
+            setZoomLevel(1.);
+        }
+    }
 }
 
 
@@ -159,9 +157,8 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (
-             (event->button() == Qt::MiddleButton)
-             || (event->button() == Qt::LeftButton && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
+    if ((event->button() == Qt::MiddleButton)
+     || (event->button() == Qt::LeftButton))
     {
         QGraphicsView::mousePressEvent(event);
         setCursor(Qt::ClosedHandCursor);
@@ -175,9 +172,8 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (
-             ((event->buttons() & Qt::MiddleButton) != 0U)
-             || (((event->buttons() & Qt::LeftButton) != 0U) && QGuiApplication::keyboardModifiers() == Qt::ControlModifier))
+    if (((event->buttons() & Qt::MiddleButton) != 0U)
+     || ((event->buttons() & Qt::LeftButton) != 0U))
     {
         QScrollBar *        hBar  = horizontalScrollBar();
         QScrollBar *        vBar  = verticalScrollBar();

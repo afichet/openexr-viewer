@@ -45,7 +45,6 @@ public:
 
   const QImage &getLoadedImage() const { return m_image; }
 
-  void getAveragedPatches(std::vector<float> &values);
   bool isImageLoaded() const { return m_isImageLoaded; }
 
 signals:

@@ -31,6 +31,8 @@
 
 #include <model/ImageModel.h>
 
+#include <iostream>
+
 class GraphicsView: public QGraphicsView
 {
     Q_OBJECT
@@ -43,9 +45,7 @@ public slots:
 
     void onImageLoaded(int width, int height);
     void onImageChanged();
-//    void onMacbethChartChanged();
-//    void setShowMacbeth(bool show);
-//    void setShowPatchNumbers(bool show);
+
     void setZoomLevel(float zoom);
     void zoomIn();
     void zoomOut();
@@ -61,20 +61,39 @@ protected:
     void dropEvent(QDropEvent *ev) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
+    virtual void drawBackground(QPainter *painter, const QRectF &rect) override
+    {
+        int polySize = 16;
+
+        QBrush a0(QColor(200, 200, 200));
+        QBrush a1(QColor(255, 255, 255));
+
+        painter->setPen(Qt::NoPen);
+
+        for (int i = 0; i < width()/polySize; i++) {
+            const int x = i * polySize;
+
+            for (int j = 0; j < height()/polySize; j++) {
+                const int y = j * polySize;
+
+                QPolygonF rect = mapToScene(QRect(x, y, polySize, polySize));
+
+                if ((i+j)%2 == 0) {
+                    painter->setBrush(a0);
+                } else {
+                    painter->setBrush(a1);
+                }
+
+                painter->drawPolygon(rect);
+            }
+        }
+    }
+
 private:
-    const ImageModel *         _model;
+    const ImageModel *_model;
     QGraphicsPixmapItem *_imageItem;
 
-    QVector<QGraphicsItem *> _chartItems;
-
-//    bool                  _inSelection;
-    int                   _selectedIdx;
-    QGraphicsEllipseItem *_selection;
-
     QPoint _startDrag;
-
-    bool _showMacbeth;
-    bool _showPatchNumbers;
 
     float _zoomLevel;
     bool  _autoscale;
