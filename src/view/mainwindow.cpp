@@ -258,7 +258,7 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
                 graphicView);
 
             graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID());
+            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
             
             subWindow = m_mdiArea->addSubWindow(graphicView);
         } else if (item->type() == "YC framebuffer") {
@@ -269,7 +269,7 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
                 graphicView);
 
             graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID());
+            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
             
             QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
         } else if (item->type() == "Luminance framebuffer") {
@@ -280,7 +280,7 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
                 graphicView);
 
             graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID());
+            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
             
             subWindow = m_mdiArea->addSubWindow(graphicView);
         }
