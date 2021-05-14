@@ -214,7 +214,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void GraphicsView::mouseReleaseEvent(QMouseEvent *)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
@@ -277,6 +277,10 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
             painter->drawRect(QRect(x, y, polySize, polySize));
         }
     }
+
+    painter->setPen(Qt::SolidLine);
+    painter->setBrush(QColor(0, 0, 0, 0));
+    painter->drawPolygon(mapFromScene(0, 0, m_width, m_height));
 }
 
 
