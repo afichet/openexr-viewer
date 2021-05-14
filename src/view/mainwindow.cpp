@@ -116,13 +116,17 @@ void MainWindow::open(QString filename)
                 graphicView);
         }
 
-        graphicView->setModel(imageModel);
-        imageModel->load(m_img->getEXR(), 0, m_img->getHeaderModel()->getLayers()[0]->hasAChild());
+        if (imageModel) {
+            graphicView->setModel(imageModel);
+            imageModel->load(m_img->getEXR(), 0, m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
-        QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
+            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
 
-        subWindow->setWindowTitle(title);
-        subWindow->show();
+            subWindow->setWindowTitle(title);
+            subWindow->show();
+        } else {
+            delete graphicView;
+        }
     }
 }
 

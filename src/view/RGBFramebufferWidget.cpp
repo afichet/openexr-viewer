@@ -28,9 +28,10 @@
 #include "RGBFramebufferWidget.h"
 #include "ui_RGBFramebufferWidget.h"
 
-RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::RGBFramebufferWidget)
+RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::RGBFramebufferWidget)
+    , m_model(nullptr)
 {
     ui->setupUi(this);
 }
@@ -38,7 +39,8 @@ RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent) :
 RGBFramebufferWidget::~RGBFramebufferWidget()
 {
     delete ui;
-    delete m_model;
+
+    if (m_model) delete m_model;
 }
 
 void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
