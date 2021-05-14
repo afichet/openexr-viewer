@@ -45,7 +45,7 @@ public:
     void setModel(RGBFramebufferModel* model);
 
 private slots:
-    void on_doubleSpinBox_2_valueChanged(double arg1);
+    void on_sbExposure_valueChanged(double arg1);
 
 private:
     Ui::RGBFramebufferWidget *ui;

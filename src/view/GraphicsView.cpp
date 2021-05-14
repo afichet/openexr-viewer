@@ -68,10 +68,18 @@ void GraphicsView::setModel(const ImageModel *model)
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
+
+    m_width = width;
+    m_height = height;
+
     _zoomLevel = 1.f;
     fitInView(0, 0, width, height, Qt::KeepAspectRatio);
     _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    if (_zoomLevel > 1.) {
+        setZoomLevel(1.);
+    }
     _autoscale = true;
+//    scene()->addRect(-1, -1, width + 1, height + 1);
 }
 
 
@@ -93,7 +101,6 @@ void GraphicsView::onImageChanged()
 void GraphicsView::setZoomLevel(float zoom)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
-    _autoscale = false;
     _zoomLevel = std::max(0.01f, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
@@ -103,6 +110,7 @@ void GraphicsView::setZoomLevel(float zoom)
 void GraphicsView::zoomIn()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+    _autoscale = false;
     setZoomLevel(_zoomLevel * 1.1);
 }
 
@@ -110,8 +118,29 @@ void GraphicsView::zoomIn()
 void GraphicsView::zoomOut()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+    _autoscale = false;
     setZoomLevel(_zoomLevel / 1.1);
 }
+
+
+//void GraphicsView::showDatawindowBoders(bool visible)
+//{
+//    if (_model == nullptr) return;
+
+//    if (_datawindowItem != nullptr) {
+//        scene()->removeItem(_datawindowItem);
+//        delete _datawindowItem;
+//        _datawindowItem = nullptr;
+//    }
+
+//    _datawindowItem = scene()->addRect(0, 0, m_)
+//}
+
+
+//void GraphicsView::showDisplaywindowBorders(bool visible)
+//{
+
+//}
 
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
@@ -224,7 +253,7 @@ void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
 }
 
 
-void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
 {
     const int polySize = 16;
 
@@ -234,10 +263,10 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
     painter->resetTransform();
     painter->setPen(Qt::NoPen);
 
-    for (int i = 0; i < width()/polySize; i++) {
+    for (int i = 0; i < width()/polySize + 1; i++) {
         const int x = i * polySize;
 
-        for (int j = 0; j < height()/polySize; j++) {
+        for (int j = 0; j < height()/polySize + 1; j++) {
             const int y = j * polySize;
 
             if ((i+j)%2 == 0) {
@@ -246,7 +275,7 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
                 painter->setBrush(a1);
             }
 
-            painter->drawPolygon(QRect(x, y, polySize, polySize));
+            painter->drawRect(QRect(x, y, polySize, polySize));
         }
     }
 }

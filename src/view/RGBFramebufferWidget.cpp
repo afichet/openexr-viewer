@@ -48,7 +48,7 @@ void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
 }
 
 
-void RGBFramebufferWidget::on_doubleSpinBox_2_valueChanged(double arg1)
+void RGBFramebufferWidget::on_sbExposure_valueChanged(double arg1)
 {
     m_model->setExposure(arg1);
 }

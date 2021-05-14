@@ -50,6 +50,9 @@ public slots:
     void zoomIn();
     void zoomOut();
 
+//    void showDatawindowBoders(bool visible);
+//    void showDisplaywindowBorders(bool visible);
+
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -68,10 +71,16 @@ protected:
 private:
     const ImageModel *_model;
     QGraphicsPixmapItem *_imageItem;
+//    QGraphicsRectItem *_datawindowItem;
+//    QGraphicsRectItem *_displaywindowItem;
 
     QPoint _startDrag;
 
     float _zoomLevel;
     bool  _autoscale;
+
+    int m_width, m_height;
+//    bool _showDatawindowBorders;
+//    bool _showDisplaywindowBorders;
 };
 
