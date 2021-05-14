@@ -46,9 +46,12 @@ public slots:
     void onImageLoaded(int width, int height);
     void onImageChanged();
 
-    void setZoomLevel(float zoom);
+    void setZoomLevel(double zoom);
     void zoomIn();
     void zoomOut();
+
+signals:
+    void zoomLevelChanged(double zoom);
 
 //    void showDatawindowBoders(bool visible);
 //    void showDisplaywindowBorders(bool visible);
@@ -76,7 +79,7 @@ private:
 
     QPoint _startDrag;
 
-    float _zoomLevel;
+    double _zoomLevel;
     bool  _autoscale;
 
     int m_width, m_height;

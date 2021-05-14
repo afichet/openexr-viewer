@@ -71,14 +71,17 @@ void GraphicsView::onImageLoaded(int width, int height)
     m_width = width;
     m_height = height;
 
-    _zoomLevel = 1.f;
     fitInView(0, 0, width, height, Qt::KeepAspectRatio);
-    _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
-    if (_zoomLevel > 1.) {
+    const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+
+    if (zoomLevel > 1.) {
         setZoomLevel(1.);
+    } else {
+        setZoomLevel(zoomLevel);
     }
+
+    // We want autoscale when loading a new image
     _autoscale = true;
-//    scene()->addRect(-1, -1, width + 1, height + 1);
 }
 
 
@@ -97,19 +100,22 @@ void GraphicsView::onImageChanged()
 }
 
 
-void GraphicsView::setZoomLevel(float zoom)
+void GraphicsView::setZoomLevel(double zoom)
 {
-    if (_model == nullptr || !_model->isImageLoaded()) return;
-    _zoomLevel = std::max(0.01f, zoom);
+    if (_model == nullptr || !_model->isImageLoaded() || zoom == _zoomLevel) return;
+
+    _zoomLevel = std::max(0.01, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
+    _autoscale = false;
+
+    emit zoomLevelChanged(zoom);
 }
 
 
 void GraphicsView::zoomIn()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
-    _autoscale = false;
     setZoomLevel(_zoomLevel * 1.1);
 }
 
@@ -117,7 +123,6 @@ void GraphicsView::zoomIn()
 void GraphicsView::zoomOut()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
-    _autoscale = false;
     setZoomLevel(_zoomLevel / 1.1);
 }
 
@@ -173,10 +178,16 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
         fitInView(0, 0, _model->getLoadedImage().width(), _model->getLoadedImage().height(), Qt::KeepAspectRatio);
     
         // We don't want the zoom level above 1 when auto scaling and resizing
-        _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
-        if (_zoomLevel > 1.) {
+        const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+
+        if (zoomLevel > 1.) {
             setZoomLevel(1.);
+        } else {
+            setZoomLevel(zoomLevel);
         }
+
+        // Need to be restored, setZoomLevel set it to false
+        _autoscale = true;
     }
 }
 

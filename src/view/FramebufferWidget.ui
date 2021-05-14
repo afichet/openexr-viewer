@@ -143,6 +143,29 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Zoom</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="sbZoomLevel">
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -155,8 +178,45 @@
    <class>GraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>view/GraphicsView.h</header>
+   <slots>
+    <signal>zoomLevelChanged(double)</signal>
+    <slot>setZoomLevel(double)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sbZoomLevel</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>graphicsView</receiver>
+   <slot>setZoomLevel(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>759</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>723</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>graphicsView</sender>
+   <signal>zoomLevelChanged(double)</signal>
+   <receiver>sbZoomLevel</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>534</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>745</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
