@@ -135,8 +135,15 @@ void FramebufferModel::setColormap(const QString &value)
 {
     // Bad idea to change the colormap if a process is using it
     if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->cancel();
         m_imageLoadingWatcher->waitForFinished();
+    }
+
+    // Several call can occur within a short time e.g., when changing exposure
+    // Ensure to cancel any previous running conversion and wait for the
+    // process to end
+    if (m_imageEditingWatcher->isRunning()) {
+        m_imageEditingWatcher->cancel();
+        m_imageEditingWatcher->waitForFinished();
     }
 
     if (m_cmap) {
