@@ -230,67 +230,67 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
     }
 
     // Check if the window already exists
-    bool windowExists = false;
-
     for (auto& w: m_mdiArea->subWindowList()) {
         if (w->windowTitle() == title) {
             w->setFocus();
-            windowExists = true;
             return;
         }
     }
 
     // If the window does not exist yet, create it
-    if (!windowExists) {
-        QMdiSubWindow* subWindow = nullptr;
+    QMdiSubWindow* subWindow = nullptr;
 
-        if (item->type() == "framebuffer") {
-            FramebufferWidget *graphicView = new FramebufferWidget(m_mdiArea);
-            FramebufferModel *imageModel = new FramebufferModel(
-                item->getName(), 
-                graphicView);
-            
-            graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID());
+    if (item->type() == "framebuffer") {
+        FramebufferWidget *graphicView = new FramebufferWidget(m_mdiArea);
+        FramebufferModel *imageModel = new FramebufferModel(
+            item->getName(),
+            graphicView);
 
-            subWindow = m_mdiArea->addSubWindow(graphicView);
-        } else if (item->type() == "RGB framebuffer") {
-            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-            RGBFramebufferModel* imageModel = new RGBFramebufferModel(
-                item->getName(), 
-                RGBFramebufferModel::Layer_RGB,
-                graphicView);
+        graphicView->setModel(imageModel);
+        imageModel->load(m_img->getEXR(), item->getPartID());
 
-            graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
-            
-            subWindow = m_mdiArea->addSubWindow(graphicView);
-        } else if (item->type() == "YC framebuffer") {
-            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-            RGBFramebufferModel* imageModel = new RGBFramebufferModel(
-                item->getName(), 
-                RGBFramebufferModel::Layer_YC,
-                graphicView);
+        subWindow = m_mdiArea->addSubWindow(graphicView);
+    } else if (item->type() == "RGB framebuffer") {
+        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+            item->getName(),
+            RGBFramebufferModel::Layer_RGB,
+            graphicView);
 
-            graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
-            
-            QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
-        } else if (item->type() == "Luminance framebuffer") {
-            RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-            RGBFramebufferModel* imageModel = new RGBFramebufferModel(
-                item->getName(), 
-                RGBFramebufferModel::Layer_Y,
-                graphicView);
+        graphicView->setModel(imageModel);
+        imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
-            graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
-            
-            subWindow = m_mdiArea->addSubWindow(graphicView);
-        }
+        subWindow = m_mdiArea->addSubWindow(graphicView);
+    } else if (item->type() == "YC framebuffer") {
+        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+            item->getName(),
+            RGBFramebufferModel::Layer_YC,
+            graphicView);
 
+        graphicView->setModel(imageModel);
+        imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
+
+        subWindow = m_mdiArea->addSubWindow(graphicView);
+    } else if (item->type() == "Luminance framebuffer") {
+        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
+        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+            item->getName(),
+            RGBFramebufferModel::Layer_Y,
+            graphicView);
+
+        graphicView->setModel(imageModel);
+        imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
+
+        subWindow = m_mdiArea->addSubWindow(graphicView);
+    }
+
+    if (subWindow) {
         subWindow->setWindowTitle(title);
         subWindow->show();
+    } else {
+        // This shall never happen
+        assert(0);
     }
 }
 
