@@ -101,6 +101,15 @@ void FramebufferModel::load(
         part.setFrameBuffer(framebuffer);
         part.readPixels(dw.min.y, dw.max.y);
 
+        // Determine min and max of the dataset
+        m_datasetMin = std::numeric_limits<double>::infinity();
+        m_datasetMax = -std::numeric_limits<double>::infinity();
+
+        for (int i = 0; i < m_width * m_height; i++) {
+            m_datasetMin = std::min(m_datasetMin, (double)m_pixelBuffer[i]);
+            m_datasetMax = std::max(m_datasetMax, (double)m_pixelBuffer[i]);
+        }
+
         m_isImageLoaded = true;
         emit imageLoaded(m_width, m_height);
     });

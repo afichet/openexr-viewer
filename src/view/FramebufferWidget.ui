@@ -87,7 +87,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Min</string>
+        <string>Range</string>
        </property>
       </widget>
      </item>
@@ -108,13 +108,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Max</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QDoubleSpinBox" name="sbMaxValue">
        <property name="minimum">
         <double>0.000000000000000</double>
@@ -127,6 +120,13 @@
        </property>
        <property name="value">
         <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonAuto">
+       <property name="text">
+        <string>Auto</string>
        </property>
       </widget>
      </item>

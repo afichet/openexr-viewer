@@ -47,6 +47,9 @@ public:
     const QString & getLayerName() const { return m_layer; }
     const int getPartId() const { return m_partID; }
 
+    double getDatasetMin() const { return m_datasetMin; }
+    double getDatasetMax() const { return m_datasetMax; }
+
 public slots:
     void setMinValue(double value);
     void setMaxValue(double value);
@@ -61,6 +64,9 @@ private:
 
     double m_min;
     double m_max;
+
+    double m_datasetMin;
+    double m_datasetMax;
 
     Colormap * m_cmap;
 };

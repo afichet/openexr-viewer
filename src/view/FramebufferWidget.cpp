@@ -28,9 +28,10 @@
 #include "FramebufferWidget.h"
 #include "ui_FramebufferWidget.h"
 
-FramebufferWidget::FramebufferWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FramebufferWidget)
+FramebufferWidget::FramebufferWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::FramebufferWidget)
+    , m_model(nullptr)
 {
     ui->setupUi(this);
 }
@@ -39,7 +40,7 @@ FramebufferWidget::FramebufferWidget(QWidget *parent) :
 FramebufferWidget::~FramebufferWidget()
 {
     delete ui;
-    delete m_model;
+    if (m_model) delete m_model;
 }
 
 
@@ -53,16 +54,25 @@ void FramebufferWidget::setModel(FramebufferModel *model)
 void FramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
     ui->sbMaxValue->setMinimum(arg1);
-    m_model->setMinValue(arg1);
+    if (m_model) m_model->setMinValue(arg1);
 }
 
 void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
-    m_model->setMaxValue(arg1);
+    if (m_model) m_model->setMaxValue(arg1);
 }
 
 void FramebufferWidget::on_cbColormap_currentIndexChanged(const QString &arg1)
 {
-    m_model->setColormap(arg1);
+    if (m_model) m_model->setColormap(arg1);
 }
+
+void FramebufferWidget::on_buttonAuto_clicked()
+{
+    if (m_model) {
+        ui->sbMinValue->setValue(m_model->getDatasetMin());
+        ui->sbMaxValue->setValue(m_model->getDatasetMax());
+    }
+}
+

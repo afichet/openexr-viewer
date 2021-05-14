@@ -52,6 +52,8 @@ private slots:
 
     void on_cbColormap_currentIndexChanged(const QString &arg1);
 
+    void on_buttonAuto_clicked();
+
 private:
     Ui::FramebufferWidget *ui;
     FramebufferModel* m_model;
