@@ -51,6 +51,31 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
+    - name: Install Qt
+      # You may pin to the exact commit or the version.
+      # uses: jurplel/install-qt-action@a10f4d43af43348aab618414b68a9d32cb008977
+      uses: jurplel/install-qt-action@v2.13.2
+    
+    - name: Install Imath
+      # Now this is quite dirty...
+      run: |
+        git clone https://github.com/AcademySoftwareFoundation/Imath.git --branch v3.0.1
+        cd Imath
+        mkdir build
+        cd build
+        cmake ..
+        sudo make install
+        
+    - name: Install OpenEXR
+      # Now this is quite dirty...
+      run: |
+        git clone https://github.com/AcademySoftwareFoundation/openexr.git --branch v3.0.1
+        cd openexr
+        mkdir build
+        cd build
+        cmake ..
+        sudo make install
+        
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
