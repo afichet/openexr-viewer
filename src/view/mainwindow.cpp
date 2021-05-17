@@ -31,6 +31,7 @@
 #include <QFileDialog>
 #include <QMimeData>
 #include <QSettings>
+#include <QMessageBox>
 
 #include <QMdiSubWindow>
 
@@ -72,8 +73,23 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::open(QString filename)
+void MainWindow::open(const QString& filename)
 {
+    // Attempt opening the image
+
+    OpenEXRImage* imageLoaded = nullptr;
+
+    try {
+        imageLoaded = new OpenEXRImage(filename, this);
+    }  catch (std::exception &e) {
+        onLoadFailed(e.what());
+
+        delete imageLoaded;
+
+        return;
+    }
+
+    // No error so far, continue normal execution
     if (m_img) {
         m_mdiArea->closeAllSubWindows();
         m_treeView->setModel(nullptr);
@@ -81,7 +97,7 @@ void MainWindow::open(QString filename)
         m_img = nullptr;
     }
 
-    m_img = new OpenEXRImage(filename, m_treeView);
+    m_img = imageLoaded;
     m_treeView->setModel(m_img->getHeaderModel());
     m_treeView->expandAll();
     m_treeView->resizeColumnToContents(0);
@@ -97,26 +113,28 @@ void MainWindow::open(QString filename)
             title = getTitle(0, "RGB");
 
             imageModel = new RGBFramebufferModel(
-                m_img->getHeaderModel()->getLayers()[0]->getFullName(), 
+                m_img->getHeaderModel()->getLayers()[0]->getFullName(),
                 RGBFramebufferModel::Layer_RGB,
                 graphicView);
         } else if (m_img->getHeaderModel()->getLayers()[0]->hasYCChilds()) {
             title = getTitle(0, "YC");
 
             imageModel = new RGBFramebufferModel(
-                m_img->getHeaderModel()->getLayers()[0]->getFullName(), 
+                m_img->getHeaderModel()->getLayers()[0]->getFullName(),
                 RGBFramebufferModel::Layer_YC,
                 graphicView);
         } else if (m_img->getHeaderModel()->getLayers()[0]->hasYChild()) {
             title = getTitle(0, "Y");
 
             imageModel = new RGBFramebufferModel(
-                m_img->getHeaderModel()->getLayers()[0]->getFullName(), 
+                m_img->getHeaderModel()->getLayers()[0]->getFullName(),
                 RGBFramebufferModel::Layer_Y,
                 graphicView);
         }
 
         if (imageModel) {
+            QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+                             this, SLOT(onLoadFailed(QString)));
             graphicView->setModel(imageModel);
             imageModel->load(m_img->getEXR(), 0, m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
@@ -238,46 +256,63 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
     }
 
     // If the window does not exist yet, create it
+    FramebufferWidget *graphicViewBW = nullptr;
+    FramebufferModel *imageModelBW = nullptr;
+    RGBFramebufferWidget *graphicView = nullptr;
+    RGBFramebufferModel* imageModel = nullptr;
+
     QMdiSubWindow* subWindow = nullptr;
 
     if (item->type() == "framebuffer") {
-        FramebufferWidget *graphicView = new FramebufferWidget(m_mdiArea);
-        FramebufferModel *imageModel = new FramebufferModel(
+        graphicViewBW = new FramebufferWidget(m_mdiArea);
+        imageModelBW = new FramebufferModel(
             item->getName(),
-            graphicView);
+            graphicViewBW);
 
-        graphicView->setModel(imageModel);
-        imageModel->load(m_img->getEXR(), item->getPartID());
+        QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+                         this, SLOT(onLoadFailed(QString)));
 
-        subWindow = m_mdiArea->addSubWindow(graphicView);
+        graphicViewBW->setModel(imageModelBW);
+        imageModelBW->load(m_img->getEXR(), item->getPartID());
+
+        subWindow = m_mdiArea->addSubWindow(graphicViewBW);
     } else if (item->type() == "RGB framebuffer") {
-        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+        graphicView = new RGBFramebufferWidget(m_mdiArea);
+        imageModel = new RGBFramebufferModel(
             item->getName(),
             RGBFramebufferModel::Layer_RGB,
             graphicView);
+
+        QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+                         this, SLOT(onLoadFailed(QString)));
 
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
         subWindow = m_mdiArea->addSubWindow(graphicView);
     } else if (item->type() == "YC framebuffer") {
-        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+        graphicView = new RGBFramebufferWidget(m_mdiArea);
+        imageModel = new RGBFramebufferModel(
             item->getName(),
             RGBFramebufferModel::Layer_YC,
             graphicView);
+
+        QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+                         this, SLOT(onLoadFailed(QString)));
 
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
         subWindow = m_mdiArea->addSubWindow(graphicView);
     } else if (item->type() == "Luminance framebuffer") {
-        RGBFramebufferWidget *graphicView = new RGBFramebufferWidget(m_mdiArea);
-        RGBFramebufferModel* imageModel = new RGBFramebufferModel(
+        graphicView = new RGBFramebufferWidget(m_mdiArea);
+        imageModel = new RGBFramebufferModel(
             item->getName(),
             RGBFramebufferModel::Layer_Y,
             graphicView);
+
+        QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+                         this, SLOT(onLoadFailed(QString)));
 
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
@@ -308,6 +343,16 @@ void MainWindow::onDoubleClicked(const QModelIndex &index)
 {
     OpenEXRHeaderItem* item = static_cast<OpenEXRHeaderItem*>(index.internalPointer());
     openItem(item);
+}
+
+void MainWindow::onLoadFailed(const QString &msg)
+{
+    std::cerr << "Loading error: " << msg.toStdString() << std::endl;
+
+    QMessageBox msgBox;
+    msgBox.setText("Error while loading the framebuffer.");
+    msgBox.setInformativeText("The loading process ended with the following error: " + msg);
+    msgBox.exec();
 }
 
 

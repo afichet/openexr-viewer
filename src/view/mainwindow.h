@@ -51,7 +51,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void open(QString filename);
+    void open(const QString &filename);
 
 private slots:
     void on_action_Open_triggered();
@@ -74,6 +74,8 @@ private:
 
 private slots:
     void onDoubleClicked(const QModelIndex &index);
+
+    void onLoadFailed(const QString& msg);
 
     void on_action_Tabbed_triggered();
 
