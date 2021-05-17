@@ -60,15 +60,24 @@
    <property name="text">
     <string>&amp;Tabbed</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="action_Cascade">
    <property name="text">
     <string>&amp;Cascaded</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
   </action>
   <action name="action_Tiled">
    <property name="text">
-    <string>&amp;Tiled</string>
+    <string>T&amp;iled</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
  </widget>
