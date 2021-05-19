@@ -68,8 +68,7 @@ void GraphicsView::setModel(const ImageModel *model)
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
-    m_width = width;
-    m_height = height;
+    std::cout << "Image Loaded" << std::endl;
 
     fitInView(0, 0, width, height, Qt::KeepAspectRatio);
     const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
@@ -102,7 +101,8 @@ void GraphicsView::onImageChanged()
 
 void GraphicsView::setZoomLevel(double zoom)
 {
-    if (_model == nullptr || !_model->isImageLoaded() || zoom == _zoomLevel) return;
+    std::cout << "Set zoom level: " << zoom << std::endl;
+    if (_model == nullptr || !_model->isImageLoaded()) return;// || zoom == _zoomLevel) return;
 
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
@@ -170,6 +170,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
+    std::cout << "Resize event" << std::endl;
     QGraphicsView::resizeEvent(e);
 
     if (_model == nullptr || !_model->isImageLoaded()) return;
@@ -289,9 +290,11 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
         }
     }
 
-    painter->setPen(Qt::SolidLine);
-    painter->setBrush(QColor(0, 0, 0, 0));
-    painter->drawPolygon(mapFromScene(0, 0, m_width, m_height));
+//    if (_model && _model->isImageLoaded()) {
+//        painter->setPen(Qt::SolidLine);
+//        painter->setBrush(QColor(0, 0, 0, 0));
+//        painter->drawPolygon(mapFromScene(-1, -1, _model->width()+1, _model->height()+1));
+//    }
 }
 
 

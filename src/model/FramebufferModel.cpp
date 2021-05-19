@@ -99,7 +99,6 @@ void FramebufferModel::load(
             framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
 
             part.setFrameBuffer(framebuffer);
-
             part.readPixels(dw.min.y, dw.max.y);
 
             // Determine min and max of the dataset
@@ -111,8 +110,12 @@ void FramebufferModel::load(
                 m_datasetMax = std::max(m_datasetMax, (double)m_pixelBuffer[i]);
             }
 
+            m_image = QImage(m_width, m_height, QImage::Format_RGB888);
             m_isImageLoaded = true;
+
             emit imageLoaded(m_width, m_height);
+
+            updateImage();
         }  catch (std::exception &e) {
             emit loadFailed(e.what());
             return;
@@ -120,8 +123,6 @@ void FramebufferModel::load(
     });
 
     m_imageLoadingWatcher->setFuture(imageLoading);
-
-    updateImage();
 }
 
 void FramebufferModel::setMinValue(double value)
@@ -138,16 +139,12 @@ void FramebufferModel::setMaxValue(double value)
 
 void FramebufferModel::setColormap(const QString &value)
 {
-    // Bad idea to change the colormap if a process is using it
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->waitForFinished();
-    }
-
     if (!m_isImageLoaded) { return; }
 
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
     // process to end
+    // Also, bad idea to change the colormap if a process is using it
     if (m_imageEditingWatcher->isRunning()) {
         m_imageEditingWatcher->cancel();
         m_imageEditingWatcher->waitForFinished();
@@ -165,10 +162,6 @@ void FramebufferModel::setColormap(const QString &value)
 
 void FramebufferModel::updateImage()
 {
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->waitForFinished();
-    }
-
     if (!m_isImageLoaded) { return; }
 
     // Several call can occur within a short time e.g., when changing exposure
@@ -180,8 +173,6 @@ void FramebufferModel::updateImage()
     }
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_RGB888);
-
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
 

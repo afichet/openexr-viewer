@@ -82,7 +82,6 @@ private:
     double _zoomLevel;
     bool  _autoscale;
 
-    int m_width, m_height;
 //    bool _showDatawindowBorders;
 //    bool _showDisplaywindowBorders;
 };

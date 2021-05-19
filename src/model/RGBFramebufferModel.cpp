@@ -68,7 +68,6 @@ void RGBFramebufferModel::load(
             m_height = dw.max.y - dw.min.y + 1;
 
             // TODO viewport
-            std::cout << m_width << " : " << m_height << std::endl;
 
             m_pixelBuffer = new float[4 * m_width * m_height];
 
@@ -170,7 +169,6 @@ void RGBFramebufferModel::load(
                 framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
 
                 part.setFrameBuffer(framebuffer);
-
                 part.readPixels(dw.min.y, dw.max.y);
 
                 // Now recompute the image
@@ -214,7 +212,6 @@ void RGBFramebufferModel::load(
                 framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
 
                 part.setFrameBuffer(framebuffer);
-
                 part.readPixels(dw.min.y, dw.max.y);
 
 #pragma omp parallel for
@@ -228,8 +225,12 @@ void RGBFramebufferModel::load(
                 break;
             }
 
+            m_image = QImage(m_width, m_height, QImage::Format_RGBA8888);
             m_isImageLoaded = true;
+
             emit imageLoaded(m_width, m_height);
+
+            updateImage();
         } catch (std::exception &e) {
             emit loadFailed(e.what());
             return;
@@ -237,8 +238,6 @@ void RGBFramebufferModel::load(
     });
 
     m_imageLoadingWatcher->setFuture(imageLoading);
-
-    updateImage();
 }
 
 
@@ -261,10 +260,6 @@ void RGBFramebufferModel::setExposure(double value)
 
 void RGBFramebufferModel::updateImage()
 {
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->waitForFinished();
-    }
-
     if (!m_isImageLoaded) { return; }
 
     // Several call can occur within a short time e.g., when changing exposure
@@ -278,8 +273,6 @@ void RGBFramebufferModel::updateImage()
     float m_exposure_mul = std::exp2(m_exposure);
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_RGBA8888);
-
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
 
