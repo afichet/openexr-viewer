@@ -91,4 +91,6 @@ private:
     QMdiArea* m_mdiArea;
 
     OpenEXRImage* m_img;
+
+    QString m_openedFolder;
 };

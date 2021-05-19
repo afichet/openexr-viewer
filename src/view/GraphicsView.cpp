@@ -68,8 +68,6 @@ void GraphicsView::setModel(const ImageModel *model)
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
-    std::cout << "Image Loaded" << std::endl;
-
     fitInView(0, 0, width, height, Qt::KeepAspectRatio);
     const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
 
@@ -101,7 +99,6 @@ void GraphicsView::onImageChanged()
 
 void GraphicsView::setZoomLevel(double zoom)
 {
-    std::cout << "Set zoom level: " << zoom << std::endl;
     if (_model == nullptr || !_model->isImageLoaded()) return;// || zoom == _zoomLevel) return;
 
     _zoomLevel = std::max(0.01, zoom);
@@ -170,7 +167,6 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
-    std::cout << "Resize event" << std::endl;
     QGraphicsView::resizeEvent(e);
 
     if (_model == nullptr || !_model->isImageLoaded()) return;

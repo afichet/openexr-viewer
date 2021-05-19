@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_splitter(new QSplitter(this))
     , m_img(nullptr)
+    , m_openedFolder(QDir::homePath())
 {
     ui->setupUi(this);
     setAcceptDrops(true);
@@ -75,6 +76,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::open(const QString& filename)
 {
+    m_openedFolder = QFileInfo(filename).absolutePath();
+
     // Attempt opening the image
 
     OpenEXRImage* imageLoaded = nullptr;
@@ -154,7 +157,7 @@ void MainWindow::on_action_Open_triggered()
     const QString filename = QFileDialog::getOpenFileName(
                 this,
                 tr("Open OpenEXR Image"),
-                QDir::homePath(),
+                m_openedFolder,
                 tr("Images (*.exr)")
                 );
 
@@ -215,6 +218,7 @@ void MainWindow::writeSettings()
     settings.setValue("geometry"      , saveGeometry());
     settings.setValue("state"         , saveState());
     settings.setValue("splitter"      , m_splitter->saveState());
+    settings.setValue("openedFolder"  , m_openedFolder);
     settings.endGroup();
 }
 
@@ -228,6 +232,13 @@ void MainWindow::readSettings()
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
     m_splitter->restoreState(settings.value("splitter").toByteArray());
+
+    if (settings.contains("openedFolder")) {
+        m_openedFolder = settings.value("openedFolder").toString();
+    } else {
+        m_openedFolder = QDir::homePath();
+    }
+
     settings.endGroup();
 }
 
