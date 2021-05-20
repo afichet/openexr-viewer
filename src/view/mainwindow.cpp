@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
 
     m_treeView = new QTreeView(m_splitter);
+    m_treeView->setAlternatingRowColors(true);
     m_mdiArea = new QMdiArea(m_splitter);
     m_mdiArea->setViewMode(QMdiArea::TabbedView);
 

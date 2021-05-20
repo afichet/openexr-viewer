@@ -90,6 +90,7 @@ set(PROJECT_SOURCES
     src/util/ColormapModule.cpp
 
     openexr-viewer.rc
+    assets/themes/dark_flat.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -274,8 +274,8 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
 {
     const int polySize = 16;
 
-    QBrush a0(QColor(200, 200, 200));
-    QBrush a1(QColor(255, 255, 255));
+    QBrush a0(QColor(125, 125, 125));
+    QBrush a1(QColor(100, 100, 100));
 
     painter->resetTransform();
     painter->setPen(Qt::NoPen);
