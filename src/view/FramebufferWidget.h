@@ -53,11 +53,11 @@ private slots:
 
     void on_sbMaxValue_valueChanged(double arg1);
 
-    void on_cbColormap_currentIndexChanged(const QString &arg1);
-
     void on_buttonAuto_clicked();
 
     void onOpenFileOnDropEvent(const QString& filename);
+
+    void on_cbColormap_currentIndexChanged(int index);
 
 private:
     Ui::FramebufferWidget *ui;

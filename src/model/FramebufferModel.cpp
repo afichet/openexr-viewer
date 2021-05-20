@@ -137,7 +137,7 @@ void FramebufferModel::setMaxValue(double value)
     updateImage();
 }
 
-void FramebufferModel::setColormap(const QString &value)
+void FramebufferModel::setColormap(ColormapModule::Map map)
 {
     if (!m_isImageLoaded) { return; }
 
@@ -155,7 +155,7 @@ void FramebufferModel::setColormap(const QString &value)
         m_cmap = nullptr;
     }
 
-    m_cmap = ColormapModule::create(value.toLower().toStdString());
+    m_cmap = ColormapModule::create(map);
 
     updateImage();
 }

@@ -52,36 +52,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <item>
-        <property name="text">
-         <string>Grayscale</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Magma</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Inferno</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Viridis</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Plasma</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>BBGR</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>

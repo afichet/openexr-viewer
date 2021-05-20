@@ -28,6 +28,8 @@
 #include "FramebufferWidget.h"
 #include "ui_FramebufferWidget.h"
 
+#include <util/ColormapModule.h>
+
 FramebufferWidget::FramebufferWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FramebufferWidget)
@@ -37,6 +39,10 @@ FramebufferWidget::FramebufferWidget(QWidget *parent)
 
     connect(ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
             this, SLOT(onOpenFileOnDropEvent(QString)));
+
+    for (int i = 0; i < ColormapModule::N_MAPS; i++) {
+        ui->cbColormap->addItem(QString::fromStdString(ColormapModule::toString((ColormapModule::Map)i)));
+    }
 }
 
 
@@ -66,11 +72,6 @@ void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
     if (m_model) m_model->setMaxValue(arg1);
 }
 
-void FramebufferWidget::on_cbColormap_currentIndexChanged(const QString &arg1)
-{
-    if (m_model) m_model->setColormap(arg1);
-}
-
 void FramebufferWidget::on_buttonAuto_clicked()
 {
     if (m_model) {
@@ -82,5 +83,11 @@ void FramebufferWidget::on_buttonAuto_clicked()
 void FramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
 {
     emit openFileOnDropEvent(filename);
+}
+
+
+void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
+{
+    if (m_model) m_model->setColormap((ColormapModule::Map) index);
 }
 

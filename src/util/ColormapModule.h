@@ -33,6 +33,19 @@
 
 class ColormapModule
 {
-  public:
+public:
+    enum Map {
+        GRAYSCALE = 0,
+        BBGR,
+        MAGMA,
+        INFERNO,
+        PLASMA,
+        VIRIDIS,
+        N_MAPS
+    };
+
     static Colormap *create(const std::string &name);
+    static Colormap *create(Map map);
+
+    static std::string toString(Map map);
 };
