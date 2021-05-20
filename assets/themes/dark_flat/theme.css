@@ -115,6 +115,131 @@ QComboBox
 
 
 
+QPushButton
+{
+    border-radius: 4px;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+QPushButton:disabled
+{
+    border: 1px solid rgb(80, 80, 80);
+    background-color: rgb(50, 50, 50);
+}
+
+QPushButton:enabled
+{
+    border: 1px solid rgb(125, 125, 125);
+    background-color: rgb(80, 80, 80);
+}
+
+QPushButton:enabled:hover
+{
+    border: 1px solid rgb(255, 255, 255);
+    background-color: rgb(125, 125, 125);
+}
+
+QPushButton:enabled:pressed
+{
+    border: 1px solid rgb(255, 255, 255);
+    background-color: rgb(200, 200, 200);
+}
+
+
+
+
+QSpinBox,
+QDoubleSpinBox,
+QComboBox
+{
+    border-radius: 4px;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:1px;
+    padding-bottom:1px;
+}
+
+QSpinBox:disabled
+QDoubleSpinBox:disabled,
+QComboBox:disabled
+{
+    border: 1px solid rgb(80, 80, 80);
+}
+
+QSpinBox:enabled,
+QDoubleSpinBox:enabled,
+QComboBox:enabled
+{
+    border: 1px solid rgb(125, 125, 125);
+}
+
+QSpinBox:enabled:hover,
+QDoubleSpinBox:enabled:hover,
+QComboBox:enabled:hover
+{
+    border: 1px solid rgb(255, 255, 255);
+}
+
+QSpinBox:pressed,
+QDoubleSpinBox:pressed,
+QComboBox:pressed
+{
+    border: 1px solid rgb(255, 255, 255);
+}
+
+QComboBox::drop-down
+{
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+QSpinBox::up-button,
+QDoubleSpinBox::up-button
+{
+    border-top-right-radius: 2px;
+}
+
+QSpinBox::down-button,
+QDoubleSpinBox::down-button
+{
+    border-bottom-right-radius: 2px;
+}
+
+
+QSpinBox::up-button:enabled,
+QSpinBox::down-button:enabled,
+QDoubleSpinBox::up-button:enabled,
+QDoubleSpinBox::down-button:enabled,
+QComboBox::drop-down:enabled
+{
+    border: 1px solid rgb(125, 125, 125);
+    background-color: rgb(80, 80, 80);
+}
+
+QSpinBox::up-button:enabled:hover,
+QSpinBox::down-button:enabled:hover,
+QDoubleSpinBox::up-button:enabled:hover,
+QDoubleSpinBox::down-button:enabled:hover,
+QComboBox::drop-down:enabled:hover
+{
+    border: 1px solid rgb(255, 255, 255);
+    background-color: rgb(125, 125, 125);
+}
+
+
+QHeaderView:section
+{
+    border: 1px solid rgb(125, 125, 125);
+    background-color: rgb(80, 80, 80);
+    padding-left:3px;
+    padding-right:3px;
+    margin-bottom:5px;
+}
+
+
 
 
 QScrollBar:vertical,
@@ -131,8 +256,8 @@ QScrollBar:horizontal
 }
 
 QScrollBar:handle::horizontal,
-QScrollBar::add-line:horizontal,
-QScrollBar::sub-line:horizontal
+QScrollBar:add-line:horizontal,
+QScrollBar:sub-line:horizontal
 {
     background-color: QLinearGradient(
         x1: 0, y1: 0,

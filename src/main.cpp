@@ -1,6 +1,7 @@
 #include <view/mainwindow.h>
 
 #include <QApplication>
+#include <QFile>
 
 #if defined(WIN32)
 
