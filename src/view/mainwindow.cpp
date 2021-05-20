@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_splitter(new QSplitter(this))
     , m_img(nullptr)
     , m_openedFolder(QDir::homePath())
+    , m_statusBarMessage(new QLabel(this))
 {
     ui->setupUi(this);
     setAcceptDrops(true);
@@ -59,6 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_splitter->addWidget(m_mdiArea);
 
     setCentralWidget(m_splitter);
+
+    statusBar()->addPermanentWidget(m_statusBarMessage);
 
     connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(onDoubleClicked(QModelIndex)));
@@ -100,6 +103,8 @@ void MainWindow::open(const QString& filename)
         m_img = nullptr;
     }
 
+    m_statusBarMessage->setText(filename);
+
     m_img = imageLoaded;
     m_treeView->setModel(m_img->getHeaderModel());
     m_treeView->expandAll();
@@ -138,6 +143,10 @@ void MainWindow::open(const QString& filename)
         if (imageModel) {
             QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
                              this, SLOT(onLoadFailed(QString)));
+
+            QObject::connect(graphicView, SIGNAL(openFileOnDropEvent(QString)),
+                             this, SLOT(open(QString)));
+
             graphicView->setModel(imageModel);
             imageModel->load(m_img->getEXR(), 0, m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
@@ -280,8 +289,11 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
             item->getName(),
             graphicViewBW);
 
-        QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
+        QObject::connect(imageModelBW, SIGNAL(loadFailed(QString)),
                          this, SLOT(onLoadFailed(QString)));
+
+        QObject::connect(graphicViewBW, SIGNAL(openFileOnDropEvent(QString)),
+                         this, SLOT(open(QString)));
 
         graphicViewBW->setModel(imageModelBW);
         imageModelBW->load(m_img->getEXR(), item->getPartID());
@@ -297,6 +309,9 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
         QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
                          this, SLOT(onLoadFailed(QString)));
 
+        QObject::connect(graphicView, SIGNAL(openFileOnDropEvent(QString)),
+                         this, SLOT(open(QString)));
+
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
@@ -311,6 +326,9 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
         QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
                          this, SLOT(onLoadFailed(QString)));
 
+        QObject::connect(graphicView, SIGNAL(openFileOnDropEvent(QString)),
+                         this, SLOT(open(QString)));
+
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());
 
@@ -324,6 +342,9 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
 
         QObject::connect(imageModel, SIGNAL(loadFailed(QString)),
                          this, SLOT(onLoadFailed(QString)));
+
+        QObject::connect(graphicView, SIGNAL(openFileOnDropEvent(QString)),
+                         this, SLOT(open(QString)));
 
         graphicView->setModel(imageModel);
         imageModel->load(m_img->getEXR(), item->getPartID(), m_img->getHeaderModel()->getLayers()[0]->hasAChild());

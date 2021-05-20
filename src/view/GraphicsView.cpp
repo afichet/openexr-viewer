@@ -45,10 +45,14 @@ GraphicsView::GraphicsView(QWidget *parent)
     , _zoomLevel(1.f)
     , _autoscale(true)
 {
-    setScene(new GraphicsScene);
+    GraphicsScene *scene = new GraphicsScene;
+    setScene(scene);
     //  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     setMouseTracking(true);
     setAcceptDrops(true);
+
+    connect(scene, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(open(QString)));
 }
 
 
@@ -121,6 +125,12 @@ void GraphicsView::zoomOut()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
     setZoomLevel(_zoomLevel / 1.1);
+}
+
+void GraphicsView::open(const QString &filename)
+{
+    std::cout << filename.toStdString() << std::endl;
+    emit openFileOnDropEvent(filename);
 }
 
 
@@ -237,18 +247,18 @@ void GraphicsView::dropEvent(QDropEvent *ev)
     QList<QUrl> urls = ev->mimeData()->urls();
 
     if (!urls.empty()) {
-        QString fileName = urls[0].toString();
+        QString filename = urls[0].toString();
         QString startFileTypeString =
-        #ifdef _WIN32
+            #ifdef _WIN32
                 "file:///";
-#else
+            #else
                 "file://";
-#endif
+            #endif
 
-        if (fileName.startsWith(startFileTypeString)) {
-            fileName = fileName.remove(0, startFileTypeString.length());
-//            _model->openFile(fileName);
-            // TODO
+        if (filename.startsWith(startFileTypeString)) {
+            filename = filename.remove(0, startFileTypeString.length());
+
+            emit openFileOnDropEvent(filename);
         }
     }
 }

@@ -45,6 +45,9 @@ public:
 
     void setModel(FramebufferModel* model);
 
+signals:
+    void openFileOnDropEvent(const QString& filename);
+
 private slots:
     void on_sbMinValue_valueChanged(double arg1);
 
@@ -53,6 +56,8 @@ private slots:
     void on_cbColormap_currentIndexChanged(const QString &arg1);
 
     void on_buttonAuto_clicked();
+
+    void onOpenFileOnDropEvent(const QString& filename);
 
 private:
     Ui::FramebufferWidget *ui;

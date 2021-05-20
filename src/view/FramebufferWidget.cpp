@@ -34,6 +34,9 @@ FramebufferWidget::FramebufferWidget(QWidget *parent)
     , m_model(nullptr)
 {
     ui->setupUi(this);
+
+    connect(ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(onOpenFileOnDropEvent(QString)));
 }
 
 
@@ -74,5 +77,10 @@ void FramebufferWidget::on_buttonAuto_clicked()
         ui->sbMinValue->setValue(m_model->getDatasetMin());
         ui->sbMaxValue->setValue(m_model->getDatasetMax());
     }
+}
+
+void FramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+{
+    emit openFileOnDropEvent(filename);
 }
 

@@ -44,8 +44,14 @@ public:
 
     void setModel(RGBFramebufferModel* model);
 
+
+signals:
+    void openFileOnDropEvent(const QString& filename);
+
 private slots:
     void on_sbExposure_valueChanged(double arg1);
+
+    void onOpenFileOnDropEvent(const QString& filename);
 
 private:
     Ui::RGBFramebufferWidget *ui;

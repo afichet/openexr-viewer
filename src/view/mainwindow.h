@@ -31,6 +31,7 @@
 #include <QTreeView>
 #include <QMdiArea>
 #include <QSplitter>
+#include <QLabel>
 
 #include <QCloseEvent>
 #include <QDropEvent>
@@ -51,6 +52,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
     void open(const QString &filename);
 
 private slots:
@@ -93,4 +95,6 @@ private:
     OpenEXRImage* m_img;
 
     QString m_openedFolder;
+
+    QLabel* m_statusBarMessage;
 };

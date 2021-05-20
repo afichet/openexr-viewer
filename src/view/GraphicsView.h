@@ -50,8 +50,11 @@ public slots:
     void zoomIn();
     void zoomOut();
 
+    void open(const QString& filename);
+
 signals:
     void zoomLevelChanged(double zoom);
+    void openFileOnDropEvent(const QString& filename);
 
 //    void showDatawindowBoders(bool visible);
 //    void showDisplaywindowBorders(bool visible);

@@ -34,6 +34,9 @@ RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
     , m_model(nullptr)
 {
     ui->setupUi(this);
+
+    connect(ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(onOpenFileOnDropEvent(QString)));
 }
 
 RGBFramebufferWidget::~RGBFramebufferWidget()
@@ -53,4 +56,9 @@ void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
 void RGBFramebufferWidget::on_sbExposure_valueChanged(double arg1)
 {
     m_model->setExposure(arg1);
+}
+
+void RGBFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+{
+    emit openFileOnDropEvent(filename);
 }
