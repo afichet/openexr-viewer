@@ -14,6 +14,17 @@ Disclaimer
 This is a very early version... expect crashes, don't expect polished piece of software ;-)
 
 
+Installing
+==========
+
+There is prebuilt releases for Windows. You just need to download the installer i the release section and run it.
+
+For Arch Linux, there is an AUR package available. To install, do:
+```
+yay -S openexr-viewer
+```
+
+
 Building
 ========
 
