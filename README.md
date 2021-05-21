@@ -17,12 +17,18 @@ This is a very early version... expect crashes, don't expect polished piece of s
 Installing
 ==========
 
-There is prebuilt releases for Windows. You just need to download the installer i the release section and run it.
+Windows
+-------
+There is prebuilt releases for Windows. You just need to download the installer in the releases section and run it.
 
-For Arch Linux, there is an AUR package available. To install, do:
+Linux
+-----
+Currently, there is only a packave for Arch Linux. To install, do:
 ```
 yay -S openexr-viewer
 ```
+
+Soon, I will create packages for Ubuntu.
 
 
 Building
