@@ -88,6 +88,11 @@ QMenu::item
     background-color: transparent;
 }
 
+QMenuBar::item:selected
+{
+    background-color: rgb(80, 80, 80);
+}
+
 QMenu::item::selected,
 QMenuBar::item:pressed
 {
@@ -122,6 +127,7 @@ QPushButton
     padding-right:10px;
     padding-top:2px;
     padding-bottom:2px;
+    min-height: 18px;
 }
 
 QPushButton:disabled
@@ -160,6 +166,7 @@ QComboBox
     padding-right:10px;
     padding-top:1px;
     padding-bottom:1px;
+    height: 18px;
 }
 
 QSpinBox:disabled
@@ -194,18 +201,38 @@ QComboBox::drop-down
 {
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
+    image: url(:/dark_flat/icons/down-scroll.svg);
+    margin-top:-1px;
+    margin-bottom:-1px;
+    margin-right:-1px;
+    padding-left:6px;
+    padding-right:6px;
+    height:20px;
+    width:10px;
 }
 
 QSpinBox::up-button,
 QDoubleSpinBox::up-button
 {
     border-top-right-radius: 2px;
+    image: url(:/dark_flat/icons/up-scroll.svg);
+    width:8px;
+    height:7px;
+    padding:1px;
+    margin-top: -1px;
+    margin-right:-1px;
 }
 
 QSpinBox::down-button,
 QDoubleSpinBox::down-button
 {
     border-bottom-right-radius: 2px;
+    image: url(:/dark_flat/icons/down-scroll.svg);
+    width:8px;
+    height:7px;
+    padding:1px;
+    margin-bottom: -1px;
+    margin-right:-1px;
 }
 
 
