@@ -32,11 +32,23 @@
 
 #include <cstring>
 #include <cassert>
+#include <exception>
 
 TabulatedColormap::TabulatedColormap()
     : _array(3)
     , _n_elems(1)
 {}
+
+TabulatedColormap::TabulatedColormap(TabMap map)
+{
+    switch(map) {
+    case TAB_MAGMA: init(magma_data, 256); break;
+    case TAB_INFERNO: init(inferno_data, 256); break;
+    case TAB_PLASMA: init(plasma_data, 256); break;
+    case TAB_VIRIDIS: init(viridis_data, 256); break;
+    case N_TABMAPS: throw std::exception();
+    }
+}
 
 
 TabulatedColormap::TabulatedColormap(const char *name)

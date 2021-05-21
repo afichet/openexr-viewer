@@ -46,9 +46,18 @@ public slots:
     void onImageLoaded(int width, int height);
     void onImageChanged();
 
-    void setZoomLevel(float zoom);
+    void setZoomLevel(double zoom);
     void zoomIn();
     void zoomOut();
+
+    void open(const QString& filename);
+
+signals:
+    void zoomLevelChanged(double zoom);
+    void openFileOnDropEvent(const QString& filename);
+
+//    void showDatawindowBoders(bool visible);
+//    void showDisplaywindowBorders(bool visible);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -68,10 +77,15 @@ protected:
 private:
     const ImageModel *_model;
     QGraphicsPixmapItem *_imageItem;
+//    QGraphicsRectItem *_datawindowItem;
+//    QGraphicsRectItem *_displaywindowItem;
 
     QPoint _startDrag;
 
-    float _zoomLevel;
+    double _zoomLevel;
     bool  _autoscale;
+
+//    bool _showDatawindowBorders;
+//    bool _showDisplaywindowBorders;
 };
 

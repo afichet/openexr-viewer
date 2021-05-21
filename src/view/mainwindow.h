@@ -31,6 +31,7 @@
 #include <QTreeView>
 #include <QMdiArea>
 #include <QSplitter>
+#include <QLabel>
 
 #include <QCloseEvent>
 #include <QDropEvent>
@@ -51,7 +52,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void open(QString filename);
+public slots:
+    void open(const QString &filename);
 
 private slots:
     void on_action_Open_triggered();
@@ -75,6 +77,8 @@ private:
 private slots:
     void onDoubleClicked(const QModelIndex &index);
 
+    void onLoadFailed(const QString& msg);
+
     void on_action_Tabbed_triggered();
 
     void on_action_Cascade_triggered();
@@ -89,4 +93,8 @@ private:
     QMdiArea* m_mdiArea;
 
     OpenEXRImage* m_img;
+
+    QString m_openedFolder;
+
+    QLabel* m_statusBarMessage;
 };

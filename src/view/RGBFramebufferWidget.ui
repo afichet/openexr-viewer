@@ -28,6 +28,12 @@
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
      <item>
       <widget class="QLabel" name="label_2">
        <property name="sizePolicy">
@@ -42,7 +48,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+      <widget class="QDoubleSpinBox" name="sbExposure">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -73,6 +79,29 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Zoom</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="sbZoomLevel">
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -85,8 +114,45 @@
    <class>GraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>view/GraphicsView.h</header>
+   <slots>
+    <signal>zoomLevelChanged(double)</signal>
+    <slot>setZoomLevel(double)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sbZoomLevel</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>graphicsView</receiver>
+   <slot>setZoomLevel(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>722</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>514</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>graphicsView</sender>
+   <signal>zoomLevelChanged(double)</signal>
+   <receiver>sbZoomLevel</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>725</x>
+     <y>11</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

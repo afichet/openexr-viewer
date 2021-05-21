@@ -28,6 +28,15 @@
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
@@ -43,42 +52,12 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <item>
-        <property name="text">
-         <string>Grayscale</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Magma</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Inferno</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Viridis</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Plasma</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>BBGR</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Min</string>
+        <string>Range</string>
        </property>
       </widget>
      </item>
@@ -99,13 +78,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Max</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QDoubleSpinBox" name="sbMaxValue">
        <property name="minimum">
         <double>0.000000000000000</double>
@@ -122,6 +94,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonAuto">
+       <property name="text">
+        <string>Auto</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -133,6 +112,29 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Zoom</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="sbZoomLevel">
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -146,8 +148,45 @@
    <class>GraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>view/GraphicsView.h</header>
+   <slots>
+    <signal>zoomLevelChanged(double)</signal>
+    <slot>setZoomLevel(double)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sbZoomLevel</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>graphicsView</receiver>
+   <slot>setZoomLevel(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>759</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>723</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>graphicsView</sender>
+   <signal>zoomLevelChanged(double)</signal>
+   <receiver>sbZoomLevel</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>534</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>745</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

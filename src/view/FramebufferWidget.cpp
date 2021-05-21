@@ -28,18 +28,28 @@
 #include "FramebufferWidget.h"
 #include "ui_FramebufferWidget.h"
 
-FramebufferWidget::FramebufferWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FramebufferWidget)
+#include <util/ColormapModule.h>
+
+FramebufferWidget::FramebufferWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::FramebufferWidget)
+    , m_model(nullptr)
 {
     ui->setupUi(this);
+
+    connect(ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(onOpenFileOnDropEvent(QString)));
+
+    for (int i = 0; i < ColormapModule::N_MAPS; i++) {
+        ui->cbColormap->addItem(QString::fromStdString(ColormapModule::toString((ColormapModule::Map)i)));
+    }
 }
 
 
 FramebufferWidget::~FramebufferWidget()
 {
     delete ui;
-    delete m_model;
+    if (m_model) delete m_model;
 }
 
 
@@ -53,16 +63,31 @@ void FramebufferWidget::setModel(FramebufferModel *model)
 void FramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
     ui->sbMaxValue->setMinimum(arg1);
-    m_model->setMinValue(arg1);
+    if (m_model) m_model->setMinValue(arg1);
 }
 
 void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
-    m_model->setMaxValue(arg1);
+    if (m_model) m_model->setMaxValue(arg1);
 }
 
-void FramebufferWidget::on_cbColormap_currentIndexChanged(const QString &arg1)
+void FramebufferWidget::on_buttonAuto_clicked()
 {
-    m_model->setColormap(arg1);
+    if (m_model) {
+        ui->sbMinValue->setValue(m_model->getDatasetMin());
+        ui->sbMaxValue->setValue(m_model->getDatasetMax());
+    }
 }
+
+void FramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+{
+    emit openFileOnDropEvent(filename);
+}
+
+
+void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
+{
+    if (m_model) m_model->setColormap((ColormapModule::Map) index);
+}
+

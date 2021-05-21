@@ -27,6 +27,8 @@
 //
 #include "ColormapModule.h"
 
+#include <exception>
+
 #include "BBGRColormap.h"
 #include "TabulatedColormap.h"
 #include "YColormap.h"
@@ -48,11 +50,36 @@ Colormap *ColormapModule::create(const std::string &name)
     } else if (strcmp(colormap_name, "grayscale") == 0) {
         return new YColormap();
     } else {
-//        std::cout << "[error] Invalid colormap name: " << name << std::endl;
-//        std::cout << "[error] Valid names are: bbgr, magma, inferno, "
-//                         "plasma or viridis"
-//                      << std::endl;
-
-        throw -1;
+        throw std::exception();
     }
+}
+
+Colormap *ColormapModule::create(Map map)
+{
+    switch(map) {
+    case GRAYSCALE: return new YColormap();
+    case BBGR: return new BBGRColormap();
+    case MAGMA: return new TabulatedColormap(TabulatedColormap::TAB_MAGMA);
+    case INFERNO: return new TabulatedColormap(TabulatedColormap::TAB_INFERNO);
+    case PLASMA: return new TabulatedColormap(TabulatedColormap::TAB_PLASMA);
+    case VIRIDIS: return new TabulatedColormap(TabulatedColormap::TAB_VIRIDIS);
+    case N_MAPS: throw std::exception();
+    }
+
+    return nullptr;
+}
+
+std::string ColormapModule::toString(Map map)
+{
+    switch(map) {
+    case GRAYSCALE: return "Grayscale";
+    case BBGR: return "BBGR";
+    case MAGMA: return "Magma";
+    case INFERNO: return "Inferno";
+    case PLASMA: return "Plasma";
+    case VIRIDIS: return "Viridis";
+    case N_MAPS: throw std::exception();
+    }
+
+    return "";
 }

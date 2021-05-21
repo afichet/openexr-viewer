@@ -44,6 +44,6 @@ public:
   void dropEvent(QGraphicsSceneDragDropEvent *event);
 
 signals:
-  void openFileOnDropEvent(QString);
+    void openFileOnDropEvent(const QString& filename);
 };
 

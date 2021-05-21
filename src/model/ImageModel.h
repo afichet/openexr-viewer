@@ -47,6 +47,9 @@ public:
 
   bool isImageLoaded() const { return m_isImageLoaded; }
 
+  int width() const { return m_width; }
+  int height() const { return m_height; }
+
 signals:
   void imageChanged();
   void imageLoaded(int width, int height);

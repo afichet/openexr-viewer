@@ -28,17 +28,22 @@
 #include "RGBFramebufferWidget.h"
 #include "ui_RGBFramebufferWidget.h"
 
-RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::RGBFramebufferWidget)
+RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::RGBFramebufferWidget)
+    , m_model(nullptr)
 {
     ui->setupUi(this);
+
+    connect(ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(onOpenFileOnDropEvent(QString)));
 }
 
 RGBFramebufferWidget::~RGBFramebufferWidget()
 {
     delete ui;
-    delete m_model;
+
+    if (m_model) delete m_model;
 }
 
 void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
@@ -48,7 +53,12 @@ void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
 }
 
 
-void RGBFramebufferWidget::on_doubleSpinBox_2_valueChanged(double arg1)
+void RGBFramebufferWidget::on_sbExposure_valueChanged(double arg1)
 {
     m_model->setExposure(arg1);
+}
+
+void RGBFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+{
+    emit openFileOnDropEvent(filename);
 }

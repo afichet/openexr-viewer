@@ -45,10 +45,14 @@ GraphicsView::GraphicsView(QWidget *parent)
     , _zoomLevel(1.f)
     , _autoscale(true)
 {
-    setScene(new GraphicsScene);
+    GraphicsScene *scene = new GraphicsScene;
+    setScene(scene);
     //  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     setMouseTracking(true);
     setAcceptDrops(true);
+
+    connect(scene, SIGNAL(openFileOnDropEvent(QString)),
+            this, SLOT(open(QString)));
 }
 
 
@@ -68,9 +72,16 @@ void GraphicsView::setModel(const ImageModel *model)
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
-    _zoomLevel = 1.f;
     fitInView(0, 0, width, height, Qt::KeepAspectRatio);
-    _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+
+    if (zoomLevel > 1.) {
+        setZoomLevel(1.);
+    } else {
+        setZoomLevel(zoomLevel);
+    }
+
+    // We want autoscale when loading a new image
     _autoscale = true;
 }
 
@@ -90,13 +101,16 @@ void GraphicsView::onImageChanged()
 }
 
 
-void GraphicsView::setZoomLevel(float zoom)
+void GraphicsView::setZoomLevel(double zoom)
 {
-    if (_model == nullptr || !_model->isImageLoaded()) return;
-    _autoscale = false;
-    _zoomLevel = std::max(0.01f, zoom);
+    if (_model == nullptr || !_model->isImageLoaded()) return;// || zoom == _zoomLevel) return;
+
+    _zoomLevel = std::max(0.01, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
+    _autoscale = false;
+
+    emit zoomLevelChanged(zoom);
 }
 
 
@@ -112,6 +126,32 @@ void GraphicsView::zoomOut()
     if (_model == nullptr || !_model->isImageLoaded()) return;
     setZoomLevel(_zoomLevel / 1.1);
 }
+
+void GraphicsView::open(const QString &filename)
+{
+    std::cout << filename.toStdString() << std::endl;
+    emit openFileOnDropEvent(filename);
+}
+
+
+//void GraphicsView::showDatawindowBoders(bool visible)
+//{
+//    if (_model == nullptr) return;
+
+//    if (_datawindowItem != nullptr) {
+//        scene()->removeItem(_datawindowItem);
+//        delete _datawindowItem;
+//        _datawindowItem = nullptr;
+//    }
+
+//    _datawindowItem = scene()->addRect(0, 0, m_)
+//}
+
+
+//void GraphicsView::showDisplaywindowBorders(bool visible)
+//{
+
+//}
 
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
@@ -145,10 +185,16 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
         fitInView(0, 0, _model->getLoadedImage().width(), _model->getLoadedImage().height(), Qt::KeepAspectRatio);
     
         // We don't want the zoom level above 1 when auto scaling and resizing
-        _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
-        if (_zoomLevel > 1.) {
+        const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+
+        if (zoomLevel > 1.) {
             setZoomLevel(1.);
+        } else {
+            setZoomLevel(zoomLevel);
         }
+
+        // Need to be restored, setZoomLevel set it to false
+        _autoscale = true;
     }
 }
 
@@ -186,7 +232,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void GraphicsView::mouseReleaseEvent(QMouseEvent *)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
@@ -201,18 +247,18 @@ void GraphicsView::dropEvent(QDropEvent *ev)
     QList<QUrl> urls = ev->mimeData()->urls();
 
     if (!urls.empty()) {
-        QString fileName = urls[0].toString();
+        QString filename = urls[0].toString();
         QString startFileTypeString =
-        #ifdef _WIN32
+            #ifdef _WIN32
                 "file:///";
-#else
+            #else
                 "file://";
-#endif
+            #endif
 
-        if (fileName.startsWith(startFileTypeString)) {
-            fileName = fileName.remove(0, startFileTypeString.length());
-//            _model->openFile(fileName);
-            // TODO
+        if (filename.startsWith(startFileTypeString)) {
+            filename = filename.remove(0, startFileTypeString.length());
+
+            emit openFileOnDropEvent(filename);
         }
     }
 }
@@ -224,20 +270,20 @@ void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
 }
 
 
-void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
 {
     const int polySize = 16;
 
-    QBrush a0(QColor(200, 200, 200));
-    QBrush a1(QColor(255, 255, 255));
+    QBrush a0(QColor(125, 125, 125));
+    QBrush a1(QColor(100, 100, 100));
 
     painter->resetTransform();
     painter->setPen(Qt::NoPen);
 
-    for (int i = 0; i < width()/polySize; i++) {
+    for (int i = 0; i < width()/polySize + 1; i++) {
         const int x = i * polySize;
 
-        for (int j = 0; j < height()/polySize; j++) {
+        for (int j = 0; j < height()/polySize + 1; j++) {
             const int y = j * polySize;
 
             if ((i+j)%2 == 0) {
@@ -246,9 +292,15 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
                 painter->setBrush(a1);
             }
 
-            painter->drawPolygon(QRect(x, y, polySize, polySize));
+            painter->drawRect(QRect(x, y, polySize, polySize));
         }
     }
+
+//    if (_model && _model->isImageLoaded()) {
+//        painter->setPen(Qt::SolidLine);
+//        painter->setBrush(QColor(0, 0, 0, 0));
+//        painter->drawPolygon(mapFromScene(-1, -1, _model->width()+1, _model->height()+1));
+//    }
 }
 
 

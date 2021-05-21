@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR}Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+
 
 # Retrieve the absolute path to qmake and then use that path to find
 # the windeployqt binary
@@ -45,7 +46,6 @@ function(windeployqt target directory)
             env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
                 --verbose 0
                 --no-compiler-runtime
-                --no-angle
                 --no-opengl-sw
                 \"$<TARGET_FILE:${target}>\"
     )
@@ -66,7 +66,6 @@ function(windeployqt target directory)
                 env PATH=\"${_qt_bin_dir}\" \"${WINDEPLOYQT_EXECUTABLE}\"
                     --dry-run
                     --no-compiler-runtime
-                    --no-angle
                     --no-opengl-sw
                     --list mapping
                     \${_file}
@@ -93,8 +92,7 @@ function(windeployqt target directory)
     foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
         get_filename_component(filename "${lib}" NAME)
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E
-                copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${target}>\"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${target}>\"
         )
     endforeach()
 

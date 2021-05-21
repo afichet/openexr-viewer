@@ -39,15 +39,18 @@ GraphicsScene::GraphicsScene(QObject *parent): QGraphicsScene(parent) {}
 
 GraphicsScene::~GraphicsScene() {}
 
+
 void GraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->setAccepted(true);
 }
 
+
 void GraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->setAccepted(true);
 }
+
 
 void GraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *ev)
 {
@@ -55,18 +58,19 @@ void GraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *ev)
 
     if (!urls.empty())
     {
-        QString fileName = urls[0].toString();
+        QString filename = urls[0].toString();
         QString startFileTypeString =
-        #ifdef _WIN32
+            #ifdef _WIN32
                 "file:///";
-#else
+            #else
                 "file://";
-#endif
+            #endif
 
-        if (fileName.startsWith(startFileTypeString))
+        if (filename.startsWith(startFileTypeString))
         {
-            fileName = fileName.remove(0, startFileTypeString.length());
-            emit openFileOnDropEvent(fileName);
+            filename = filename.remove(0, startFileTypeString.length());
+
+            emit openFileOnDropEvent(filename);
         }
     }
 }

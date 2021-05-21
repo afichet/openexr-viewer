@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>dark_flat/theme.css</file>
+        <file>dark_flat/icons/down-scroll.svg</file>
+        <file>dark_flat/icons/left-scroll.svg</file>
+        <file>dark_flat/icons/right-scroll.svg</file>
+        <file>dark_flat/icons/up-scroll.svg</file>
+    </qresource>
+</RCC>

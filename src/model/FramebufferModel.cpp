@@ -60,54 +60,69 @@ void FramebufferModel::load(
     int partId)
 {
     QFuture<void> imageLoading = QtConcurrent::run([&]() {
-        Imf::InputPart part(file, partId);
+        try {
+            Imf::InputPart part(file, partId);
 
-        Imath::Box2i dw = part.header().dataWindow();
-        m_width  = dw.max.x - dw.min.x + 1;
-        m_height = dw.max.y - dw.min.y + 1;
+            Imath::Box2i dw = part.header().dataWindow();
+            m_width  = dw.max.x - dw.min.x + 1;
+            m_height = dw.max.y - dw.min.y + 1;
 
-        // TODO viewport
+            // TODO viewport
+            Imf::Slice graySlice;
+            // TODO: Check it that can be guess from the header
+            // also, check if this can be nested
+            if (m_layer == "BY" || m_layer == "RY") {
+                m_width /= 2;
+                m_height /= 2;
 
-        Imf::Slice graySlice;
-        // TODO: Check it that can be guess from the header
-        // also, check if this can be nested
-        if (m_layer == "BY" || m_layer == "RY") {
-            m_width /= 2;
-            m_height /= 2;
+                m_pixelBuffer = new float[m_width * m_height];
 
-            m_pixelBuffer = new float[m_width * m_height];
+                // Luminance Chroma channels
+                graySlice = Imf::Slice::Make(
+                            Imf::PixelType::FLOAT,
+                            m_pixelBuffer,
+                            dw,
+                            sizeof(float), m_width * sizeof(float),
+                            2, 2
+                            );
+            } else {
+                m_pixelBuffer = new float[m_width * m_height];
 
-            // Luminance Chroma channels
-            graySlice = Imf::Slice::Make(
-                        Imf::PixelType::FLOAT,
-                        m_pixelBuffer,
-                        dw,
-                        sizeof(float), m_width * sizeof(float),
-                        2, 2
-            );
-        } else {
-            m_pixelBuffer = new float[m_width * m_height];
+                graySlice = Imf::Slice::Make(
+                            Imf::PixelType::FLOAT,
+                            m_pixelBuffer,
+                            dw);
+            }
 
-            graySlice = Imf::Slice::Make(
-                    Imf::PixelType::FLOAT,
-                    m_pixelBuffer,
-                    dw);
+            Imf::FrameBuffer framebuffer;
+
+            framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
+
+            part.setFrameBuffer(framebuffer);
+            part.readPixels(dw.min.y, dw.max.y);
+
+            // Determine min and max of the dataset
+            m_datasetMin = std::numeric_limits<double>::infinity();
+            m_datasetMax = -std::numeric_limits<double>::infinity();
+
+            for (int i = 0; i < m_width * m_height; i++) {
+                m_datasetMin = std::min(m_datasetMin, (double)m_pixelBuffer[i]);
+                m_datasetMax = std::max(m_datasetMax, (double)m_pixelBuffer[i]);
+            }
+
+            m_image = QImage(m_width, m_height, QImage::Format_RGB888);
+            m_isImageLoaded = true;
+
+            emit imageLoaded(m_width, m_height);
+
+            updateImage();
+        }  catch (std::exception &e) {
+            emit loadFailed(e.what());
+            return;
         }
-
-        Imf::FrameBuffer framebuffer;
-
-        framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
-
-        part.setFrameBuffer(framebuffer);
-        part.readPixels(dw.min.y, dw.max.y);
-
-        m_isImageLoaded = true;
-        emit imageLoaded(m_width, m_height);
     });
 
     m_imageLoadingWatcher->setFuture(imageLoading);
-
-    updateImage();
 }
 
 void FramebufferModel::setMinValue(double value)
@@ -122,12 +137,17 @@ void FramebufferModel::setMaxValue(double value)
     updateImage();
 }
 
-void FramebufferModel::setColormap(const QString &value)
+void FramebufferModel::setColormap(ColormapModule::Map map)
 {
-    // Bad idea to change the colormap if a process is using it
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->cancel();
-        m_imageLoadingWatcher->waitForFinished();
+    if (!m_isImageLoaded) { return; }
+
+    // Several call can occur within a short time e.g., when changing exposure
+    // Ensure to cancel any previous running conversion and wait for the
+    // process to end
+    // Also, bad idea to change the colormap if a process is using it
+    if (m_imageEditingWatcher->isRunning()) {
+        m_imageEditingWatcher->cancel();
+        m_imageEditingWatcher->waitForFinished();
     }
 
     if (m_cmap) {
@@ -135,16 +155,14 @@ void FramebufferModel::setColormap(const QString &value)
         m_cmap = nullptr;
     }
 
-    m_cmap = ColormapModule::create(value.toLower().toStdString());
+    m_cmap = ColormapModule::create(map);
 
     updateImage();
 }
 
 void FramebufferModel::updateImage()
 {
-    if (m_imageLoadingWatcher->isRunning()) {
-        m_imageLoadingWatcher->waitForFinished();
-    }
+    if (!m_isImageLoaded) { return; }
 
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
@@ -155,8 +173,6 @@ void FramebufferModel::updateImage()
     }
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
-        m_image = QImage(m_width, m_height, QImage::Format_RGB888);
-
         for (int y = 0; y < m_image.height(); y++) {
             unsigned char * line = m_image.scanLine(y);
 

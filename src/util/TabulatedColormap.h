@@ -34,7 +34,17 @@
 class TabulatedColormap: public Colormap
 {
   public:
+    enum TabMap {
+        TAB_MAGMA = 0,
+        TAB_INFERNO,
+        TAB_PLASMA,
+        TAB_VIRIDIS,
+        N_TABMAPS
+    };
+
     TabulatedColormap();
+
+    TabulatedColormap(TabMap map);
 
     TabulatedColormap(const char *name);
 
