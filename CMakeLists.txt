@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 project(openexr-viewer 
-    VERSION 0.1.1
+    VERSION 0.2
     DESCRIPTION "Simple Viewer for OpenEXR files with detailed metadata display"
     HOMEPAGE_URL "https://github.com/afichet/openexr-viewer"
     LANGUAGES CXX 
