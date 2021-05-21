@@ -63,9 +63,18 @@ void RGBFramebufferModel::load(
         try {
             Imf::InputPart part(file, partId);
 
-            Imath::Box2i dw = part.header().dataWindow();
-            m_width  = dw.max.x - dw.min.x + 1;
-            m_height = dw.max.y - dw.min.y + 1;
+            Imath::Box2i datW = part.header().dataWindow();
+            m_width  = datW.max.x - datW.min.x + 1;
+            m_height = datW.max.y - datW.min.y + 1;
+
+            m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
+
+            Imath::Box2i dispW = part.header().displayWindow();
+
+            int dispW_width  = dispW.max.x - dispW.min.x + 1;
+            int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+            m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
 
             // TODO viewport
 
@@ -79,13 +88,13 @@ void RGBFramebufferModel::load(
                 Imf::Slice aSlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &m_pixelBuffer[3],
-                        dw,
+                        datW,
                         4 * sizeof(float), 4 * m_width * sizeof(float));
 
                 framebuffer.insert(aLayer.toStdString(), aSlice);
 
                 part.setFrameBuffer(framebuffer);
-                part.readPixels(dw.min.y, dw.max.y);
+                part.readPixels(datW.min.y, datW.max.y);
 
             } else {
                 for (int y = 0; y < m_height; y++) {
@@ -107,19 +116,19 @@ void RGBFramebufferModel::load(
                 Imf::Slice rSlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &m_pixelBuffer[0],
-                        dw,
+                        datW,
                         4 * sizeof(float), 4 * m_width * sizeof(float));
 
                 Imf::Slice gSlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &m_pixelBuffer[1],
-                        dw,
+                        datW,
                         4 * sizeof(float), 4 * m_width * sizeof(float));
 
                 Imf::Slice bSlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &m_pixelBuffer[2],
-                        dw,
+                        datW,
                         4 * sizeof(float), 4 * m_width * sizeof(float));
 
 
@@ -128,7 +137,7 @@ void RGBFramebufferModel::load(
                 framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
 
                 part.setFrameBuffer(framebuffer);
-                part.readPixels(dw.min.y, dw.max.y);
+                part.readPixels(datW.min.y, datW.max.y);
             }
                 break;
 
@@ -147,20 +156,20 @@ void RGBFramebufferModel::load(
                 Imf::Slice ySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &yBuffer[0],
-                        dw,
+                        datW,
                         sizeof(float), m_width * sizeof(float));
 
                 Imf::Slice rySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &ryBuffer[0],
-                        dw,
+                        datW,
                         sizeof(float), m_width/2 * sizeof(float),
                         2, 2);
 
                 Imf::Slice bySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &byBuffer[0],
-                        dw,
+                        datW,
                         sizeof(float), m_width/2 * sizeof(float),
                         2, 2);
 
@@ -169,7 +178,7 @@ void RGBFramebufferModel::load(
                 framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
 
                 part.setFrameBuffer(framebuffer);
-                part.readPixels(dw.min.y, dw.max.y);
+                part.readPixels(datW.min.y, datW.max.y);
 
                 // Now recompute the image
                 // TODO: use chromaticities from header
@@ -206,13 +215,13 @@ void RGBFramebufferModel::load(
                 Imf::Slice ySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             &m_pixelBuffer[0],
-                        dw,
+                        datW,
                         4 * sizeof(float), 4 * m_width * sizeof(float));
 
                 framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
 
                 part.setFrameBuffer(framebuffer);
-                part.readPixels(dw.min.y, dw.max.y);
+                part.readPixels(datW.min.y, datW.max.y);
 
 #pragma omp parallel for
                 for (int y = 0; y < m_height; y++) {

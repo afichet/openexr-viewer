@@ -136,6 +136,26 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="cbShowDataWindow">
+       <property name="text">
+        <string>Data Window</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbShowDisplayWindow">
+       <property name="text">
+        <string>Display Window</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

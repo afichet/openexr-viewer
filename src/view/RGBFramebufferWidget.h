@@ -53,6 +53,10 @@ private slots:
 
     void onOpenFileOnDropEvent(const QString& filename);
 
+    void on_cbShowDataWindow_stateChanged(int arg1);
+
+    void on_cbShowDisplayWindow_stateChanged(int arg1);
+
 private:
     Ui::RGBFramebufferWidget *ui;
     RGBFramebufferModel* m_model;

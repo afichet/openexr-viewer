@@ -31,45 +31,50 @@
 #include <QImage>
 #include <QVector>
 #include <QFutureWatcher>
+#include <QRect>
 #include <array>
 
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
 class ImageModel: public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  ImageModel(QObject *parent = nullptr);
-  virtual ~ImageModel();
+    ImageModel(QObject *parent = nullptr);
+    virtual ~ImageModel();
 
-  const QImage &getLoadedImage() const { return m_image; }
+    const QImage &getLoadedImage() const { return m_image; }
 
-  bool isImageLoaded() const { return m_isImageLoaded; }
+    bool isImageLoaded() const { return m_isImageLoaded; }
 
-  int width() const { return m_width; }
-  int height() const { return m_height; }
+    int width() const { return m_width; }
+    int height() const { return m_height; }
+
+    QRect getDisplayWindow() const;
+    QRect getDataWindow() const;
 
 signals:
-  void imageChanged();
-  void imageLoaded(int width, int height);
-  void exposureChanged(double exposure);
-  void loadFailed(QString message);
+    void imageChanged();
+    void imageLoaded(int width, int height);
+    void exposureChanged(double exposure);
+    void loadFailed(QString message);
 
 protected:
 
-  float * m_pixelBuffer;
-  QImage  m_image;
+    float * m_pixelBuffer;
+    QImage  m_image;
 
-  int m_width, m_height;
+    int m_width, m_height;
 
-  bool m_isImageLoaded;
+    bool m_isImageLoaded;
 
-//  QPolygonF          _macbethOutline;
+    double m_exposure;
 
-  double m_exposure;
+    QFutureWatcher<void> *m_imageLoadingWatcher;
+    QFutureWatcher<void> *m_imageEditingWatcher;
 
-  QFutureWatcher<void> *m_imageLoadingWatcher;
-  QFutureWatcher<void> *m_imageEditingWatcher;
+    QRect m_dataWindow;
+    QRect m_displayWindow;
 };
 

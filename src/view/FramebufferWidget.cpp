@@ -91,3 +91,15 @@ void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
     if (m_model) m_model->setColormap((ColormapModule::Map) index);
 }
 
+
+void FramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
+{
+    ui->graphicsView->showDataWindow(arg1 == Qt::Checked);
+}
+
+
+void FramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
+{
+    ui->graphicsView->showDisplayWindow(arg1 == Qt::Checked);
+}
+

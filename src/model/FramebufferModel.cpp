@@ -63,9 +63,18 @@ void FramebufferModel::load(
         try {
             Imf::InputPart part(file, partId);
 
-            Imath::Box2i dw = part.header().dataWindow();
-            m_width  = dw.max.x - dw.min.x + 1;
-            m_height = dw.max.y - dw.min.y + 1;
+            Imath::Box2i datW = part.header().dataWindow();
+            m_width  = datW.max.x - datW.min.x + 1;
+            m_height = datW.max.y - datW.min.y + 1;
+
+            m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
+
+            Imath::Box2i dispW = part.header().displayWindow();
+
+            int dispW_width  = dispW.max.x - dispW.min.x + 1;
+            int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+            m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
 
             // TODO viewport
             Imf::Slice graySlice;
@@ -81,7 +90,7 @@ void FramebufferModel::load(
                 graySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             m_pixelBuffer,
-                            dw,
+                            datW,
                             sizeof(float), m_width * sizeof(float),
                             2, 2
                             );
@@ -91,7 +100,7 @@ void FramebufferModel::load(
                 graySlice = Imf::Slice::Make(
                             Imf::PixelType::FLOAT,
                             m_pixelBuffer,
-                            dw);
+                            datW);
             }
 
             Imf::FrameBuffer framebuffer;
@@ -99,7 +108,7 @@ void FramebufferModel::load(
             framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
 
             part.setFrameBuffer(framebuffer);
-            part.readPixels(dw.min.y, dw.max.y);
+            part.readPixels(datW.min.y, datW.max.y);
 
             // Determine min and max of the dataset
             m_datasetMin = std::numeric_limits<double>::infinity();

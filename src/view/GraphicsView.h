@@ -50,14 +50,16 @@ public slots:
     void zoomIn();
     void zoomOut();
 
+    void autoscale();
+
     void open(const QString& filename);
+
+    void showDisplayWindow(bool show);
+    void showDataWindow(bool show);
 
 signals:
     void zoomLevelChanged(double zoom);
     void openFileOnDropEvent(const QString& filename);
-
-//    void showDatawindowBoders(bool visible);
-//    void showDisplaywindowBorders(bool visible);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -71,6 +73,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
     virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+    virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
     virtual void scrollContentsBy(int dx, int dy) override;
 
@@ -85,7 +88,11 @@ private:
     double _zoomLevel;
     bool  _autoscale;
 
-//    bool _showDatawindowBorders;
-//    bool _showDisplaywindowBorders;
+    QRect _dataWindow;
+    QRect _displayWindow;
+
+    bool _showDataWindow;
+    bool _showDisplayWindow;
+
 };
 
