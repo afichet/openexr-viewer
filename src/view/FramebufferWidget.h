@@ -63,6 +63,8 @@ private slots:
 
     void on_cbShowDisplayWindow_stateChanged(int arg1);
 
+    void on_cbScale_stateChanged(int arg1);
+
 private:
     Ui::FramebufferWidget *ui;
     FramebufferModel* m_model;

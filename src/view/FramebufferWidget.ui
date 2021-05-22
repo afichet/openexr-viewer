@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>822</width>
-    <height>590</height>
+    <width>991</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,6 +101,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="cbScale">
+       <property name="text">
+        <string>Scale</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -159,7 +169,14 @@
     </layout>
    </item>
    <item>
-    <widget class="GraphicsView" name="graphicsView"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="GraphicsView" name="graphicsView"/>
+     </item>
+     <item>
+      <widget class="ScaleWidget" name="scaleWidget" native="true"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -172,6 +189,12 @@
     <signal>zoomLevelChanged(double)</signal>
     <slot>setZoomLevel(double)</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ScaleWidget</class>
+   <extends>QWidget</extends>
+   <header>view/ScaleWidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

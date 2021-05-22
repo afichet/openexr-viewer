@@ -61,6 +61,9 @@ set(PROJECT_SOURCES
     src/view/FramebufferWidget.h
     src/view/FramebufferWidget.ui
 
+    src/view/ScaleWidget.cpp
+    src/view/ScaleWidget.h
+
     src/model/OpenEXRImage.cpp
     src/model/OpenEXRImage.h
     src/model/OpenEXRLayerItem.cpp
