@@ -67,22 +67,21 @@ void FramebufferModel::load(
             m_width  = datW.max.x - datW.min.x + 1;
             m_height = datW.max.y - datW.min.y + 1;
 
-            m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
-
-            Imath::Box2i dispW = part.header().displayWindow();
-
-            int dispW_width  = dispW.max.x - dispW.min.x + 1;
-            int dispW_height = dispW.max.y - dispW.min.y + 1;
-
-            m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
-
-            // TODO viewport
             Imf::Slice graySlice;
             // TODO: Check it that can be guess from the header
             // also, check if this can be nested
             if (m_layer == "BY" || m_layer == "RY") {
                 m_width /= 2;
                 m_height /= 2;
+
+                m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
+
+                Imath::Box2i dispW = part.header().displayWindow();
+
+                int dispW_width  = dispW.max.x - dispW.min.x + 1;
+                int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+                m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width/2, dispW_height/2);
 
                 m_pixelBuffer = new float[m_width * m_height];
 
@@ -95,6 +94,15 @@ void FramebufferModel::load(
                             2, 2
                             );
             } else {
+                m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
+
+                Imath::Box2i dispW = part.header().displayWindow();
+
+                int dispW_width  = dispW.max.x - dispW.min.x + 1;
+                int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+                m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
+
                 m_pixelBuffer = new float[m_width * m_height];
 
                 graySlice = Imf::Slice::Make(
