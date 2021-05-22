@@ -22,6 +22,24 @@ cmake_policy(SET CMP0074 NEW)
 
 include(GNUInstallDirs)
 
+
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+    set(MACOSX_BUNDLE_BUNDLE_NAME "OpenEXR-Viewer")
+    set(MACOSX_BUNDLE_CONTENTS "${CMAKE_CURRENT_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app/Contents")
+    set(MACOSX_BUNDLE_RESOUCES "${MACOSX_BUNDLE_CONTENTS}/Resources")
+    set(MACOSX_BUNDLE_ICON_FILE "openexr-viewer.icns")
+    set(MACOSX_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/deploy/icon/${MACOSX_BUNDLE_ICON_FILE}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${MACOSX_BUNDLE_RESOUCES}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${MACOSX_BUNDLE_ICON}" "${MACOSX_BUNDLE_RESOUCES}")
+endif (APPLE)
+
+
 # ----------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------
@@ -126,6 +144,21 @@ else()
     endif()
 endif()
 
+
+if (APPLE)
+    set_target_properties(openexr-viewer PROPERTIES
+        OUTPUT_NAME ${MACOSX_BUNDLE_BUNDLE_NAME}
+        MACOSX_BUNDLE TRUE
+        MACOSX_RPATH TRUE
+        MACOSX_FRAMEWORK_IDENTIFIER com.gitlab.afichet.openexrviewer
+        XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@loader_path/Libraries"
+        RESOURCE "${RESOURCE_FILES}"
+        XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME TRUE
+        XCODE_ATTRIBUTE_EXECUTABLE_NAME "exeName"
+)
+
+endif ()
+
 target_include_directories(openexr-viewer PRIVATE src)
 target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
 
@@ -147,14 +180,14 @@ if (WIN32)
         $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Gui>
         $<TARGET_FILE_DIR:openexr-viewer>
         )
-endif(WIN32)
+endif (WIN32)
 
 
 # ----------------------------------------------------------------------------
 # Install Rules
 # ----------------------------------------------------------------------------
 
-if(UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE)
     install(TARGETS openexr-viewer)
 
     # Application desktop entry
@@ -180,7 +213,11 @@ if(UNIX AND NOT APPLE)
         DESTINATION
             share/pixmaps
     )
-elseif(WIN32)
+elseif (APPLE)
+    install(TARGETS openexr-viewer DESTINATION "." COMPONENT Libraries)
+    include(Macdeployqt)
+    macdeployqt(openexr-viewer)
+elseif (WIN32)
     install(
         TARGETS 
             openexr-viewer 
@@ -205,7 +242,7 @@ elseif(WIN32)
 
     include(Windeployqt)
     windeployqt(openexr-viewer ${CMAKE_INSTALL_BINDIR})
-endif()
+endif ()
 
 
 # ----------------------------------------------------------------------------
@@ -240,6 +277,12 @@ if("${CPACK_GENERATOR}" STREQUAL "PackageMaker")
   set(CPACK_PACKAGE_DEFAULT_LOCATION "/Applications")
 endif("${CPACK_GENERATOR}" STREQUAL "PackageMaker")
 
+if (APPLE)
+    set(CPACK_BUNDLE_NAME "${MACOSX_BUNDLE_BUNDLE_NAME}")
+    set(CPACK_BUNDLE_PLIST "${MACOSX_BUNDLE_CONTENTS}/Info.plist")
+    set(CPACK_PACKAGE_ICON "${MACOSX_BUNDLE_ICON}")
+    set(CPACK_BUNDLE_ICON "${MACOSX_BUNDLE_ICON}")
+endif (APPLE)
 
 # CPack
 include(CPack)
