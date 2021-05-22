@@ -3,7 +3,8 @@ OpenEXR Viewer
 
 A simple viewer for OpenEXR files with detailed metadata probing.
 
-You can display various types of layers, automatically combines RGB, Luminance-Chroma and Y layers.
+You can display various types of layers, automatically combines RGB,
+Luminance-Chroma and Y layers.
 
 ![screenshot](https://user-images.githubusercontent.com/7930348/119127837-b56bcb80-ba2c-11eb-8311-718c713fa3bc.png)
 
@@ -11,19 +12,27 @@ You can display various types of layers, automatically combines RGB, Luminance-C
 Disclaimer
 ==========
 
-This is a very early version... expect crashes, don't expect polished piece of software ;-)
+This is a very early version... expect crashes, don't expect polished
+piece of software ;-)
 
 
 Installing
 ==========
 
-Windows
--------
-There is prebuilt releases for Windows. You just need to download the installer in the releases section and run it.
+Windows and macOS
+-----------------
+
+There is prebuilt releases for Windows and macOS. You just need to download the
+installer in the releases section and run it.
+
+Get the releases here: https://github.com/afichet/openexr-viewer/releases
+
 
 Linux
 -----
+
 Currently, there is only a packave for Arch Linux. To install, do:
+
 ```
 yay -S openexr-viewer
 ```
@@ -34,11 +43,13 @@ Soon, I will create packages for Ubuntu.
 Building
 ========
 
-## Linux
-
 To build this package, you need Qt5 or greater and OpenEXR 3.0.1 or greater.
 
-If your package manager does come with an older version of OpenEXR, you will have to build it your own:
+Linux
+-----
+
+If your package manager does come with an older version of OpenEXR,
+you will have to build it your own:
 
 ```bash
 cd /tmp
@@ -75,7 +86,8 @@ make
 
 Currently, no install rule is there (yes, very early version ;-))
 
-## Windows
+Windows
+-------
 
 To help for building on Windows, there is two scripts you can use:
 - `build_dependencies.bat` to build the necessary Imath and OpenEXR libraries
@@ -83,7 +95,32 @@ To help for building on Windows, there is two scripts you can use:
 
 It will generate in `build/Release` a shipable binary.
 
-You will have to edit the script `build_windows.bat` to specify your Qt installation folder.
+You will have to edit the script `build_windows.bat` to specify your
+Qt installation folder.
+
+macOS
+-----
+
+You can install Qt from the official website and get a recent OpenEXR
+release from homebrew.
+
+```bash
+brew install openexr
+```
+
+Then, you need to specify the of Qt's install when running CMake. For example:
+
+```bash
+mkdir build
+cd build
+cmake .. -DCMAKE_PREFIX_PATH=~/Qt/6.1.0/clang64
+```
+
+Then, you can build the package:
+
+```bash
+make
+```
 
 
 License
