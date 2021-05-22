@@ -6,8 +6,7 @@ A simple viewer for OpenEXR files with detailed metadata probing.
 You can display various types of layers, automatically combines RGB,
 Luminance-Chroma and Y layers.
 
-![screenshot](https://user-images.githubusercontent.com/7930348/119127837-b56bcb80-ba2c-11eb-8311-718c713fa3bc.png)
-
+![Screenshot from 2021-05-23 01-53-47](https://user-images.githubusercontent.com/7930348/119243717-bbb39200-bb69-11eb-8ad2-b8937cb31508.png)
 
 Disclaimer
 ==========
