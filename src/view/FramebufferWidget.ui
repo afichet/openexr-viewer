@@ -20,6 +20,9 @@
    <property name="rightMargin">
     <number>0</number>
    </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="leftMargin">
