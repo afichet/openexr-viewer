@@ -157,6 +157,7 @@ void MainWindow::open(const QString& filename)
             QMdiSubWindow* subWindow = m_mdiArea->addSubWindow(graphicView);
 
             subWindow->setWindowTitle(title);
+            subWindow->resize(640, 480);
             subWindow->show();
         } else {
             delete graphicView;
@@ -358,6 +359,7 @@ void MainWindow::openItem(OpenEXRHeaderItem *item)
 
     if (subWindow) {
         subWindow->setWindowTitle(title);
+        subWindow->resize(640, 480);
         subWindow->show();
     } else {
         // This shall never happen

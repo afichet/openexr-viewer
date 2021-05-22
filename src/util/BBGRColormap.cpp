@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <array>
 
 BBGRColormap::BBGRColormap() {}
 
@@ -38,7 +39,7 @@ void BBGRColormap::getRGBValue(float v, float RGB[]) const
 {
     v = clamp(v);
 
-    std::vector<float[3]> scale(6);
+    std::vector<std::array<float, 3>> scale(6);
     scale[0][0] = 0;
     scale[0][1] = 0;
     scale[0][2] = 0;

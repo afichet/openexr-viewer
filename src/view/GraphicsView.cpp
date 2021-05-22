@@ -44,6 +44,8 @@ GraphicsView::GraphicsView(QWidget *parent)
     , _imageItem(nullptr)
     , _zoomLevel(1.f)
     , _autoscale(true)
+    , _showDataWindow(true)
+    , _showDisplayWindow(true)
 {
     GraphicsScene *scene = new GraphicsScene;
     setScene(scene);
@@ -72,17 +74,15 @@ void GraphicsView::setModel(const ImageModel *model)
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
-    fitInView(0, 0, width, height, Qt::KeepAspectRatio);
-    const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    // Adapt display and data windows to the image display starting at 0, 0
+    _dataWindow = _model->getDataWindow();
+    _displayWindow = _model->getDisplayWindow();
 
-    if (zoomLevel > 1.) {
-        setZoomLevel(1.);
-    } else {
-        setZoomLevel(zoomLevel);
-    }
+    _displayWindow.translate(-_dataWindow.topLeft().x(), -_dataWindow.topLeft().y());
+    _dataWindow.translate(-_dataWindow.topLeft().x(), -_dataWindow.topLeft().y());
 
-    // We want autoscale when loading a new image
-    _autoscale = true;
+    // Fit view to display window
+    autoscale();
 }
 
 
@@ -127,10 +127,38 @@ void GraphicsView::zoomOut()
     setZoomLevel(_zoomLevel / 1.1);
 }
 
+void GraphicsView::autoscale()
+{
+    scene()->setSceneRect(_displayWindow);
+    fitInView(_displayWindow, Qt::KeepAspectRatio);
+    const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+
+    if (zoomLevel > 1.) {
+        setZoomLevel(1.);
+    } else {
+        setZoomLevel(zoomLevel);
+    }
+
+    // We want autoscale when loading a new image
+    _autoscale = true;
+}
+
 void GraphicsView::open(const QString &filename)
 {
     std::cout << filename.toStdString() << std::endl;
     emit openFileOnDropEvent(filename);
+}
+
+void GraphicsView::showDisplayWindow(bool show)
+{
+    _showDisplayWindow = show;
+    scene()->invalidate();//scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
+}
+
+void GraphicsView::showDataWindow(bool show)
+{
+    _showDataWindow = show;
+    scene()->invalidate();//scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 
 
@@ -182,19 +210,7 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (_autoscale) {
-        fitInView(0, 0, _model->getLoadedImage().width(), _model->getLoadedImage().height(), Qt::KeepAspectRatio);
-    
-        // We don't want the zoom level above 1 when auto scaling and resizing
-        const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
-
-        if (zoomLevel > 1.) {
-            setZoomLevel(1.);
-        } else {
-            setZoomLevel(zoomLevel);
-        }
-
-        // Need to be restored, setZoomLevel set it to false
-        _autoscale = true;
+        autoscale();
     }
 }
 
@@ -295,12 +311,39 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
             painter->drawRect(QRect(x, y, polySize, polySize));
         }
     }
+}
 
-//    if (_model && _model->isImageLoaded()) {
-//        painter->setPen(Qt::SolidLine);
-//        painter->setBrush(QColor(0, 0, 0, 0));
-//        painter->drawPolygon(mapFromScene(-1, -1, _model->width()+1, _model->height()+1));
-//    }
+
+void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect) {
+    if (_model) {
+        if (_showDisplayWindow) {
+            QPainterPath outerPath;
+            QPainterPath innerPath;
+
+            outerPath.addRect(rect);
+            innerPath.addRect(_displayWindow);
+
+            QPainterPath fillPath = outerPath.subtracted(innerPath);
+
+            painter->fillPath(fillPath, QColor(0, 0, 0, 150));
+        }
+
+        painter->resetTransform();
+
+        if (_showDataWindow) {
+            QPolygonF dataW = mapFromScene(_dataWindow);
+
+            painter->setPen(Qt::red);
+            painter->drawPolygon(dataW);
+        }
+
+        if (_showDisplayWindow) {
+            QPolygonF displayW = mapFromScene(_displayWindow);
+
+            painter->setPen(Qt::black);
+            painter->drawPolygon(displayW);
+        }
+    }
 }
 
 

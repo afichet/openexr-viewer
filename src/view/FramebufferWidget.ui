@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>822</width>
-    <height>590</height>
+    <width>991</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,13 +18,13 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>6</number>
+    <number>3</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>3</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -40,7 +40,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Colormap</string>
+        <string>Colormap:</string>
        </property>
       </widget>
      </item>
@@ -57,7 +57,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Range</string>
+        <string>Range:</string>
        </property>
       </widget>
      </item>
@@ -116,7 +116,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Zoom</string>
+        <string>Zoom:</string>
        </property>
       </widget>
      </item>
@@ -139,7 +139,74 @@
     </layout>
    </item>
    <item>
-    <widget class="GraphicsView" name="graphicsView"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="GraphicsView" name="graphicsView"/>
+     </item>
+     <item>
+      <widget class="ScaleWidget" name="scaleWidget" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Show:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbShowDataWindow">
+       <property name="text">
+        <string>Data Window</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbShowDisplayWindow">
+       <property name="text">
+        <string>Display Window</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbScale">
+       <property name="text">
+        <string>Scale</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -152,6 +219,12 @@
     <signal>zoomLevelChanged(double)</signal>
     <slot>setZoomLevel(double)</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ScaleWidget</class>
+   <extends>QWidget</extends>
+   <header>view/ScaleWidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -45,6 +45,14 @@ ImageModel::ImageModel(QObject *parent)
 }
 
 
+QRect ImageModel::getDisplayWindow() const {
+    return m_displayWindow;
+}
+
+QRect ImageModel::getDataWindow() const {
+    return m_dataWindow;
+}
+
 ImageModel::~ImageModel()
 {
     delete[] m_pixelBuffer;

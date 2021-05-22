@@ -63,12 +63,14 @@ void FramebufferWidget::setModel(FramebufferModel *model)
 void FramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
     ui->sbMaxValue->setMinimum(arg1);
+    ui->scaleWidget->setMin(arg1);
     if (m_model) m_model->setMinValue(arg1);
 }
 
 void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
+    ui->scaleWidget->setMax(arg1);
     if (m_model) m_model->setMaxValue(arg1);
 }
 
@@ -88,6 +90,32 @@ void FramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
 
 void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
 {
-    if (m_model) m_model->setColormap((ColormapModule::Map) index);
+    ColormapModule::Map cmap = (ColormapModule::Map)index;
+
+    ui->scaleWidget->setColormap(cmap);
+
+    if (m_model) m_model->setColormap(cmap);
+}
+
+
+void FramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
+{
+    ui->graphicsView->showDataWindow(arg1 == Qt::Checked);
+}
+
+
+void FramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
+{
+    ui->graphicsView->showDisplayWindow(arg1 == Qt::Checked);
+}
+
+
+void FramebufferWidget::on_cbScale_stateChanged(int arg1)
+{
+    if (arg1 == Qt::Checked) {
+        ui->scaleWidget->show();
+    } else {
+        ui->scaleWidget->hide();
+    }
 }
 
