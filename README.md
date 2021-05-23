@@ -30,13 +30,19 @@ Get the releases here: https://github.com/afichet/openexr-viewer/releases
 Linux
 -----
 
-Currently, there is only a package for Arch Linux. To install, do:
+For Arch Linux, you can use the AUR repository. To install, do:
 
 ```
 yay -S openexr-viewer
 ```
 
-Soon, I will create packages for Ubuntu.
+For other distribution, there is a snap package available
+
+[![Snapcraft](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/openexr-viewer)
+
+```
+sudo snap install openexr-viewer
+```
 
 
 Building
