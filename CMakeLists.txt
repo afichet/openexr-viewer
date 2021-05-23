@@ -217,7 +217,7 @@ if (UNIX AND NOT APPLE)
     # Metadata
     install(
         FILES
-            deploy/linux/openexr-viewer.metadata.xml
+            deploy/linux/openexr-viewer.metainfo.xml
         DESTINATION
             share/metainfo
     )
