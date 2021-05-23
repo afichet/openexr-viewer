@@ -100,7 +100,7 @@ plugs:
 
 apps:
   openexr-viewer:
-    common-id: openexr-viewer.desktop
+    common-id: openexr-viewer
     command: openexr-viewer #bin/openexr-viewer
     extensions:
       - kde-neon
@@ -109,7 +109,5 @@ apps:
       # QT_QPA_PLATFORMTHEME: gtk3
       # LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
     plugs:
-      - desktop
+      - home
       - gsettings
-      - wayland
-      - x11
