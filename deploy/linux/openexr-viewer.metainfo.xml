@@ -13,4 +13,7 @@
   <releases>
     <release date="2021-05-22" version="0.3"/>
   </releases>
+  <provides>
+    <binary>openexr-viewer</binary>
+  </provides>
 </component>
