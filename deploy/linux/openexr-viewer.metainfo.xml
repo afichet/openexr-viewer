@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
   <id>openexr-viewer</id>
-  <launchable type="desktop-id">openexr-viewer.desktop</launchable>
   <name>OpenEXR Viewer</name>
   <summary>Simple viewer for OpenEXR files with detailed metadata display</summary>
   <description>
@@ -10,6 +9,7 @@
         You can display various types of layers, automatically combines RGB, Luminance-Chroma and Y layers.
       </p>
   </description>
+  <launchable type="desktop-id">openexr-viewer.desktop</launchable>
   <releases>
     <release date="2021-05-22" version="0.3"/>
   </releases>
