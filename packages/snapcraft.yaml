@@ -7,7 +7,6 @@ grade: stable
 parts:
   openexr-viewer:
     plugin: cmake
-    # cmake-parameters:
     configflags:
       - "-DImath_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/Imath/"
       - "-DOpenEXR_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/OpenEXR/"
@@ -16,6 +15,9 @@ parts:
     source: https://github.com/afichet/openexr-viewer.git
     # source-tag: v0.3
     source-branch: snap
+    override-pull: |
+      snapcraftctl pull
+      sed -i.bak -e 's|Icon=openexr-viewer|Icon=${SNAP}/meta/gui/openexr-viewer.png|g' deploy/linux/openexr-viewer.desktop
     parse-info: 
       - usr/share/metainfo/openexr-viewer.metainfo.xml
     after:
@@ -25,12 +27,7 @@ parts:
       - kde-frameworks-5-core18
     build-packages:
       - libegl1-mesa-dev
-    #   - qtbase5-dev
     stage-packages:
-    #   - libqt5core5a
-    #   - libqt5gui5
-    #   - libqt5svg5
-    #   - libqt5widgets5
       - libegl1-mesa
   
   cmake:
@@ -43,7 +40,6 @@ parts:
     source-tag: v3.0.1
     after:
       - cmake
-    # cmake-parameters:
     configflags:
       - "-DOPENEXR_INSTALL_EXAMPLES=OFF"
       - "-DOPENEXR_INSTALL_TOOLS=OFF"
