@@ -83,8 +83,6 @@ cmake ..
 make
 ```
 
-Currently, no install rule is there (yes, very early version ;-))
-
 Windows
 -------
 
