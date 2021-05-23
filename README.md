@@ -1,6 +1,9 @@
 OpenEXR Viewer
 ==============
 
+[![openexr-viewer](https://snapcraft.io/openexr-viewer/badge.svg)](https://snapcraft.io/openexr-viewer)
+
+
 A simple viewer for OpenEXR files with detailed metadata probing.
 
 You can display various types of layers, automatically combines RGB,
@@ -36,9 +39,10 @@ For Arch Linux, you can use the AUR repository. To install, do:
 yay -S openexr-viewer
 ```
 
-For other distribution, there is a snap package available
+For other distribution, there is a snap package available:
 
-[![Snapcraft](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/openexr-viewer)
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/openexr-viewer)
+
 
 ```
 sudo snap install openexr-viewer
