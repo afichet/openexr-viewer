@@ -30,7 +30,7 @@ Get the releases here: https://github.com/afichet/openexr-viewer/releases
 Linux
 -----
 
-Currently, there is only a packave for Arch Linux. To install, do:
+Currently, there is only a package for Arch Linux. To install, do:
 
 ```
 yay -S openexr-viewer
