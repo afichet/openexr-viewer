@@ -213,6 +213,14 @@ if (UNIX AND NOT APPLE)
         DESTINATION
             share/pixmaps
     )
+
+    # Metadata
+    install(
+        FILES
+            deploy/linux/openexr-viewer.metainfo.xml
+        DESTINATION
+            share/metainfo
+    )
 elseif (APPLE)
     install(TARGETS openexr-viewer DESTINATION "." COMPONENT Libraries)
     include(Macdeployqt)

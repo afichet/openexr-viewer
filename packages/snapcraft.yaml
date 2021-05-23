@@ -1,0 +1,79 @@
+name: openexr-viewer
+adopt-info: openexr-viewer
+confinement: strict
+base: core18
+grade: stable
+
+parts:
+  openexr-viewer:
+    plugin: cmake
+    configflags:
+      - "-DImath_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/Imath/"
+      - "-DOpenEXR_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/OpenEXR/"
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: https://github.com/afichet/openexr-viewer.git
+    # source-tag: v0.3
+    source-branch: snap
+    override-pull: |
+      snapcraftctl pull
+      sed -i.bak -e 's|Icon=openexr-viewer|Icon=${SNAP}/meta/gui/openexr-viewer.png|g' deploy/linux/openexr-viewer.desktop
+    parse-info: 
+      - usr/share/metainfo/openexr-viewer.metainfo.xml
+    after:
+      - openexr-lib
+    build-snaps:
+      - kde-frameworks-5-core18-sdk
+      - kde-frameworks-5-core18
+    build-packages:
+      - libegl1-mesa-dev
+    stage-packages:
+      - libegl1-mesa
+  
+  cmake:
+    plugin: dump
+    source: https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-linux-x86_64.tar.gz
+
+  openexr-lib:
+    plugin: cmake
+    source: https://github.com/AcademySoftwareFoundation/openexr.git
+    source-tag: v3.0.1
+    after:
+      - cmake
+    configflags:
+      - "-DOPENEXR_INSTALL_EXAMPLES=OFF"
+      - "-DOPENEXR_INSTALL_TOOLS=OFF"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    build-packages:
+      - zlib1g-dev
+    stage-packages:
+      - zlib1g
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/share/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/share/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/share/sounds
+    default-provider: gtk-common-themes
+
+apps:
+  openexr-viewer:
+    common-id: openexr-viewer
+    command: openexr-viewer
+    desktop: usr/share/applications/openexr-viewer.desktop
+    extensions:
+      - kde-neon
+    environment:
+      QT_QPA_PLATFORMTHEME: gtk3
+    plugs:
+      - home
+      - gsettings
+      - network
+      - network-bind
