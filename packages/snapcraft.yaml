@@ -1,0 +1,115 @@
+name: openexr-viewer
+adopt-info: openexr-viewer
+confinement: strict
+base: core18
+grade: stable
+
+parts:
+  openexr-viewer:
+    plugin: cmake
+    # cmake-parameters:
+    configflags:
+      # - "-DImath_DIR=/root/parts/openexr-lib/install/usr/local/lib/cmake/Imath/"
+      - "-DImath_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/Imath/"
+      - "-DOpenEXR_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/OpenEXR/"
+      # - "-DOpenEXR_DIR=/root/parts/openexr-lib/install/usr/local/lib/cmake/OpenEXR/"
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    source: https://github.com/afichet/openexr-viewer.git
+    # source-tag: v0.3
+    source-branch: snap
+    parse-info: 
+      - usr/share/metainfo/openexr-viewer.metainfo.xml
+    after:
+      - openexr-lib
+    build-snaps:
+      - kde-frameworks-5-core18-sdk
+      - kde-frameworks-5-core18
+    build-packages:
+      - libegl1-mesa-dev
+    #   - qtbase5-dev
+    stage-packages:
+    #   - libqt5core5a
+    #   - libqt5gui5
+    #   - libqt5svg5
+    #   - libqt5widgets5
+      - libegl1-mesa
+  
+  cmake:
+    plugin: dump
+    source: https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-linux-x86_64.tar.gz
+
+  openexr-lib:
+    plugin: cmake
+    source: https://github.com/AcademySoftwareFoundation/openexr.git
+    source-tag: v3.0.1
+    after:
+      - cmake
+    # cmake-parameters:
+    configflags:
+      - "-DOPENEXR_INSTALL_EXAMPLES=OFF"
+      - "-DOPENEXR_INSTALL_TOOLS=OFF"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    build-packages:
+      - zlib1g-dev
+    stage-packages:
+      - zlib1g
+
+  # desktop-qt5:
+  #   source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+  #   source-subdir: qt
+  #   plugin: make
+  #   make-parameters: ["FLAVOR=qt5"]
+  #   build-packages:
+  #     - build-essential
+  #     - qtbase5-dev
+  #     - dpkg-dev
+  #   stage-packages:
+  #     - libxkbcommon0
+  #     - ttf-ubuntu-font-family
+  #     - dmz-cursor-theme
+  #     - light-themes
+  #     - adwaita-icon-theme
+  #     - gnome-themes-standard
+  #     - shared-mime-info
+  #     - libqt5gui5
+  #     - libgdk-pixbuf2.0-0
+  #     - libqt5svg5 # for loading icon themes which are svg
+  #     - try: [appmenu-qt5] # not available on core18
+  #     - locales-all
+  #     - xdg-user-dirs
+  #     - fcitx-frontend-qt5
+  #     - libgtk2.0-0
+  #     - libgtk-3-0
+
+
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/share/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/share/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/share/sounds
+    default-provider: gtk-common-themes
+
+apps:
+  openexr-viewer:
+    common-id: openexr-viewer.desktop
+    command: openexr-viewer #bin/openexr-viewer
+    extensions:
+      - kde-neon
+    # environment:
+      # Use GTK3 cursor theme, icon theme and open/save file dialogs.
+      # QT_QPA_PLATFORMTHEME: gtk3
+      # LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
+    plugs:
+      - desktop
+      - gsettings
+      - wayland
+      - x11
