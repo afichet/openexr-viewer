@@ -12,9 +12,7 @@ parts:
       - "-DOpenEXR_DIR=/root/stage/usr/lib/x86_64-linux-gnu/cmake/OpenEXR/"
       - "-DCMAKE_BUILD_TYPE=Release"
       - "-DCMAKE_INSTALL_PREFIX=/usr"
-    source: https://github.com/afichet/openexr-viewer.git
-    # source-tag: v0.3
-    source-branch: snap
+    source: .
     override-pull: |
       snapcraftctl pull
       sed -i.bak -e 's|Icon=openexr-viewer|Icon=${SNAP}/meta/gui/openexr-viewer.png|g' deploy/linux/openexr-viewer.desktop
@@ -23,8 +21,8 @@ parts:
     after:
       - openexr-lib
     build-snaps:
-      - kde-frameworks-5-core18-sdk
-      - kde-frameworks-5-core18
+      - kde-frameworks-5-qt-5-14-core18-sdk
+      - kde-frameworks-5-qt-5-14-core18
     build-packages:
       - libegl1-mesa-dev
     stage-packages:
