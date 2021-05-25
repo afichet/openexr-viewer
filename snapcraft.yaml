@@ -3,6 +3,10 @@ adopt-info: openexr-viewer
 confinement: strict
 base: core18
 grade: stable
+# Currently kde-neon does not support anything else
+architectures:
+  - build-on: amd64
+    run-on: amd64
 
 parts:
   openexr-viewer:
