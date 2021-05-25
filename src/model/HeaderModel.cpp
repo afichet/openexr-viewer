@@ -27,6 +27,7 @@
 //
 #include "HeaderModel.h"
 
+#include <cassert>
 
 #include <OpenEXR/ImfBoxAttribute.h>
 #include <OpenEXR/ImfChannelListAttribute.h>

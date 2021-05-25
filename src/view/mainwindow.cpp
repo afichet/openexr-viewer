@@ -28,6 +28,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <cassert>
+
 #include <QFileDialog>
 #include <QMimeData>
 #include <QSettings>
