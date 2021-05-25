@@ -37,6 +37,7 @@ public:
     enum Map {
         GRAYSCALE = 0,
         BBGR,
+        TURBO,
         MAGMA,
         INFERNO,
         PLASMA,

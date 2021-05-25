@@ -42,7 +42,8 @@ Colormap *ColormapModule::create(const std::string &name)
     if (strcmp(colormap_name, "bbgr") == 0) {
         return new BBGRColormap();
     } else if (
-               strcmp(colormap_name, "magma") == 0
+               strcmp(colormap_name, "turbo") == 0
+               || strcmp(colormap_name, "magma") == 0
                || strcmp(colormap_name, "inferno") == 0
                || strcmp(colormap_name, "plasma") == 0
                || strcmp(colormap_name, "viridis") == 0) {
@@ -59,6 +60,7 @@ Colormap *ColormapModule::create(Map map)
     switch(map) {
     case GRAYSCALE: return new YColormap();
     case BBGR: return new BBGRColormap();
+    case TURBO: return new TabulatedColormap(TabulatedColormap::TAB_TUBRO);
     case MAGMA: return new TabulatedColormap(TabulatedColormap::TAB_MAGMA);
     case INFERNO: return new TabulatedColormap(TabulatedColormap::TAB_INFERNO);
     case PLASMA: return new TabulatedColormap(TabulatedColormap::TAB_PLASMA);
@@ -74,6 +76,7 @@ std::string ColormapModule::toString(Map map)
     switch(map) {
     case GRAYSCALE: return "Grayscale";
     case BBGR: return "BBGR";
+    case TURBO: return "Turbo";
     case MAGMA: return "Magma";
     case INFERNO: return "Inferno";
     case PLASMA: return "Plasma";

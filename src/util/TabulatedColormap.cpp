@@ -42,10 +42,11 @@ TabulatedColormap::TabulatedColormap()
 TabulatedColormap::TabulatedColormap(TabMap map)
 {
     switch(map) {
-    case TAB_MAGMA: init(magma_data, 256); break;
-    case TAB_INFERNO: init(inferno_data, 256); break;
-    case TAB_PLASMA: init(plasma_data, 256); break;
-    case TAB_VIRIDIS: init(viridis_data, 256); break;
+    case TAB_TUBRO: init(turbo_colormap_data, 256); break;
+    case TAB_MAGMA: init(magma_colormap_data, 256); break;
+    case TAB_INFERNO: init(inferno_colormap_data, 256); break;
+    case TAB_PLASMA: init(plasma_colormap_data, 256); break;
+    case TAB_VIRIDIS: init(viridis_colormap_data, 256); break;
     case N_TABMAPS: throw std::exception();
     }
 }
@@ -53,20 +54,18 @@ TabulatedColormap::TabulatedColormap(TabMap map)
 
 TabulatedColormap::TabulatedColormap(const char *name)
 {
-    if (strcmp(name, "magma") == 0) {
-        init(magma_data, 256);
+    if (strcmp(name, "turbo") == 0) {
+        init(turbo_colormap_data, 256);
+    } else if (strcmp(name, "magma") == 0) {
+        init(magma_colormap_data, 256);
     } else if (strcmp(name, "inferno") == 0) {
-        init(inferno_data, 256);
+        init(inferno_colormap_data, 256);
     } else if (strcmp(name, "plasma") == 0) {
-        init(plasma_data, 256);
+        init(plasma_colormap_data, 256);
     } else if (strcmp(name, "viridis") == 0) {
-        init(viridis_data, 256);
+        init(viridis_colormap_data, 256);
     } else {
-//        std::cerr << "[error] unknown color map." << std::endl
-//                  << "[error] You can choose between magma, inferno, "
-//                         "plasma or viridis."
-//                      << std::endl;
-        throw -1;
+        throw std::exception();
     }
 }
 
@@ -78,6 +77,7 @@ void TabulatedColormap::getRGBValue(float v, float RGB[]) const
 {
     v = std::max(0.f, std::min(1.f, v));
 
+#ifdef TAB_COLORMAP_CLOSEST
     assert(v >= 0.f);
     assert(v <= 1.f);
 
@@ -87,6 +87,15 @@ void TabulatedColormap::getRGBValue(float v, float RGB[]) const
     assert(closet_idx >= 0);
 
     memcpy(RGB, &_array[3 * closet_idx], 3 * sizeof(float));
+#else
+    int low = int(v * float(_n_elems));
+    int high = std::min(_n_elems - 1, low + 1);
+    float a = v * float(_n_elems) - low;
+
+    for (int c = 0; c < 3; c++) {
+        RGB[c] = _array[3 * low + c] + (_array[3 * high + c] - _array[3 * low + c]) * a;
+    }
+#endif
 }
 
 

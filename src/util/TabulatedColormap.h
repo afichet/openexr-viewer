@@ -35,7 +35,8 @@ class TabulatedColormap: public Colormap
 {
   public:
     enum TabMap {
-        TAB_MAGMA = 0,
+        TAB_TUBRO = 0,
+        TAB_MAGMA,
         TAB_INFERNO,
         TAB_PLASMA,
         TAB_VIRIDIS,
