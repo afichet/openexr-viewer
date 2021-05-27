@@ -46,7 +46,7 @@
 #include "RGBFramebufferWidget.h"
 
 #include <model/HeaderModel.h>
-#include <model/OpenEXRLayerItem.h>
+#include <model/LayerItem.h>
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
@@ -268,7 +268,7 @@ void MainWindow::readSettings()
     settings.endGroup();
 }
 
-void MainWindow::openItem(OpenEXRHeaderItem *item)
+void MainWindow::openItem(HeaderItem *item)
 {
     QString title;
 
@@ -418,8 +418,8 @@ QString MainWindow::getTitle(int partId, const QString &layer) const
 
 void MainWindow::onDoubleClicked(const QModelIndex &index)
 {
-    OpenEXRHeaderItem *item
-      = static_cast<OpenEXRHeaderItem *>(index.internalPointer());
+    HeaderItem *item
+      = static_cast<HeaderItem *>(index.internalPointer());
     openItem(item);
 }
 

@@ -30,78 +30,45 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "OpenEXRHeaderItem.h"
+#pragma once
 
-OpenEXRHeaderItem::OpenEXRHeaderItem(
-  OpenEXRHeaderItem *      parentItem,
-  const QVector<QVariant> &data,
-  QString                  name,
-  int                      partID)
-  : m_itemData(data)
-  , m_parentItem(parentItem)
-  , m_name(name)
-  , m_partID(partID)
+#include <model/HeaderItem.h>
+
+#include <OpenEXR/ImfChannelListAttribute.h>
+
+class LayerItem
 {
-    // If not root item
-    if (m_parentItem) {
-        m_parentItem->appendChild(this);
-    }
-}
+  public:
+    LayerItem(LayerItem *parent = nullptr);
 
-OpenEXRHeaderItem::~OpenEXRHeaderItem()
-{
-    qDeleteAll(m_childItems);
-}
+    ~LayerItem();
 
-void OpenEXRHeaderItem::appendData(QVariant sibbling)
-{
-    m_itemData.append(sibbling);
-}
+    void addLeaf(const QString channelName, const Imf::Channel *leafChannel);
 
-void OpenEXRHeaderItem::setData(QVector<QVariant> data)
-{
-    m_itemData = data;
-}
+    HeaderItem *
+    constructItemHierarchy(HeaderItem *parent, int partID);
 
-OpenEXRHeaderItem *OpenEXRHeaderItem::child(int row)
-{
-    if (row < 0 || row >= m_childItems.size()) {
-        return nullptr;
-    }
+    size_t getNChilds() const;
 
-    return m_childItems.at(row);
-}
+    bool hasRGBChilds() const;
+    bool hasRGBAChilds() const;
+    bool hasYCChilds() const;
+    bool hasYCAChilds() const;
+    bool hasYChild() const;
+    bool hasYAChilds() const;
+    bool hasAChild() const;
 
-int OpenEXRHeaderItem::childCount() const
-{
-    return m_childItems.size();
-}
+    QString getFullName() const;
 
-int OpenEXRHeaderItem::columnCount() const
-{
-    return m_itemData.size();
-}
+  protected:
+    LayerItem *getAddLeaf(const QString channelName);
 
-QVariant OpenEXRHeaderItem::data(int column) const
-{
-    if (column < 0 || column >= m_itemData.size()) {
-        return QVariant();
-    }
+  private:
+    QMap<QString, LayerItem *> m_childItems;
+    LayerItem *                m_parentItem;
 
-    return m_itemData.at(column);
-}
+    const Imf::Channel *m_channelPtr;
+    QString             m_rootName;
 
-int OpenEXRHeaderItem::row() const
-{
-    if (m_parentItem) {
-        return m_parentItem->m_childItems.indexOf(
-          const_cast<OpenEXRHeaderItem *>(this));
-    }
-
-    return 0;
-}
-
-OpenEXRHeaderItem *OpenEXRHeaderItem::parentItem()
-{
-    return m_parentItem;
-}
+    QString m_channelName;
+};

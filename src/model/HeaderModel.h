@@ -36,8 +36,8 @@
 
 #include <OpenEXR/ImfHeader.h>
 
-#include <model/OpenEXRHeaderItem.h>
-#include <model/OpenEXRLayerItem.h>
+#include <model/HeaderItem.h>
+#include <model/LayerItem.h>
 
 class HeaderModel: public QAbstractItemModel
 {
@@ -62,21 +62,21 @@ class HeaderModel: public QAbstractItemModel
 
     void addHeader(const Imf::Header &header, int part);
 
-    const std::vector<OpenEXRLayerItem *> &getLayers() const
+    const std::vector<LayerItem *> &getLayers() const
     {
         return m_partRootLayer;
     }
 
   private:
-    OpenEXRHeaderItem *addItem(
+    HeaderItem *addItem(
       const char *          name,
       const Imf::Attribute &attr,
-      OpenEXRHeaderItem *   parent,
+      HeaderItem *   parent,
       int                   part_number);
 
   private:
-    OpenEXRHeaderItem *                   m_rootItem;
+    HeaderItem *                   m_rootItem;
     std::vector<std::vector<std::string>> m_headerItems;
 
-    std::vector<OpenEXRLayerItem *> m_partRootLayer;
+    std::vector<LayerItem *> m_partRootLayer;
 };

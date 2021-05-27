@@ -35,22 +35,22 @@
 #include <QVariant>
 #include <QVector>
 
-class OpenEXRHeaderItem
+class HeaderItem
 {
   public:
-    explicit OpenEXRHeaderItem(
-      OpenEXRHeaderItem *      parentItem = nullptr,
+    explicit HeaderItem(
+      HeaderItem *      parentItem = nullptr,
       const QVector<QVariant> &data       = QVector<QVariant>(),
       QString                  name       = QString(),
       int                      partID     = 0);
 
-    ~OpenEXRHeaderItem();
+    ~HeaderItem();
 
     void appendData(QVariant sibbling);
 
     void setData(QVector<QVariant> data);
 
-    OpenEXRHeaderItem *child(int row);
+    HeaderItem *child(int row);
 
     int childCount() const;
 
@@ -60,7 +60,7 @@ class OpenEXRHeaderItem
 
     int row() const;
 
-    OpenEXRHeaderItem *parentItem();
+    HeaderItem *parentItem();
 
     QString type() const { return m_itemData[2].toString(); }
 
@@ -73,12 +73,12 @@ class OpenEXRHeaderItem
     void setPartID(int partID) { m_partID = partID; }
 
   protected:
-    void appendChild(OpenEXRHeaderItem *child) { m_childItems.append(child); }
+    void appendChild(HeaderItem *child) { m_childItems.append(child); }
 
   private:
     QVector<QVariant>            m_itemData;
-    OpenEXRHeaderItem *          m_parentItem;
-    QVector<OpenEXRHeaderItem *> m_childItems;
+    HeaderItem *          m_parentItem;
+    QVector<HeaderItem *> m_childItems;
 
     QString m_name;
     int     m_partID;

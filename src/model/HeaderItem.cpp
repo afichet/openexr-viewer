@@ -30,45 +30,78 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "HeaderItem.h"
 
-#include <model/OpenEXRHeaderItem.h>
-
-#include <OpenEXR/ImfChannelListAttribute.h>
-
-class OpenEXRLayerItem
+HeaderItem::HeaderItem(
+  HeaderItem *      parentItem,
+  const QVector<QVariant> &data,
+  QString                  name,
+  int                      partID)
+  : m_itemData(data)
+  , m_parentItem(parentItem)
+  , m_name(name)
+  , m_partID(partID)
 {
-  public:
-    OpenEXRLayerItem(OpenEXRLayerItem *parent = nullptr);
+    // If not root item
+    if (m_parentItem) {
+        m_parentItem->appendChild(this);
+    }
+}
 
-    ~OpenEXRLayerItem();
+HeaderItem::~HeaderItem()
+{
+    qDeleteAll(m_childItems);
+}
 
-    void addLeaf(const QString channelName, const Imf::Channel *leafChannel);
+void HeaderItem::appendData(QVariant sibbling)
+{
+    m_itemData.append(sibbling);
+}
 
-    OpenEXRHeaderItem *
-    constructItemHierarchy(OpenEXRHeaderItem *parent, int partID);
+void HeaderItem::setData(QVector<QVariant> data)
+{
+    m_itemData = data;
+}
 
-    size_t getNChilds() const;
+HeaderItem *HeaderItem::child(int row)
+{
+    if (row < 0 || row >= m_childItems.size()) {
+        return nullptr;
+    }
 
-    bool hasRGBChilds() const;
-    bool hasRGBAChilds() const;
-    bool hasYCChilds() const;
-    bool hasYCAChilds() const;
-    bool hasYChild() const;
-    bool hasYAChilds() const;
-    bool hasAChild() const;
+    return m_childItems.at(row);
+}
 
-    QString getFullName() const;
+int HeaderItem::childCount() const
+{
+    return m_childItems.size();
+}
 
-  protected:
-    OpenEXRLayerItem *getAddLeaf(const QString channelName);
+int HeaderItem::columnCount() const
+{
+    return m_itemData.size();
+}
 
-  private:
-    QMap<QString, OpenEXRLayerItem *> m_childItems;
-    OpenEXRLayerItem *                m_parentItem;
+QVariant HeaderItem::data(int column) const
+{
+    if (column < 0 || column >= m_itemData.size()) {
+        return QVariant();
+    }
 
-    const Imf::Channel *m_channelPtr;
-    QString             m_rootName;
+    return m_itemData.at(column);
+}
 
-    QString m_channelName;
-};
+int HeaderItem::row() const
+{
+    if (m_parentItem) {
+        return m_parentItem->m_childItems.indexOf(
+          const_cast<HeaderItem *>(this));
+    }
+
+    return 0;
+}
+
+HeaderItem *HeaderItem::parentItem()
+{
+    return m_parentItem;
+}

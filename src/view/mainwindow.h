@@ -41,8 +41,8 @@
 #include <QCloseEvent>
 #include <QDropEvent>
 
-#include <model/OpenEXRHeaderItem.h>
 #include <model/OpenEXRImage.h>
+#include <model/HeaderItem.h>
 #include <model/RGBFramebufferModel.h>
 
 QT_BEGIN_NAMESPACE
@@ -78,7 +78,7 @@ class MainWindow: public QMainWindow
     void writeSettings();
     void readSettings();
 
-    void openItem(OpenEXRHeaderItem *item);
+    void openItem(HeaderItem *item);
 
     QString getTitle(int partId, const QString &layer) const;
 

@@ -30,50 +30,50 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "OpenEXRLayerItem.h"
+#include "LayerItem.h"
 
 #include <cassert>
 
 #include <QString>
 
-OpenEXRLayerItem::OpenEXRLayerItem(OpenEXRLayerItem *parent)
+LayerItem::LayerItem(LayerItem *parent)
   : m_parentItem(parent)
   , m_channelPtr(nullptr)
 {}
 
-OpenEXRLayerItem::~OpenEXRLayerItem()
+LayerItem::~LayerItem()
 {
     for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
         delete it.value();
     }
 }
 
-void OpenEXRLayerItem::addLeaf(
+void LayerItem::addLeaf(
   const QString channelName, const Imf::Channel *leafChannel)
 {
-    OpenEXRLayerItem *leafNode = getAddLeaf(channelName);
+    LayerItem *leafNode = getAddLeaf(channelName);
     leafNode->m_channelPtr     = leafChannel;
     leafNode->m_channelName    = channelName;
 }
 
-OpenEXRHeaderItem *
-OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
+HeaderItem *
+LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
 {
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
         assert(m_channelPtr != nullptr);
-        return new OpenEXRHeaderItem(
+        return new HeaderItem(
           parent,
           {m_rootName, "", "framebuffer"},
           m_channelName,
           partID);
     }
 
-    OpenEXRHeaderItem *currRoot = nullptr;
+    HeaderItem *currRoot = nullptr;
 
     // Avoid empty root on top level
     if (m_parentItem) {
-        currRoot = new OpenEXRHeaderItem(
+        currRoot = new HeaderItem(
           parent,
           {m_rootName, (int)getNChilds(), "channellist"});
     } else {
@@ -85,7 +85,7 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
         // Both are valid but I prefer the nested representation
         // OpenEXRItem* leafNode = new OpenEXRItem(parent, {m_rootName, "",
         // "framebuffer"});
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           currRoot,
           {".", "", "framebuffer"},
           m_channelName,
@@ -96,28 +96,28 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
 
     // If we find RGB final leaf, we make a virtual group
     if (hasRGBAChilds()) {
-        OpenEXRHeaderItem *rgbaRoot = new OpenEXRHeaderItem(
+        HeaderItem *rgbaRoot = new HeaderItem(
           currRoot,
           {"RGBA", "", "RGB framebuffer"},
           m_childItems["R"]->m_channelName.chopped(1),
           partID);
 
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbaRoot,
           {"R", "", "framebuffer"},
           m_childItems["R"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbaRoot,
           {"G", "", "framebuffer"},
           m_childItems["G"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbaRoot,
           {"B", "", "framebuffer"},
           m_childItems["B"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbaRoot,
           {"A", "", "framebuffer"},
           m_childItems["A"]->m_channelName,
@@ -128,23 +128,23 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
         ignoredKeys.append("B");
         ignoredKeys.append("A");
     } else if (hasRGBChilds()) {
-        OpenEXRHeaderItem *rgbRoot = new OpenEXRHeaderItem(
+        HeaderItem *rgbRoot = new HeaderItem(
           currRoot,
           {"RGB", "", "RGB framebuffer"},
           m_childItems["R"]->m_channelName.chopped(1),
           partID);
 
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbRoot,
           {"R", "", "framebuffer"},
           m_childItems["R"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbRoot,
           {"G", "", "framebuffer"},
           m_childItems["G"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           rgbRoot,
           {"B", "", "framebuffer"},
           m_childItems["B"]->m_channelName,
@@ -160,28 +160,28 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
     // Note if there is both + Alpha channel, that is quite odd, alpha is then
     // shared between to groups
     if (hasYCAChilds()) {
-        OpenEXRHeaderItem *ycaRoot = new OpenEXRHeaderItem(
+        HeaderItem *ycaRoot = new HeaderItem(
           currRoot,
           {"YCA", "", "YC framebuffer"},
           m_childItems["Y"]->m_channelName.chopped(1),
           partID);
 
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycaRoot,
           {"Y", "", "framebuffer"},
           m_childItems["Y"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycaRoot,
           {"RY", "", "framebuffer"},
           m_childItems["RY"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycaRoot,
           {"BY", "", "framebuffer"},
           m_childItems["BY"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycaRoot,
           {"A", "", "framebuffer"},
           m_childItems["A"]->m_channelName,
@@ -192,23 +192,23 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
         ignoredKeys.append("BY");
         ignoredKeys.append("A");
     } else if (hasYCChilds()) {
-        OpenEXRHeaderItem *ycRoot = new OpenEXRHeaderItem(
+        HeaderItem *ycRoot = new HeaderItem(
           currRoot,
           {"YC", "", "YC framebuffer"},
           m_childItems["Y"]->m_channelName.chopped(1),
           partID);
 
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycRoot,
           {"Y", "", "framebuffer"},
           m_childItems["Y"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycRoot,
           {"RY", "", "framebuffer"},
           m_childItems["RY"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           ycRoot,
           {"BY", "", "framebuffer"},
           m_childItems["BY"]->m_channelName,
@@ -218,18 +218,18 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
         ignoredKeys.append("RY");
         ignoredKeys.append("BY");
     } else if (hasYAChilds()) {
-        OpenEXRHeaderItem *yaRoot = new OpenEXRHeaderItem(
+        HeaderItem *yaRoot = new HeaderItem(
           currRoot,
           {"YA", "", "Y framebuffer"},
           m_childItems["Y"]->m_channelName.chopped(1),
           partID);
 
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           yaRoot,
           {"Y", "", "Luminance framebuffer"},
           m_childItems["Y"]->m_channelName,
           partID);
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           yaRoot,
           {"A", "", "framebuffer"},
           m_childItems["A"]->m_channelName,
@@ -238,7 +238,7 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
         ignoredKeys.append("Y");
         ignoredKeys.append("A");
     } else if (hasYChild()) {
-        new OpenEXRHeaderItem(
+        new HeaderItem(
           currRoot,
           {"Y", "", "Luminance framebuffer"},
           m_childItems["Y"]->m_channelName.chopped(1),
@@ -255,55 +255,55 @@ OpenEXRLayerItem::constructItemHierarchy(OpenEXRHeaderItem *parent, int partID)
     return currRoot;
 }
 
-size_t OpenEXRLayerItem::getNChilds() const
+size_t LayerItem::getNChilds() const
 {
     return m_childItems.size();
 }
 
-bool OpenEXRLayerItem::hasRGBChilds() const
+bool LayerItem::hasRGBChilds() const
 {
     return m_childItems.contains("R") && m_childItems["R"]->m_channelPtr
            && m_childItems.contains("G") && m_childItems["G"]->m_channelPtr
            && m_childItems.contains("B") && m_childItems["B"]->m_channelPtr;
 }
 
-bool OpenEXRLayerItem::hasRGBAChilds() const
+bool LayerItem::hasRGBAChilds() const
 {
     return hasRGBChilds() && hasAChild();
 }
 
-bool OpenEXRLayerItem::hasYCChilds() const
+bool LayerItem::hasYCChilds() const
 {
     return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr
            && m_childItems.contains("RY") && m_childItems["RY"]->m_channelPtr
            && m_childItems.contains("BY") && m_childItems["BY"]->m_channelPtr;
 }
 
-bool OpenEXRLayerItem::hasYCAChilds() const
+bool LayerItem::hasYCAChilds() const
 {
     return hasYCChilds() && hasAChild();
 }
 
-bool OpenEXRLayerItem::hasYChild() const
+bool LayerItem::hasYChild() const
 {
     return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr;
 }
 
-bool OpenEXRLayerItem::hasYAChilds() const
+bool LayerItem::hasYAChilds() const
 {
     return hasYChild() && hasAChild();
 }
 
-bool OpenEXRLayerItem::hasAChild() const
+bool LayerItem::hasAChild() const
 {
     return m_childItems.contains("A") && m_childItems["A"]->m_channelPtr;
 }
 
-QString OpenEXRLayerItem::getFullName() const
+QString LayerItem::getFullName() const
 {
     QString name = m_rootName;
 
-    OpenEXRLayerItem *parent = m_parentItem;
+    LayerItem *parent = m_parentItem;
 
     while (parent) {
         name += parent->m_rootName + "." + name;
@@ -313,17 +313,17 @@ QString OpenEXRLayerItem::getFullName() const
     return name;
 }
 
-OpenEXRLayerItem *OpenEXRLayerItem::getAddLeaf(const QString channelName)
+LayerItem *LayerItem::getAddLeaf(const QString channelName)
 {
     QStringList channelHierachy = channelName.split(".");
 
-    OpenEXRLayerItem *leafPtr = this;
+    LayerItem *leafPtr = this;
 
     for (auto &s : channelHierachy) {
         if (leafPtr->m_childItems.contains(s)) {
             leafPtr = leafPtr->m_childItems[s];
         } else {
-            OpenEXRLayerItem *newPtr = new OpenEXRLayerItem(leafPtr);
+            LayerItem *newPtr = new LayerItem(leafPtr);
             newPtr->m_rootName       = s;
             leafPtr->m_childItems.insert(s, newPtr);
             leafPtr = newPtr;

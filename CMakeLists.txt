@@ -84,10 +84,10 @@ set(PROJECT_SOURCES
 
     src/model/OpenEXRImage.cpp
     src/model/OpenEXRImage.h
-    src/model/OpenEXRLayerItem.cpp
-    src/model/OpenEXRLayerItem.h
-    src/model/OpenEXRHeaderItem.cpp
-    src/model/OpenEXRHeaderItem.h
+    src/model/LayerItem.cpp
+    src/model/LayerItem.h
+    src/model/HeaderItem.cpp
+    src/model/HeaderItem.h
 
     src/model/ImageModel.cpp
     src/model/ImageModel.h

@@ -60,7 +60,7 @@
 HeaderModel::HeaderModel(int n_parts, QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(
-      new OpenEXRHeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
+      new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
 {
     m_headerItems.resize(n_parts);
     m_partRootLayer.resize(n_parts);
@@ -70,7 +70,7 @@ HeaderModel::~HeaderModel()
 {
     delete m_rootItem;
 
-    for (OpenEXRLayerItem *it : m_partRootLayer) {
+    for (LayerItem *it : m_partRootLayer) {
         delete it;
     }
 }
@@ -85,8 +85,8 @@ QVariant HeaderModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    OpenEXRHeaderItem *item
-      = static_cast<OpenEXRHeaderItem *>(index.internalPointer());
+    HeaderItem *item
+      = static_cast<HeaderItem *>(index.internalPointer());
 
     return item->data(index.column());
 }
@@ -115,15 +115,15 @@ HeaderModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent)) return QModelIndex();
 
-    OpenEXRHeaderItem *parentItem;
+    HeaderItem *parentItem;
 
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<OpenEXRHeaderItem *>(parent.internalPointer());
+        parentItem = static_cast<HeaderItem *>(parent.internalPointer());
     }
 
-    OpenEXRHeaderItem *childItem = parentItem->child(row);
+    HeaderItem *childItem = parentItem->child(row);
 
     if (childItem) {
         return createIndex(row, column, childItem);
@@ -138,9 +138,9 @@ QModelIndex HeaderModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    OpenEXRHeaderItem *childItem
-      = static_cast<OpenEXRHeaderItem *>(index.internalPointer());
-    OpenEXRHeaderItem *parentItem = childItem->parentItem();
+    HeaderItem *childItem
+      = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem *parentItem = childItem->parentItem();
 
     if (parentItem == m_rootItem) {
         return QModelIndex();
@@ -151,7 +151,7 @@ QModelIndex HeaderModel::parent(const QModelIndex &index) const
 
 int HeaderModel::rowCount(const QModelIndex &parent) const
 {
-    OpenEXRHeaderItem *parentItem;
+    HeaderItem *parentItem;
 
     if (parent.column() > 0) {
         return 0;
@@ -160,7 +160,7 @@ int HeaderModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<OpenEXRHeaderItem *>(parent.internalPointer());
+        parentItem = static_cast<HeaderItem *>(parent.internalPointer());
     }
 
     return parentItem->childCount();
@@ -169,7 +169,7 @@ int HeaderModel::rowCount(const QModelIndex &parent) const
 int HeaderModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        return static_cast<OpenEXRHeaderItem *>(parent.internalPointer())
+        return static_cast<HeaderItem *>(parent.internalPointer())
           ->columnCount();
     }
 
@@ -181,8 +181,8 @@ void HeaderModel::addHeader(const Imf::Header &header, int part)
     assert(part < (int)m_headerItems.size());
     assert(part < (int)m_partRootLayer.size());
 
-    OpenEXRHeaderItem *child
-      = new OpenEXRHeaderItem(m_rootItem, {"OpenEXR Image", part, "part"});
+    HeaderItem *child
+      = new HeaderItem(m_rootItem, {"Part", part, "part"});
 
     m_partRootLayer[part] = nullptr;
 
@@ -201,13 +201,13 @@ void HeaderModel::addHeader(const Imf::Header &header, int part)
     }
 }
 
-OpenEXRHeaderItem *HeaderModel::addItem(
+HeaderItem *HeaderModel::addItem(
   const char *          name,
   const Imf::Attribute &attribute,
-  OpenEXRHeaderItem *   parent,
+  HeaderItem *   parent,
   int                   part_number)
 {
-    OpenEXRHeaderItem *attrItem = new OpenEXRHeaderItem(parent);
+    HeaderItem *attrItem = new HeaderItem(parent);
 
     const char *type = attribute.typeName();
 
@@ -232,7 +232,7 @@ OpenEXRHeaderItem *HeaderModel::addItem(
             m_partRootLayer[part_number] = nullptr;
         }
 
-        m_partRootLayer[part_number] = new OpenEXRLayerItem;
+        m_partRootLayer[part_number] = new LayerItem;
 
         for (Imf::ChannelList::ConstIterator chIt = attr.value().begin();
              chIt != attr.value().end();
@@ -348,7 +348,7 @@ OpenEXRHeaderItem *HeaderModel::addItem(
         for (std::vector<float>::iterator fIt = attr.value().begin();
              fIt != attr.value().end();
              fIt++) {
-            new OpenEXRHeaderItem(
+            new HeaderItem(
               attrItem,
               {*fIt, "", "float"},
               name,
@@ -434,7 +434,7 @@ OpenEXRHeaderItem *HeaderModel::addItem(
              sIt != attr.value().end();
              sIt++) {
             // Create a child
-            new OpenEXRHeaderItem(
+            new HeaderItem(
               attrItem,
               {sIt->c_str(), "", "string"},
               name,
