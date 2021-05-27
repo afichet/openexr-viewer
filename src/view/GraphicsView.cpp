@@ -1,51 +1,56 @@
-//
-// Copyright (c) 2021 Alban Fichet <alban.fichet at gmx.fr>
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//  * Redistributions of source code must retain the above copyright notice, this
-// list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright notice,
-// this list of conditions and the following disclaimer in the documentation and/or
-// other materials provided with the distribution.
-//  * Neither the name of %ORGANIZATION% nor the names of its contributors may be
-// used to endorse or promote products derived from this software without specific
-// prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+/**
+ * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.
+ *  * Neither the name of the organization(s) nor the names of its
+ * contributors may be used to endorse or promote products derived
+ * from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "GraphicsView.h"
 #include "GraphicsScene.h"
 
-#include <QGraphicsPixmapItem>
-#include <QPen>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QUrl>
-#include <QMimeData>
 #include <QDragEnterEvent>
+#include <QGraphicsPixmapItem>
 #include <QGuiApplication>
+#include <QMimeData>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPen>
 #include <QScrollBar>
+#include <QUrl>
 
 GraphicsView::GraphicsView(QWidget *parent)
-    : QGraphicsView(parent)
-    , _model(nullptr)
-    , _imageItem(nullptr)
-    , _zoomLevel(1.f)
-    , _autoscale(true)
-    , _showDataWindow(true)
-    , _showDisplayWindow(true)
+  : QGraphicsView(parent)
+  , _model(nullptr)
+  , _imageItem(nullptr)
+  , _zoomLevel(1.f)
+  , _autoscale(true)
+  , _showDataWindow(true)
+  , _showDisplayWindow(true)
 {
     GraphicsScene *scene = new GraphicsScene;
     setScene(scene);
@@ -53,38 +58,46 @@ GraphicsView::GraphicsView(QWidget *parent)
     setMouseTracking(true);
     setAcceptDrops(true);
 
-    connect(scene, SIGNAL(openFileOnDropEvent(QString)),
-            this, SLOT(open(QString)));
+    connect(
+      scene,
+      SIGNAL(openFileOnDropEvent(QString)),
+      this,
+      SLOT(open(QString)));
 }
 
-
-GraphicsView::~GraphicsView() {
-//    delete _model;
+GraphicsView::~GraphicsView()
+{
+    //    delete _model;
 }
-
 
 void GraphicsView::setModel(const ImageModel *model)
 {
     _model = model;
 
     connect(_model, SIGNAL(imageChanged()), this, SLOT(onImageChanged()));
-    connect(_model, SIGNAL(imageLoaded(int,int)), this, SLOT(onImageLoaded(int,int)));
+    connect(
+      _model,
+      SIGNAL(imageLoaded(int, int)),
+      this,
+      SLOT(onImageLoaded(int, int)));
 }
-
 
 void GraphicsView::onImageLoaded(int width, int height)
 {
     // Adapt display and data windows to the image display starting at 0, 0
-    _dataWindow = _model->getDataWindow();
+    _dataWindow    = _model->getDataWindow();
     _displayWindow = _model->getDisplayWindow();
 
-    _displayWindow.translate(-_dataWindow.topLeft().x(), -_dataWindow.topLeft().y());
-    _dataWindow.translate(-_dataWindow.topLeft().x(), -_dataWindow.topLeft().y());
+    _displayWindow.translate(
+      -_dataWindow.topLeft().x(),
+      -_dataWindow.topLeft().y());
+    _dataWindow.translate(
+      -_dataWindow.topLeft().x(),
+      -_dataWindow.topLeft().y());
 
     // Fit view to display window
     autoscale();
 }
-
 
 void GraphicsView::onImageChanged()
 {
@@ -100,10 +113,10 @@ void GraphicsView::onImageChanged()
     _imageItem          = scene()->addPixmap(QPixmap::fromImage(image));
 }
 
-
 void GraphicsView::setZoomLevel(double zoom)
 {
-    if (_model == nullptr || !_model->isImageLoaded()) return;// || zoom == _zoomLevel) return;
+    if (_model == nullptr || !_model->isImageLoaded())
+        return;   // || zoom == _zoomLevel) return;
 
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
@@ -113,13 +126,11 @@ void GraphicsView::setZoomLevel(double zoom)
     emit zoomLevelChanged(zoom);
 }
 
-
 void GraphicsView::zoomIn()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
     setZoomLevel(_zoomLevel * 1.1);
 }
-
 
 void GraphicsView::zoomOut()
 {
@@ -131,7 +142,8 @@ void GraphicsView::autoscale()
 {
     scene()->setSceneRect(_displayWindow);
     fitInView(_displayWindow, Qt::KeepAspectRatio);
-    const double zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    const double zoomLevel
+      = std::min(viewportTransform().m11(), viewportTransform().m22());
 
     if (zoomLevel > 1.) {
         setZoomLevel(1.);
@@ -152,17 +164,18 @@ void GraphicsView::open(const QString &filename)
 void GraphicsView::showDisplayWindow(bool show)
 {
     _showDisplayWindow = show;
-    scene()->invalidate();//scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
+    scene()
+      ->invalidate();   // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 
 void GraphicsView::showDataWindow(bool show)
 {
     _showDataWindow = show;
-    scene()->invalidate();//scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
+    scene()
+      ->invalidate();   // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 
-
-//void GraphicsView::showDatawindowBoders(bool visible)
+// void GraphicsView::showDatawindowBoders(bool visible)
 //{
 //    if (_model == nullptr) return;
 
@@ -175,33 +188,28 @@ void GraphicsView::showDataWindow(bool show)
 //    _datawindowItem = scene()->addRect(0, 0, m_)
 //}
 
-
-//void GraphicsView::showDisplaywindowBorders(bool visible)
+// void GraphicsView::showDisplaywindowBorders(bool visible)
 //{
 
 //}
-
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
     if ((event->modifiers() & Qt::ControlModifier) != 0U) {
         QGraphicsView::wheelEvent(event);
-    } 
-    else {
+    } else {
         if (_model == nullptr || !_model->isImageLoaded()) return;
         const QPoint delta = event->angleDelta();
 
         if (delta.y() != 0) {
             if (delta.y() > 0) {
                 zoomIn();
-            }
-            else {
+            } else {
                 zoomOut();
             }
         }
     }
 }
-
 
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
@@ -214,13 +222,13 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
     }
 }
 
-
 void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if ((event->button() == Qt::MiddleButton)
-     || (event->button() == Qt::LeftButton)) {
+    if (
+      (event->button() == Qt::MiddleButton)
+      || (event->button() == Qt::LeftButton)) {
         QGraphicsView::mousePressEvent(event);
         setCursor(Qt::ClosedHandCursor);
         _startDrag = event->pos();
@@ -228,18 +236,19 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-
 void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
-    if (((event->buttons() & Qt::MiddleButton) != 0U)
-     || ((event->buttons() & Qt::LeftButton) != 0U)) {
+    if (
+      ((event->buttons() & Qt::MiddleButton) != 0U)
+      || ((event->buttons() & Qt::LeftButton) != 0U)) {
         QScrollBar *        hBar  = horizontalScrollBar();
         QScrollBar *        vBar  = verticalScrollBar();
         QPoint              delta = event->pos() - _startDrag;
         std::pair<int, int> bar_values;
-        bar_values.first  = hBar->value() + (isRightToLeft() ? delta.x() : -delta.x());
+        bar_values.first
+          = hBar->value() + (isRightToLeft() ? delta.x() : -delta.x());
         bar_values.second = vBar->value() - delta.y();
         hBar->setValue(bar_values.first);
         vBar->setValue(bar_values.second);
@@ -247,14 +256,12 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-
 void GraphicsView::mouseReleaseEvent(QMouseEvent *)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     setCursor(Qt::ArrowCursor);
 }
-
 
 void GraphicsView::dropEvent(QDropEvent *ev)
 {
@@ -265,11 +272,11 @@ void GraphicsView::dropEvent(QDropEvent *ev)
     if (!urls.empty()) {
         QString filename = urls[0].toString();
         QString startFileTypeString =
-            #ifdef _WIN32
-                "file:///";
-            #else
-                "file://";
-            #endif
+#ifdef _WIN32
+          "file:///";
+#else
+          "file://";
+#endif
 
         if (filename.startsWith(startFileTypeString)) {
             filename = filename.remove(0, startFileTypeString.length());
@@ -279,12 +286,10 @@ void GraphicsView::dropEvent(QDropEvent *ev)
     }
 }
 
-
 void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
 {
     ev->acceptProposedAction();
 }
-
 
 void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
 {
@@ -296,13 +301,13 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
     painter->resetTransform();
     painter->setPen(Qt::NoPen);
 
-    for (int i = 0; i < width()/polySize + 1; i++) {
+    for (int i = 0; i < width() / polySize + 1; i++) {
         const int x = i * polySize;
 
-        for (int j = 0; j < height()/polySize + 1; j++) {
+        for (int j = 0; j < height() / polySize + 1; j++) {
             const int y = j * polySize;
 
-            if ((i+j)%2 == 0) {
+            if ((i + j) % 2 == 0) {
                 painter->setBrush(a0);
             } else {
                 painter->setBrush(a1);
@@ -313,8 +318,8 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
     }
 }
 
-
-void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect) {
+void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
+{
     if (_model) {
         if (_showDisplayWindow) {
             QPainterPath outerPath;
@@ -345,7 +350,6 @@ void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect) {
         }
     }
 }
-
 
 void GraphicsView::scrollContentsBy(int dx, int dy)
 {
