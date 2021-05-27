@@ -450,3 +450,9 @@ void MainWindow::on_action_Tiled_triggered()
     m_mdiArea->setViewMode(QMdiArea::SubWindowView);
     m_mdiArea->tileSubWindows();
 }
+
+void MainWindow::on_action_Refresh_triggered()
+{
+    open(m_img->getFilename());
+}
+

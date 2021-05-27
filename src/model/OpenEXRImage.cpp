@@ -39,6 +39,7 @@
 
 OpenEXRImage::OpenEXRImage(const QString &filename, QObject *parent)
   : m_exrIn(filename.toStdString().c_str())
+  , m_filename(filename)
 
 {
     _headerModel = new HeaderModel(m_exrIn.parts(), parent);

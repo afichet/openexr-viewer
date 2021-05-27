@@ -51,8 +51,12 @@ class OpenEXRImage
 
     Imf::MultiPartInputFile &getEXR() { return m_exrIn; }
 
+    const QString& getFilename() const { return m_filename; }
+
   private:
     Imf::MultiPartInputFile m_exrIn;
 
     HeaderModel *_headerModel;
+
+    QString m_filename;
 };
