@@ -25,8 +25,8 @@ parts:
     after:
       - openexr-lib
     build-snaps:
-      - kde-frameworks-5-qt-5-14-core18-sdk
-      - kde-frameworks-5-qt-5-14-core18
+      - kde-frameworks-5-core18-sdk
+      - kde-frameworks-5-core18
     build-packages:
       - libegl1-mesa-dev
     stage-packages:
