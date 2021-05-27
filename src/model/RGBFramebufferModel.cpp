@@ -165,7 +165,7 @@ void RGBFramebufferModel::load(
                         const float b = m_pixelBuffer[4 * (y * m_width + x) + 2];
 
                         Imath::V3f rgb(r, g, b);
-                        rgb = rgb * conversionMatrix;
+                        rgb *= conversionMatrix;
 
                         m_pixelBuffer[4 * (y * m_width + x) + 0] = rgb.x;
                         m_pixelBuffer[4 * (y * m_width + x) + 1] = rgb.y;
