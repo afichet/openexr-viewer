@@ -168,7 +168,7 @@ int HeaderModel::columnCount(const QModelIndex &parent) const
     return m_rootItem->columnCount();
 }
 
-void HeaderModel::addHeader(const Imf_3_0::Header &header, int part)
+void HeaderModel::addHeader(const Imf::Header &header, int part)
 {
     assert(part < (int)m_headerItems.size());
     assert(part < (int)m_partRootLayer.size());
@@ -196,7 +196,7 @@ void HeaderModel::addHeader(const Imf_3_0::Header &header, int part)
 
 OpenEXRHeaderItem *HeaderModel::addItem(
         const char *name,
-        const Imf_3_0::Attribute &attribute,
+        const Imf::Attribute &attribute,
         OpenEXRHeaderItem *parent,
         int part_number)
 {
