@@ -34,6 +34,8 @@
 
 #include <cassert>
 
+#include <QFileInfo>
+
 #include <OpenEXR/ImfBoxAttribute.h>
 #include <OpenEXR/ImfChannelListAttribute.h>
 #include <OpenEXR/ImfChromaticitiesAttribute.h>
@@ -74,6 +76,36 @@ HeaderModel::~HeaderModel()
         delete it;
     }
 }
+
+void HeaderModel::addFile(const Imf::MultiPartInputFile &file, const QString& filename)
+{
+    HeaderItem *fileRoot = new HeaderItem(m_rootItem, {QFileInfo(filename).fileName(), 0, "part"});
+
+    if (file.parts() > 1) {
+        for (int i = 0; i < file.parts(); i++) {
+            const Imf::Header &exrHeader = file.header(i);
+
+            std::string partName = "Untitled part";
+
+            if (exrHeader.hasName()) {
+                partName = exrHeader.name();
+            }
+
+            HeaderItem *partRoot = new HeaderItem(fileRoot, {partName.c_str(), i, "part"});
+
+            addHeader(exrHeader, partRoot, i);
+        }
+
+        // Never happens but makes clang-analyser happy
+    } else if (file.parts() == 1){
+        const Imf::Header &exrHeader = file.header(0);
+
+        addHeader(exrHeader, fileRoot, 0);
+    } else {
+        delete fileRoot;
+    }
+}
+
 
 QVariant HeaderModel::data(const QModelIndex &index, int role) const
 {
@@ -176,13 +208,11 @@ int HeaderModel::columnCount(const QModelIndex &parent) const
     return m_rootItem->columnCount();
 }
 
-void HeaderModel::addHeader(const Imf::Header &header, int part)
+
+void HeaderModel::addHeader(const Imf::Header &header, HeaderItem * root, int part)
 {
     assert(part < (int)m_headerItems.size());
     assert(part < (int)m_partRootLayer.size());
-
-    HeaderItem *child
-      = new HeaderItem(m_rootItem, {"Part", part, "part"});
 
     m_partRootLayer[part] = nullptr;
 
@@ -190,16 +220,12 @@ void HeaderModel::addHeader(const Imf::Header &header, int part)
 
     for (Imf::Header::ConstIterator it = header.begin(); it != header.end();
          it++) {
-        addItem(it.name(), it.attribute(), child, part);
+        addItem(it.name(), it.attribute(), root, part);
         ++n_headerFields;
     }
-
-    // Just in case there is no header info at all...
-    // free allocated memory
-    if (n_headerFields == 0) {
-        delete child;
-    }
 }
+
+
 
 HeaderItem *HeaderModel::addItem(
   const char *          name,

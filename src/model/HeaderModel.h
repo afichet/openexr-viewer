@@ -35,6 +35,7 @@
 #include <QAbstractItemModel>
 
 #include <OpenEXR/ImfHeader.h>
+#include <OpenEXR/ImfMultiPartInputFile.h>
 
 #include <model/HeaderItem.h>
 #include <model/LayerItem.h>
@@ -46,33 +47,46 @@ class HeaderModel: public QAbstractItemModel
 
     ~HeaderModel();
 
-    QVariant      data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    QVariant      headerData(
-           int             section,
-           Qt::Orientation orientation,
-           int             role = Qt::DisplayRole) const override;
-    QModelIndex index(
-      int                row,
-      int                column,
-      const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    void addHeader(const Imf::Header &header, int part);
+    void addFile(const Imf::MultiPartInputFile &file, const QString &filename);
 
     const std::vector<LayerItem *> &getLayers() const
     {
         return m_partRootLayer;
     }
 
+
+    /**
+     * Qt logic for accessing the model
+     */
+    QVariant      data(const QModelIndex &index, int role) const override;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    QVariant      headerData(
+           int             section,
+           Qt::Orientation orientation,
+           int             role = Qt::DisplayRole) const override;
+
+    QModelIndex index(
+      int                row,
+      int                column,
+      const QModelIndex &parent = QModelIndex()) const override;
+
+    QModelIndex parent(const QModelIndex &index) const override;
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+
   private:
+    void addHeader(const Imf::Header &header, HeaderItem * root, int part);
+
     HeaderItem *addItem(
       const char *          name,
       const Imf::Attribute &attr,
       HeaderItem *   parent,
-      int                   part_number);
+      int                   part_number);    
 
   private:
     HeaderItem *                   m_rootItem;
