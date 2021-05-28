@@ -84,11 +84,14 @@ void HeaderModel::addFile(
         rootValue += "s";
     }
 
-    HeaderItem *fileRoot
-      = new HeaderItem(m_rootItem, {QFileInfo(filename).fileName(), rootValue, "file"});
+    HeaderItem *fileRoot = new HeaderItem(
+      m_rootItem,
+      {QFileInfo(filename).fileName(), rootValue, "file"});
 
-    if (file.parts() > 1) {
-        for (int i = 0; i < file.parts(); i++) {
+    const int nParts = file.parts();
+
+    if (nParts > 1) {
+        for (int i = 0; i < nParts; i++) {
             const Imf::Header &exrHeader = file.header(i);
 
             std::string partName = "Untitled part";
@@ -97,14 +100,13 @@ void HeaderModel::addFile(
                 partName = exrHeader.name();
             }
 
-            QString partValue = "[" + QString::number(i) + "]";
+            QString     partValue = "[" + QString::number(i) + "]";
             HeaderItem *partRoot
               = new HeaderItem(fileRoot, {partName.c_str(), partValue, "part"});
 
             addHeader(exrHeader, partRoot, QString::fromStdString(partName), i);
         }
-
-    } else if (file.parts() == 1) {
+    } else if (nParts == 1) {
         const Imf::Header &exrHeader = file.header(0);
 
         std::string partName = "Untitled part";
@@ -240,7 +242,11 @@ void HeaderModel::addHeader(
     }
 }
 
-
+#define CALL_FOR_CLASS(_name, _attribute, _parent, _partName, _partID, _class) \
+    if (strcmp(_attribute.typeName(), Imf::_class::staticTypeName()) == 0) {   \
+        auto typedAttr = Imf::_class::cast(_attribute);                        \
+        return addItem(_name, typedAttr, _parent, _partName, _partID);         \
+    }
 
 HeaderItem *HeaderModel::addItem(
   const char *          name,
@@ -249,22 +255,45 @@ HeaderItem *HeaderModel::addItem(
   QString               partName,
   int                   part_number)
 {
+    // clang-format off
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, Box2iAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, Box2fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, ChromaticitiesAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, CompressionAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, DoubleAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, EnvmapAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, FloatAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, FloatVectorAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, IDManifestAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, IntAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, KeyCodeAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, LineOrderAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, M33fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, M33dAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, M44fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, M44dAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, PreviewImageAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, RationalAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, StringAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, StringVectorAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, TileDescriptionAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, TimeCodeAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V2iAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V2fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V2dAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3iAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3dAttribute);
+    // clang-format on
+
     HeaderItem *attrItem = new HeaderItem(parent);
 
     const char *type = attribute.typeName();
 
     std::stringstream ss;
 
-    // Box
-    if (strcmp(type, Imf::Box2iAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::Box2iAttribute::cast(attribute);
-        ss << attr.value().min << " " << attr.value().size();
-    } else if (strcmp(type, Imf::Box2fAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::Box2fAttribute::cast(attribute);
-        ss << attr.value().min << " " << attr.value().size();
-    }
     // Channel List
-    else if (strcmp(type, Imf::ChannelListAttribute::staticTypeName()) == 0) {
+    if (strcmp(type, Imf::ChannelListAttribute::staticTypeName()) == 0) {
         auto   attr         = Imf::ChannelListAttribute::cast(attribute);
         size_t channelCount = 0;
 
@@ -290,236 +319,14 @@ HeaderItem *HeaderModel::addItem(
           partName,
           part_number);
     }
-    // Chromaticities
-    else if (
-      strcmp(type, Imf::ChromaticitiesAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::ChromaticitiesAttribute::cast(attribute);
-        ss << attr.value().red << " " << attr.value().green << " "
-           << attr.value().blue << " " << attr.value().white;
-    }
-    // Compression
-    else if (strcmp(type, Imf::CompressionAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::CompressionAttribute::cast(attribute);
-        switch (attr.value()) {
-            case Imf::Compression::NO_COMPRESSION:
-                ss << "no compression";
-                break;
-            case Imf::Compression::RLE_COMPRESSION:
-                ss << "run length encoding";
-                break;
-            case Imf::Compression::ZIPS_COMPRESSION:
-                ss << "zlib compression, one scan line at a time";
-                break;
-            case Imf::Compression::ZIP_COMPRESSION:
-                ss << "zlib compression, in blocks of 16 scan lines";
-                break;
-            case Imf::Compression::PIZ_COMPRESSION:
-                ss << "piz-based wavelet compression";
-                break;
-            case Imf::Compression::PXR24_COMPRESSION:
-                ss << "lossy 24-bit float compression";
-                break;
-            case Imf::Compression::B44_COMPRESSION:
-                ss << "lossy 4-by-4 pixel block compression";
-                break;
-            case Imf::Compression::B44A_COMPRESSION:
-                ss << "lossy 4-by-4 pixel block compression";
-                break;
-            case Imf::Compression::DWAA_COMPRESSION:
-                ss << "lossy DCT based compression, in blocks of 32 scanlines";
-                break;
-            case Imf::Compression::DWAB_COMPRESSION:
-                ss << "lossy DCT based compression, in blocks of 256 scanlines";
-                break;
-            default:
-                ss << "unknown compression type: " << attr.value();
-                break;
-        }
-    }
-    // Deep image
-    else if (
-      strcmp(type, Imf::DeepImageStateAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::DeepImageStateAttribute::cast(attribute);
-        switch (attr.value()) {
-            case Imf::DeepImageState::DIS_MESSY:
-                ss << "messy";
-                break;
-            case Imf::DeepImageState::DIS_SORTED:
-                ss << "sorted";
-                break;
-            case Imf::DeepImageState::DIS_NON_OVERLAPPING:
-                ss << "non overlapping";
-                break;
-            case Imf::DeepImageState::DIS_TIDY:
-                ss << "tidy";
-                break;
-            default:
-                ss << "unknown deepimage state: " << attr.value();
-                break;
-        }
-    }
-    // Double
-    else if (strcmp(type, Imf::DoubleAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::DoubleAttribute::cast(attribute);
-        ss << attr.value();
-    }
-    // Envmap
-    else if (strcmp(type, Imf::EnvmapAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::EnvmapAttribute::cast(attribute);
-        switch (attr.value()) {
-            case Imf::Envmap::ENVMAP_LATLONG:
-                ss << "Latitude-longitude environment map";
-                break;
-            case Imf::Envmap::ENVMAP_CUBE:
-                ss << "Cube map";
-                break;
-            default:
-                ss << "unknown envmap parametrization: " << attr.value();
-                break;
-        }
-    }
-    // Float
-    else if (strcmp(type, Imf::FloatAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::FloatAttribute::cast(attribute);
-        ss << attr.value();
-    }
-    // Float vector
-    else if (strcmp(type, Imf::FloatVectorAttribute::staticTypeName()) == 0) {
-        auto   attr       = Imf::FloatVectorAttribute::cast(attribute);
-        size_t floatCount = 0;
 
-        for (std::vector<float>::iterator fIt = attr.value().begin();
-             fIt != attr.value().end();
-             fIt++) {
-            new HeaderItem(
-              attrItem,
-              {*fIt, "", "float"},
-              partName,
-              part_number,
-              name);
-            ++floatCount;
-        }
-
-        ss << floatCount;
-    }
-    // IDManifest
-    else if (strcmp(type, Imf::IDManifestAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::IDManifestAttribute::cast(attribute);
-    }
-    // Int
-    else if (strcmp(type, Imf::IntAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::IntAttribute::cast(attribute);
-        ss << attr.value();
-    }
-    // Key code
-    else if (strcmp(type, Imf::KeyCodeAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::KeyCodeAttribute::cast(attribute);
-        ss << std::endl
-           << "\tCount: " << attr.value().count() << std::endl
-           << "\tFilm MFC code: " << attr.value().filmMfcCode() << std::endl
-           << "\tFilm type: " << attr.value().filmType() << std::endl
-           << "\tPerf offset: " << attr.value().perfOffset() << std::endl
-           << "\tPerfs per count: " << attr.value().perfsPerCount() << std::endl
-           << "\tPerfs per frame: " << attr.value().perfsPerFrame() << std::endl
-           << "\tPrefix: " << attr.value().prefix();
-    }
-    // Line order
-    else if (strcmp(type, Imf::LineOrderAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::LineOrderAttribute::cast(attribute);
-        switch (attr.value()) {
-            case Imf::LineOrder::INCREASING_Y:
-                ss << "Increasing Y: first scan line has lowest y coordinate";
-                break;
-            case Imf::LineOrder::DECREASING_Y:
-                ss << "Decreasing Y: first scan line has highest y coordinate";
-                break;
-            case Imf::LineOrder::RANDOM_Y:
-                ss << "Random Y: tiles are written in random order";
-                break;   // Only for tiled
-            default:
-                ss << "unknown line order: " << attr.value();
-                break;
-        }
-    }
-    // Matrix
-    else if (strcmp(type, Imf::M33fAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::M33fAttribute::cast(attribute);
-    } else if (strcmp(type, Imf::M33dAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::M33dAttribute::cast(attribute);
-    } else if (strcmp(type, Imf::M44fAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::M44fAttribute::cast(attribute);
-    } else if (strcmp(type, Imf::M44dAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::M44dAttribute::cast(attribute);
-    }
     // Opaque -> When unknown
     //        else if (strcmp(type, Imf::OpaqueAttribute::staticTypeName()) == 0)
     //        {
     //            auto attr = Imf::OpaqueAttribute::cast(attribute);
     //        }
-    // Preview image
-    else if (strcmp(type, Imf::PreviewImageAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::PreviewImageAttribute::cast(attribute);
-    }
-    // Rational
-    else if (strcmp(type, Imf::RationalAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::PreviewImageAttribute::cast(attribute);
-    }
-    // String
-    else if (strcmp(type, Imf::StringAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::StringAttribute::cast(attribute);
-        ss << attr.value();
-    }
-    // String vector
-    else if (strcmp(type, Imf::StringVectorAttribute::staticTypeName()) == 0) {
-        auto   attr        = Imf::StringVectorAttribute::cast(attribute);
-        size_t stringCount = 0;
 
-        for (std::vector<std::string>::iterator sIt = attr.value().begin();
-             sIt != attr.value().end();
-             sIt++) {
-            // Create a child
-            new HeaderItem(
-              attrItem,
-              {sIt->c_str(), "", "string"},
-              partName,
-              part_number,
-              name);
-            ++stringCount;
-        }
-
-        ss << stringCount;
-    }
-    // Tile description
-    else if (
-      strcmp(type, Imf::TileDescriptionAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::TileDescriptionAttribute::cast(attribute);
-    }
-    // Timecode
-    else if (strcmp(type, Imf::TimeCodeAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::TimeCodeAttribute::cast(attribute);
-        ss << attr.value().hours() << ":" << attr.value().minutes() << ":"
-           << attr.value().seconds() << " f" << attr.value().frame();
-    }
-    // Vector
-    else if (strcmp(type, Imf::V2iAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V2iAttribute::cast(attribute);
-        ss << attr.value();
-    } else if (strcmp(type, Imf::V2fAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V2fAttribute::cast(attribute);
-        ss << attr.value();
-    } else if (strcmp(type, Imf::V2dAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V2dAttribute::cast(attribute);
-        ss << attr.value();
-    } else if (strcmp(type, Imf::V3iAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V3iAttribute::cast(attribute);
-        ss << attr.value();
-    } else if (strcmp(type, Imf::V3fAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V3fAttribute::cast(attribute);
-        ss << attr.value();
-    } else if (strcmp(type, Imf::V3dAttribute::staticTypeName()) == 0) {
-        auto attr = Imf::V3dAttribute::cast(attribute);
-        ss << attr.value();
-    } else {
+    else {
         ss << "Unsupported";
     }
 
@@ -528,6 +335,746 @@ HeaderItem *HeaderModel::addItem(
     attrItem->setItemName(name);
     attrItem->setPartName(partName);
     attrItem->setPartID(part_number);
+
+    return attrItem;
+}
+
+
+
+
+// Box2i
+HeaderItem *HeaderModel::addItem(
+  const char *               name,
+  const Imf::Box2iAttribute &attr,
+  HeaderItem *               parent,
+  QString                    partName,
+  int                        part_number)
+{
+    std::stringstream ss;
+    ss << attr.value().min << " " << attr.value().size();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::Box2iAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Box2f
+HeaderItem *HeaderModel::addItem(
+  const char *               name,
+  const Imf::Box2fAttribute &attr,
+  HeaderItem *               parent,
+  QString                    partName,
+  int                        part_number)
+{
+    std::stringstream ss;
+    ss << attr.value().min << " " << attr.value().size();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::Box2fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Channel List
+
+// Chromaticities
+HeaderItem *HeaderModel::addItem(
+  const char *                        name,
+  const Imf::ChromaticitiesAttribute &attr,
+  HeaderItem *                        parent,
+  QString                             partName,
+  int                                 part_number)
+{
+    std::stringstream ss;
+    ss << attr.value().red << " " << attr.value().green << " "
+       << attr.value().blue << " " << attr.value().white;
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::ChromaticitiesAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Compression
+HeaderItem *HeaderModel::addItem(
+  const char *                     name,
+  const Imf::CompressionAttribute &attr,
+  HeaderItem *                     parent,
+  QString                          partName,
+  int                              part_number)
+{
+    std::stringstream ss;
+    switch (attr.value()) {
+        case Imf::Compression::NO_COMPRESSION:
+            ss << "no compression";
+            break;
+        case Imf::Compression::RLE_COMPRESSION:
+            ss << "run length encoding";
+            break;
+        case Imf::Compression::ZIPS_COMPRESSION:
+            ss << "zlib compression, one scan line at a time";
+            break;
+        case Imf::Compression::ZIP_COMPRESSION:
+            ss << "zlib compression, in blocks of 16 scan lines";
+            break;
+        case Imf::Compression::PIZ_COMPRESSION:
+            ss << "piz-based wavelet compression";
+            break;
+        case Imf::Compression::PXR24_COMPRESSION:
+            ss << "lossy 24-bit float compression";
+            break;
+        case Imf::Compression::B44_COMPRESSION:
+            ss << "lossy 4-by-4 pixel block compression";
+            break;
+        case Imf::Compression::B44A_COMPRESSION:
+            ss << "lossy 4-by-4 pixel block compression";
+            break;
+        case Imf::Compression::DWAA_COMPRESSION:
+            ss << "lossy DCT based compression, in blocks of 32 scanlines";
+            break;
+        case Imf::Compression::DWAB_COMPRESSION:
+            ss << "lossy DCT based compression, in blocks of 256 scanlines";
+            break;
+        default:
+            ss << "unknown compression type: " << attr.value();
+            break;
+    }
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::CompressionAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Deep image state
+HeaderItem *HeaderModel::addItem(
+  const char *                        name,
+  const Imf::DeepImageStateAttribute &attr,
+  HeaderItem *                        parent,
+  QString                             partName,
+  int                                 part_number)
+{
+    std::stringstream ss;
+    switch (attr.value()) {
+        case Imf::DeepImageState::DIS_MESSY:
+            ss << "messy";
+            break;
+        case Imf::DeepImageState::DIS_SORTED:
+            ss << "sorted";
+            break;
+        case Imf::DeepImageState::DIS_NON_OVERLAPPING:
+            ss << "non overlapping";
+            break;
+        case Imf::DeepImageState::DIS_TIDY:
+            ss << "tidy";
+            break;
+        default:
+            ss << "unknown deepimage state: " << attr.value();
+            break;
+    }
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::DeepImageStateAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Double
+HeaderItem *HeaderModel::addItem(
+  const char *                name,
+  const Imf::DoubleAttribute &attr,
+  HeaderItem *                parent,
+  QString                     partName,
+  int                         part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::DoubleAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Envmap
+HeaderItem *HeaderModel::addItem(
+  const char *                name,
+  const Imf::EnvmapAttribute &attr,
+  HeaderItem *                parent,
+  QString                     partName,
+  int                         part_number)
+{
+    std::stringstream ss;
+    switch (attr.value()) {
+        case Imf::Envmap::ENVMAP_LATLONG:
+            ss << "Latitude-longitude environment map";
+            break;
+        case Imf::Envmap::ENVMAP_CUBE:
+            ss << "Cube map";
+            break;
+        default:
+            ss << "unknown envmap parametrization: " << attr.value();
+            break;
+    }
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::EnvmapAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Float
+HeaderItem *HeaderModel::addItem(
+  const char *               name,
+  const Imf::FloatAttribute &attr,
+  HeaderItem *               parent,
+  QString                    partName,
+  int                        part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::FloatAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Float vector
+HeaderItem *HeaderModel::addItem(
+  const char *                     name,
+  const Imf::FloatVectorAttribute &attr,
+  HeaderItem *                     parent,
+  QString                          partName,
+  int                              part_number)
+{
+    HeaderItem *attrItem = new HeaderItem(parent);
+
+    size_t            floatCount = 0;
+    std::stringstream ss;
+
+    for (auto fIt = attr.value().cbegin(); fIt != attr.value().cend(); fIt++) {
+        new HeaderItem(
+          attrItem,
+          {*fIt, "", "float"},
+          partName,
+          part_number,
+          name);
+        ++floatCount;
+    }
+
+    ss << floatCount;
+
+    QVector<QVariant> itemData = {
+      name,
+      QString(ss.str().c_str()),
+      Imf::FloatVectorAttribute::staticTypeName()};
+    attrItem->setData(itemData);
+    attrItem->setItemName(name);
+    attrItem->setPartName(partName);
+    attrItem->setPartID(part_number);
+
+    return attrItem;
+}
+
+
+// IDManifest
+HeaderItem *HeaderModel::addItem(
+  const char *                    name,
+  const Imf::IDManifestAttribute &attr,
+  HeaderItem *                    parent,
+  QString                         partName,
+  int                             part_number)
+{
+    std::stringstream ss;
+    // TODO!
+    //        ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::IDManifestAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Int
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::IntAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::IntAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Key code
+HeaderItem *HeaderModel::addItem(
+  const char *                 name,
+  const Imf::KeyCodeAttribute &attr,
+  HeaderItem *                 parent,
+  QString                      partName,
+  int                          part_number)
+{
+    std::stringstream ss;
+    ss << std::endl
+       << "\tCount: " << attr.value().count() << std::endl
+       << "\tFilm MFC code: " << attr.value().filmMfcCode() << std::endl
+       << "\tFilm type: " << attr.value().filmType() << std::endl
+       << "\tPerf offset: " << attr.value().perfOffset() << std::endl
+       << "\tPerfs per count: " << attr.value().perfsPerCount() << std::endl
+       << "\tPerfs per frame: " << attr.value().perfsPerFrame() << std::endl
+       << "\tPrefix: " << attr.value().prefix();
+
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::KeyCodeAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Line order
+HeaderItem *HeaderModel::addItem(
+  const char *                   name,
+  const Imf::LineOrderAttribute &attr,
+  HeaderItem *                   parent,
+  QString                        partName,
+  int                            part_number)
+{
+    std::stringstream ss;
+    switch (attr.value()) {
+        case Imf::LineOrder::INCREASING_Y:
+            ss << "Increasing Y: first scan line has lowest y coordinate";
+            break;
+        case Imf::LineOrder::DECREASING_Y:
+            ss << "Decreasing Y: first scan line has highest y coordinate";
+            break;
+        case Imf::LineOrder::RANDOM_Y:
+            ss << "Random Y: tiles are written in random order";
+            break;   // Only for tiled
+        default:
+            ss << "unknown line order: " << attr.value();
+            break;
+    }
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::LineOrderAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Matrix33f
+HeaderItem *HeaderModel::addItem(
+  const char *              name,
+  const Imf::M33fAttribute &attr,
+  HeaderItem *              parent,
+  QString                   partName,
+  int                       part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::M33fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Matrix33d
+HeaderItem *HeaderModel::addItem(
+  const char *              name,
+  const Imf::M33dAttribute &attr,
+  HeaderItem *              parent,
+  QString                   partName,
+  int                       part_number)
+{
+    std::stringstream ss;
+    // TODO
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::M33dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Matrix44f
+HeaderItem *HeaderModel::addItem(
+  const char *              name,
+  const Imf::M44fAttribute &attr,
+  HeaderItem *              parent,
+  QString                   partName,
+  int                       part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::M44fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Matrix44d
+HeaderItem *HeaderModel::addItem(
+  const char *              name,
+  const Imf::M44dAttribute &attr,
+  HeaderItem *              parent,
+  QString                   partName,
+  int                       part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::M44dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// Preview image
+HeaderItem *HeaderModel::addItem(
+  const char *                      name,
+  const Imf::PreviewImageAttribute &attr,
+  HeaderItem *                      parent,
+  QString                           partName,
+  int                               part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::PreviewImageAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Rational
+HeaderItem *HeaderModel::addItem(
+  const char *                  name,
+  const Imf::RationalAttribute &attr,
+  HeaderItem *                  parent,
+  QString                       partName,
+  int                           part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::RationalAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// String
+HeaderItem *HeaderModel::addItem(
+  const char *                name,
+  const Imf::StringAttribute &attr,
+  HeaderItem *                parent,
+  QString                     partName,
+  int                         part_number)
+{
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, attr.value().c_str(), Imf::StringAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+// String vector
+HeaderItem *HeaderModel::addItem(
+  const char *                      name,
+  const Imf::StringVectorAttribute &attr,
+  HeaderItem *                      parent,
+  QString                           partName,
+  int                               part_number)
+{
+    HeaderItem *      attrItem = new HeaderItem(parent);
+    std::stringstream ss;
+    // TODO
+
+    size_t stringCount = 0;
+
+    for (auto sIt = attr.value().cbegin(); sIt != attr.value().cend(); sIt++) {
+        // Create a child
+        new HeaderItem(
+          attrItem,
+          {sIt->c_str(), "", "string"},
+          partName,
+          part_number,
+          name);
+        ++stringCount;
+    }
+
+    ss << stringCount;
+
+    QVector<QVariant> itemData = {
+      name,
+      QString(ss.str().c_str()),
+      Imf::StringVectorAttribute::staticTypeName()};
+    attrItem->setData(itemData);
+    attrItem->setItemName(name);
+    attrItem->setPartName(partName);
+    attrItem->setPartID(part_number);
+
+    return attrItem;
+}
+
+
+// Tile description
+HeaderItem *HeaderModel::addItem(
+  const char *                         name,
+  const Imf::TileDescriptionAttribute &attr,
+  HeaderItem *                         parent,
+  QString                              partName,
+  int                                  part_number)
+{
+    std::stringstream ss;
+    // TODO
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::TileDescriptionAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Timecode
+HeaderItem *HeaderModel::addItem(
+  const char *                  name,
+  const Imf::TimeCodeAttribute &attr,
+  HeaderItem *                  parent,
+  QString                       partName,
+  int                           part_number)
+{
+    std::stringstream ss;
+    // TODO
+    ss << attr.value().hours() << ":" << attr.value().minutes() << ":"
+       << attr.value().seconds() << " f" << attr.value().frame();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::TimeCodeAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector2i
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V2iAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V2iAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector2f
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V2fAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V2fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector2d
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V2dAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V2dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector3i
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V3iAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V3iAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector3f
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V3fAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V3fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    return attrItem;
+}
+
+
+// Vector3d
+HeaderItem *HeaderModel::addItem(
+  const char *             name,
+  const Imf::V3dAttribute &attr,
+  HeaderItem *             parent,
+  QString                  partName,
+  int                      part_number)
+{
+    std::stringstream ss;
+    ss << attr.value();
+
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, ss.str().c_str(), Imf::V3dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
 
     return attrItem;
 }

@@ -34,11 +34,37 @@
 
 #include <QAbstractItemModel>
 
+#include <model/HeaderItem.h>
+#include <model/LayerItem.h>
+
+#include <vector>
+
 #include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
-#include <model/HeaderItem.h>
-#include <model/LayerItem.h>
+
+#include <OpenEXR/ImfBoxAttribute.h>
+#include <OpenEXR/ImfChannelListAttribute.h>
+#include <OpenEXR/ImfChromaticitiesAttribute.h>
+#include <OpenEXR/ImfCompressionAttribute.h>
+#include <OpenEXR/ImfDeepImageStateAttribute.h>
+#include <OpenEXR/ImfDoubleAttribute.h>
+#include <OpenEXR/ImfEnvmapAttribute.h>
+#include <OpenEXR/ImfFloatAttribute.h>
+#include <OpenEXR/ImfFloatVectorAttribute.h>
+#include <OpenEXR/ImfIDManifestAttribute.h>
+#include <OpenEXR/ImfIntAttribute.h>
+#include <OpenEXR/ImfKeyCodeAttribute.h>
+#include <OpenEXR/ImfLineOrderAttribute.h>
+#include <OpenEXR/ImfMatrixAttribute.h>
+#include <OpenEXR/ImfOpaqueAttribute.h>
+#include <OpenEXR/ImfPreviewImageAttribute.h>
+#include <OpenEXR/ImfRationalAttribute.h>
+#include <OpenEXR/ImfStringAttribute.h>
+#include <OpenEXR/ImfStringVectorAttribute.h>
+#include <OpenEXR/ImfTileDescriptionAttribute.h>
+#include <OpenEXR/ImfTimeCodeAttribute.h>
+#include <OpenEXR/ImfVecAttribute.h>
 
 class HeaderModel: public QAbstractItemModel
 {
@@ -78,7 +104,6 @@ class HeaderModel: public QAbstractItemModel
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-
   private:
     void addHeader(
       const Imf::Header &header,
@@ -86,12 +111,251 @@ class HeaderModel: public QAbstractItemModel
       const QString      partName,
       int                partID);
 
+    // General function. Delegates to one of the specialised
+    // function
     HeaderItem *addItem(
       const char *          name,
       const Imf::Attribute &attr,
       HeaderItem *          parent,
       QString               partName,
       int                   part_number);
+
+    // Box2i
+    HeaderItem *addItem(
+      const char *               name,
+      const Imf::Box2iAttribute &attr,
+      HeaderItem *               parent,
+      QString                    partName,
+      int                        part_number);
+
+    // Box2f
+    HeaderItem *addItem(
+      const char *               name,
+      const Imf::Box2fAttribute &attr,
+      HeaderItem *               parent,
+      QString                    partName,
+      int                        part_number);
+
+    // Channel List
+
+    // Chromaticities
+    HeaderItem *addItem(
+      const char *                        name,
+      const Imf::ChromaticitiesAttribute &attr,
+      HeaderItem *                        parent,
+      QString                             partName,
+      int                                 part_number);
+
+    // Compression
+    HeaderItem *addItem(
+      const char *                     name,
+      const Imf::CompressionAttribute &attr,
+      HeaderItem *                     parent,
+      QString                          partName,
+      int                              part_number);
+
+    // Deep image state
+    HeaderItem *addItem(
+      const char *                        name,
+      const Imf::DeepImageStateAttribute &attr,
+      HeaderItem *                        parent,
+      QString                             partName,
+      int                                 part_number);
+
+    // Double
+    HeaderItem *addItem(
+      const char *                name,
+      const Imf::DoubleAttribute &attr,
+      HeaderItem *                parent,
+      QString                     partName,
+      int                         part_number);
+
+    // Envmap
+    HeaderItem *addItem(
+      const char *                name,
+      const Imf::EnvmapAttribute &attr,
+      HeaderItem *                parent,
+      QString                     partName,
+      int                         part_number);
+
+    // Float
+    HeaderItem *addItem(
+      const char *               name,
+      const Imf::FloatAttribute &attr,
+      HeaderItem *               parent,
+      QString                    partName,
+      int                        part_number);
+
+    // Float vector
+    HeaderItem *addItem(
+      const char *                     name,
+      const Imf::FloatVectorAttribute &attr,
+      HeaderItem *                     parent,
+      QString                          partName,
+      int                              part_number);
+
+    // IDManifest
+    HeaderItem *addItem(
+      const char *                    name,
+      const Imf::IDManifestAttribute &attr,
+      HeaderItem *                    parent,
+      QString                         partName,
+      int                             part_number);
+
+    // Int
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::IntAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Key code
+    HeaderItem *addItem(
+      const char *                 name,
+      const Imf::KeyCodeAttribute &attr,
+      HeaderItem *                 parent,
+      QString                      partName,
+      int                          part_number);
+
+    // Line order
+    HeaderItem *addItem(
+      const char *                   name,
+      const Imf::LineOrderAttribute &attr,
+      HeaderItem *                   parent,
+      QString                        partName,
+      int                            part_number);
+
+    // Matrix33f
+    HeaderItem *addItem(
+      const char *              name,
+      const Imf::M33fAttribute &attr,
+      HeaderItem *              parent,
+      QString                   partName,
+      int                       part_number);
+
+    // Matrix33d
+    HeaderItem *addItem(
+      const char *              name,
+      const Imf::M33dAttribute &attr,
+      HeaderItem *              parent,
+      QString                   partName,
+      int                       part_number);
+
+    // Matrix44f
+    HeaderItem *addItem(
+      const char *              name,
+      const Imf::M44fAttribute &attr,
+      HeaderItem *              parent,
+      QString                   partName,
+      int                       part_number);
+
+    // Matrix44d
+    HeaderItem *addItem(
+      const char *              name,
+      const Imf::M44dAttribute &attr,
+      HeaderItem *              parent,
+      QString                   partName,
+      int                       part_number);
+
+    // Preview image
+    HeaderItem *addItem(
+      const char *                      name,
+      const Imf::PreviewImageAttribute &attr,
+      HeaderItem *                      parent,
+      QString                           partName,
+      int                               part_number);
+
+    // Rational
+    HeaderItem *addItem(
+      const char *                  name,
+      const Imf::RationalAttribute &attr,
+      HeaderItem *                  parent,
+      QString                       partName,
+      int                           part_number);
+
+    // String
+    HeaderItem *addItem(
+      const char *                name,
+      const Imf::StringAttribute &attr,
+      HeaderItem *                parent,
+      QString                     partName,
+      int                         part_number);
+
+    // String vector
+    HeaderItem *addItem(
+      const char *                      name,
+      const Imf::StringVectorAttribute &attr,
+      HeaderItem *                      parent,
+      QString                           partName,
+      int                               part_number);
+
+
+    // Tile description
+    HeaderItem *addItem(
+      const char *                         name,
+      const Imf::TileDescriptionAttribute &attr,
+      HeaderItem *                         parent,
+      QString                              partName,
+      int                                  part_number);
+
+    // Timecode
+    HeaderItem *addItem(
+      const char *                  name,
+      const Imf::TimeCodeAttribute &attr,
+      HeaderItem *                  parent,
+      QString                       partName,
+      int                           part_number);
+
+    // Vector2i
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V2iAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Vector2f
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V2fAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Vector2d
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V2dAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Vector3i
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V3iAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Vector3f
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V3fAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+    // Vector3d
+    HeaderItem *addItem(
+      const char *             name,
+      const Imf::V3dAttribute &attr,
+      HeaderItem *             parent,
+      QString                  partName,
+      int                      part_number);
+
+
 
   private:
     HeaderItem *                          m_rootItem;

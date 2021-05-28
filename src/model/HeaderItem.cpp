@@ -53,6 +53,10 @@ HeaderItem::HeaderItem(
 HeaderItem::~HeaderItem()
 {
     qDeleteAll(m_childItems);
+
+    //    if (m_parentItem) {
+    //        m_parentItem->m_childItems.removeAll(this);
+    //    }
 }
 
 void HeaderItem::appendData(QVariant sibbling)
