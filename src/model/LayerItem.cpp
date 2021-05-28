@@ -51,13 +51,13 @@ LayerItem::~LayerItem()
 void LayerItem::addLeaf(
   const QString channelName, const Imf::Channel *leafChannel)
 {
-    LayerItem *leafNode = getAddLeaf(channelName);
-    leafNode->m_channelPtr     = leafChannel;
-    leafNode->m_channelName    = channelName;
+    LayerItem *leafNode     = getAddLeaf(channelName);
+    leafNode->m_channelPtr  = leafChannel;
+    leafNode->m_channelName = channelName;
 }
 
-HeaderItem *
-LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
+HeaderItem *LayerItem::constructItemHierarchy(
+  HeaderItem *parent, const QString &partName, int partID)
 {
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
@@ -88,8 +88,9 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         new HeaderItem(
           currRoot,
           {".", "", "framebuffer"},
-          m_channelName,
-          partID);
+          partName,
+          partID,
+          m_channelName);
     }
 
     QStringList ignoredKeys;
@@ -99,29 +100,34 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         HeaderItem *rgbaRoot = new HeaderItem(
           currRoot,
           {"RGBA", "", "RGB framebuffer"},
-          m_childItems["R"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["R"]->m_channelName.chopped(1));
 
         new HeaderItem(
           rgbaRoot,
           {"R", "", "framebuffer"},
-          m_childItems["R"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["R"]->m_channelName);
         new HeaderItem(
           rgbaRoot,
           {"G", "", "framebuffer"},
-          m_childItems["G"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["G"]->m_channelName);
         new HeaderItem(
           rgbaRoot,
           {"B", "", "framebuffer"},
-          m_childItems["B"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["B"]->m_channelName);
         new HeaderItem(
           rgbaRoot,
           {"A", "", "framebuffer"},
-          m_childItems["A"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["A"]->m_channelName);
 
         ignoredKeys.append("R");
         ignoredKeys.append("G");
@@ -131,24 +137,28 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         HeaderItem *rgbRoot = new HeaderItem(
           currRoot,
           {"RGB", "", "RGB framebuffer"},
-          m_childItems["R"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["R"]->m_channelName.chopped(1));
 
         new HeaderItem(
           rgbRoot,
           {"R", "", "framebuffer"},
-          m_childItems["R"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["R"]->m_channelName);
         new HeaderItem(
           rgbRoot,
           {"G", "", "framebuffer"},
-          m_childItems["G"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["G"]->m_channelName);
         new HeaderItem(
           rgbRoot,
           {"B", "", "framebuffer"},
-          m_childItems["B"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["B"]->m_channelName);
 
         ignoredKeys.append("R");
         ignoredKeys.append("G");
@@ -163,29 +173,34 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         HeaderItem *ycaRoot = new HeaderItem(
           currRoot,
           {"YCA", "", "YC framebuffer"},
-          m_childItems["Y"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName.chopped(1));
 
         new HeaderItem(
           ycaRoot,
           {"Y", "", "framebuffer"},
-          m_childItems["Y"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName);
         new HeaderItem(
           ycaRoot,
           {"RY", "", "framebuffer"},
-          m_childItems["RY"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["RY"]->m_channelName);
         new HeaderItem(
           ycaRoot,
           {"BY", "", "framebuffer"},
-          m_childItems["BY"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["BY"]->m_channelName);
         new HeaderItem(
           ycaRoot,
           {"A", "", "framebuffer"},
-          m_childItems["A"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["A"]->m_channelName);
 
         ignoredKeys.append("Y");
         ignoredKeys.append("RY");
@@ -195,24 +210,28 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         HeaderItem *ycRoot = new HeaderItem(
           currRoot,
           {"YC", "", "YC framebuffer"},
-          m_childItems["Y"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName.chopped(1));
 
         new HeaderItem(
           ycRoot,
           {"Y", "", "framebuffer"},
-          m_childItems["Y"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName);
         new HeaderItem(
           ycRoot,
           {"RY", "", "framebuffer"},
-          m_childItems["RY"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["RY"]->m_channelName);
         new HeaderItem(
           ycRoot,
           {"BY", "", "framebuffer"},
-          m_childItems["BY"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["BY"]->m_channelName);
 
         ignoredKeys.append("Y");
         ignoredKeys.append("RY");
@@ -221,19 +240,22 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         HeaderItem *yaRoot = new HeaderItem(
           currRoot,
           {"YA", "", "Y framebuffer"},
-          m_childItems["Y"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName.chopped(1));
 
         new HeaderItem(
           yaRoot,
           {"Y", "", "Luminance framebuffer"},
-          m_childItems["Y"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName);
         new HeaderItem(
           yaRoot,
           {"A", "", "framebuffer"},
-          m_childItems["A"]->m_channelName,
-          partID);
+          partName,
+          partID,
+          m_childItems["A"]->m_channelName);
 
         ignoredKeys.append("Y");
         ignoredKeys.append("A");
@@ -241,15 +263,16 @@ LayerItem::constructItemHierarchy(HeaderItem *parent, int partID)
         new HeaderItem(
           currRoot,
           {"Y", "", "Luminance framebuffer"},
-          m_childItems["Y"]->m_channelName.chopped(1),
-          partID);
+          partName,
+          partID,
+          m_childItems["Y"]->m_channelName.chopped(1));
 
         ignoredKeys.append("Y");
     }
 
     for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
         if (!ignoredKeys.contains(it.key()) || it.value()->getNChilds() != 0)
-            it.value()->constructItemHierarchy(currRoot, partID);
+            it.value()->constructItemHierarchy(currRoot, partName, partID);
     }
 
     return currRoot;
@@ -323,8 +346,8 @@ LayerItem *LayerItem::getAddLeaf(const QString channelName)
         if (leafPtr->m_childItems.contains(s)) {
             leafPtr = leafPtr->m_childItems[s];
         } else {
-            LayerItem *newPtr = new LayerItem(leafPtr);
-            newPtr->m_rootName       = s;
+            LayerItem *newPtr  = new LayerItem(leafPtr);
+            newPtr->m_rootName = s;
             leafPtr->m_childItems.insert(s, newPtr);
             leafPtr = newPtr;
         }

@@ -45,8 +45,8 @@ class LayerItem
 
     void addLeaf(const QString channelName, const Imf::Channel *leafChannel);
 
-    HeaderItem *
-    constructItemHierarchy(HeaderItem *parent, int partID);
+    HeaderItem *constructItemHierarchy(
+      HeaderItem *parent, const QString &partName, int partID);
 
     size_t getNChilds() const;
 

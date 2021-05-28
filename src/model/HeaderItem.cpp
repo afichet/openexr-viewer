@@ -33,13 +33,15 @@
 #include "HeaderItem.h"
 
 HeaderItem::HeaderItem(
-  HeaderItem *      parentItem,
+  HeaderItem *             parentItem,
   const QVector<QVariant> &data,
-  QString                  name,
-  int                      partID)
+  QString                  partName,
+  int                      partID,
+  QString                  itemName)
   : m_itemData(data)
   , m_parentItem(parentItem)
-  , m_name(name)
+  , m_partName(partName)
+  , m_itemName(itemName)
   , m_partID(partID)
 {
     // If not root item

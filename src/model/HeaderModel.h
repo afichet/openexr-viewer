@@ -58,14 +58,14 @@ class HeaderModel: public QAbstractItemModel
     /**
      * Qt logic for accessing the model
      */
-    QVariant      data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    QVariant      headerData(
-           int             section,
-           Qt::Orientation orientation,
-           int             role = Qt::DisplayRole) const override;
+    QVariant headerData(
+      int             section,
+      Qt::Orientation orientation,
+      int             role = Qt::DisplayRole) const override;
 
     QModelIndex index(
       int                row,
@@ -80,16 +80,21 @@ class HeaderModel: public QAbstractItemModel
 
 
   private:
-    void addHeader(const Imf::Header &header, HeaderItem * root, int part);
+    void addHeader(
+      const Imf::Header &header,
+      HeaderItem *       root,
+      const QString      partName,
+      int                partID);
 
     HeaderItem *addItem(
       const char *          name,
       const Imf::Attribute &attr,
-      HeaderItem *   parent,
-      int                   part_number);    
+      HeaderItem *          parent,
+      QString               partName,
+      int                   part_number);
 
   private:
-    HeaderItem *                   m_rootItem;
+    HeaderItem *                          m_rootItem;
     std::vector<std::vector<std::string>> m_headerItems;
 
     std::vector<LayerItem *> m_partRootLayer;

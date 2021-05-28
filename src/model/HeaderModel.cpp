@@ -61,8 +61,7 @@
 
 HeaderModel::HeaderModel(int n_parts, QObject *parent)
   : QAbstractItemModel(parent)
-  , m_rootItem(
-      new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
+  , m_rootItem(new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
 {
     m_headerItems.resize(n_parts);
     m_partRootLayer.resize(n_parts);
@@ -77,9 +76,16 @@ HeaderModel::~HeaderModel()
     }
 }
 
-void HeaderModel::addFile(const Imf::MultiPartInputFile &file, const QString& filename)
+void HeaderModel::addFile(
+  const Imf::MultiPartInputFile &file, const QString &filename)
 {
-    HeaderItem *fileRoot = new HeaderItem(m_rootItem, {QFileInfo(filename).fileName(), 0, "part"});
+    QString rootValue = QString::number(file.parts()) + " part";
+    if (file.parts() > 1) {
+        rootValue += "s";
+    }
+
+    HeaderItem *fileRoot
+      = new HeaderItem(m_rootItem, {QFileInfo(filename).fileName(), rootValue, "file"});
 
     if (file.parts() > 1) {
         for (int i = 0; i < file.parts(); i++) {
@@ -91,16 +97,23 @@ void HeaderModel::addFile(const Imf::MultiPartInputFile &file, const QString& fi
                 partName = exrHeader.name();
             }
 
-            HeaderItem *partRoot = new HeaderItem(fileRoot, {partName.c_str(), i, "part"});
+            QString partValue = "[" + QString::number(i) + "]";
+            HeaderItem *partRoot
+              = new HeaderItem(fileRoot, {partName.c_str(), partValue, "part"});
 
-            addHeader(exrHeader, partRoot, i);
+            addHeader(exrHeader, partRoot, QString::fromStdString(partName), i);
         }
 
-        // Never happens but makes clang-analyser happy
-    } else if (file.parts() == 1){
+    } else if (file.parts() == 1) {
         const Imf::Header &exrHeader = file.header(0);
 
-        addHeader(exrHeader, fileRoot, 0);
+        std::string partName = "Untitled part";
+
+        if (exrHeader.hasName()) {
+            partName = exrHeader.name();
+        }
+
+        addHeader(exrHeader, fileRoot, QString::fromStdString(partName), 0);
     } else {
         delete fileRoot;
     }
@@ -117,8 +130,7 @@ QVariant HeaderModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    HeaderItem *item
-      = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
 
     return item->data(index.column());
 }
@@ -170,8 +182,7 @@ QModelIndex HeaderModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    HeaderItem *childItem
-      = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem *childItem  = static_cast<HeaderItem *>(index.internalPointer());
     HeaderItem *parentItem = childItem->parentItem();
 
     if (parentItem == m_rootItem) {
@@ -209,18 +220,22 @@ int HeaderModel::columnCount(const QModelIndex &parent) const
 }
 
 
-void HeaderModel::addHeader(const Imf::Header &header, HeaderItem * root, int part)
+void HeaderModel::addHeader(
+  const Imf::Header &header,
+  HeaderItem *       root,
+  const QString      partName,
+  int                partID)
 {
-    assert(part < (int)m_headerItems.size());
-    assert(part < (int)m_partRootLayer.size());
+    assert(partID < (int)m_headerItems.size());
+    assert(partID < (int)m_partRootLayer.size());
 
-    m_partRootLayer[part] = nullptr;
+    m_partRootLayer[partID] = nullptr;
 
     size_t n_headerFields = 0;
 
     for (Imf::Header::ConstIterator it = header.begin(); it != header.end();
          it++) {
-        addItem(it.name(), it.attribute(), root, part);
+        addItem(it.name(), it.attribute(), root, partName, partID);
         ++n_headerFields;
     }
 }
@@ -230,7 +245,8 @@ void HeaderModel::addHeader(const Imf::Header &header, HeaderItem * root, int pa
 HeaderItem *HeaderModel::addItem(
   const char *          name,
   const Imf::Attribute &attribute,
-  HeaderItem *   parent,
+  HeaderItem *          parent,
+  QString               partName,
   int                   part_number)
 {
     HeaderItem *attrItem = new HeaderItem(parent);
@@ -271,6 +287,7 @@ HeaderItem *HeaderModel::addItem(
 
         m_partRootLayer[part_number]->constructItemHierarchy(
           attrItem,
+          partName,
           part_number);
     }
     // Chromaticities
@@ -377,8 +394,9 @@ HeaderItem *HeaderModel::addItem(
             new HeaderItem(
               attrItem,
               {*fIt, "", "float"},
-              name,
-              part_number);
+              partName,
+              part_number,
+              name);
             ++floatCount;
         }
 
@@ -463,8 +481,9 @@ HeaderItem *HeaderModel::addItem(
             new HeaderItem(
               attrItem,
               {sIt->c_str(), "", "string"},
-              name,
-              part_number);
+              partName,
+              part_number,
+              name);
             ++stringCount;
         }
 
@@ -506,7 +525,8 @@ HeaderItem *HeaderModel::addItem(
 
     QVector<QVariant> itemData = {name, QString(ss.str().c_str()), type};
     attrItem->setData(itemData);
-    attrItem->setName(name);
+    attrItem->setItemName(name);
+    attrItem->setPartName(partName);
     attrItem->setPartID(part_number);
 
     return attrItem;

@@ -95,7 +95,7 @@ class MainWindow: public QMainWindow
 
     void on_action_Refresh_triggered();
 
-private:
+  private:
     Ui::MainWindow *ui;
 
     QSplitter *m_splitter;

@@ -273,13 +273,13 @@ void MainWindow::openItem(HeaderItem *item)
     QString title;
 
     if (item->type() == "framebuffer") {
-        title = getTitle(item->getPartID(), item->getName());
+        title = getTitle(item->getPartID(), item->getItemName());
     } else if (item->type() == "RGB framebuffer") {
-        title = getTitle(item->getPartID(), item->getName() + "RGB");
+        title = getTitle(item->getPartID(), item->getItemName() + "RGB");
     } else if (item->type() == "YC framebuffer") {
-        title = getTitle(item->getPartID(), item->getName() + "YC");
+        title = getTitle(item->getPartID(), item->getItemName() + "YC");
     } else if (item->type() == "Luminance framebuffer") {
-        title = getTitle(item->getPartID(), item->getName() + "Y");
+        title = getTitle(item->getPartID(), item->getItemName() + "Y");
     } else {
         return;
     }
@@ -302,7 +302,7 @@ void MainWindow::openItem(HeaderItem *item)
 
     if (item->type() == "framebuffer") {
         graphicViewBW = new FramebufferWidget(m_mdiArea);
-        imageModelBW  = new FramebufferModel(item->getName(), graphicViewBW);
+        imageModelBW = new FramebufferModel(item->getItemName(), graphicViewBW);
 
         QObject::connect(
           imageModelBW,
@@ -323,7 +323,7 @@ void MainWindow::openItem(HeaderItem *item)
     } else if (item->type() == "RGB framebuffer") {
         graphicView = new RGBFramebufferWidget(m_mdiArea);
         imageModel  = new RGBFramebufferModel(
-          item->getName(),
+          item->getItemName(),
           RGBFramebufferModel::Layer_RGB,
           graphicView);
 
@@ -349,7 +349,7 @@ void MainWindow::openItem(HeaderItem *item)
     } else if (item->type() == "YC framebuffer") {
         graphicView = new RGBFramebufferWidget(m_mdiArea);
         imageModel  = new RGBFramebufferModel(
-          item->getName(),
+          item->getItemName(),
           RGBFramebufferModel::Layer_YC,
           graphicView);
 
@@ -375,7 +375,7 @@ void MainWindow::openItem(HeaderItem *item)
     } else if (item->type() == "Luminance framebuffer") {
         graphicView = new RGBFramebufferWidget(m_mdiArea);
         imageModel  = new RGBFramebufferModel(
-          item->getName(),
+          item->getItemName(),
           RGBFramebufferModel::Layer_Y,
           graphicView);
 
@@ -418,8 +418,7 @@ QString MainWindow::getTitle(int partId, const QString &layer) const
 
 void MainWindow::onDoubleClicked(const QModelIndex &index)
 {
-    HeaderItem *item
-      = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
     openItem(item);
 }
 
@@ -454,5 +453,6 @@ void MainWindow::on_action_Tiled_triggered()
 void MainWindow::on_action_Refresh_triggered()
 {
     open(m_img->getFilename());
-}
 
+    // TODO: Shall refresh and reopen all windows
+}

@@ -39,10 +39,11 @@ class HeaderItem
 {
   public:
     explicit HeaderItem(
-      HeaderItem *      parentItem = nullptr,
+      HeaderItem *             parentItem = nullptr,
       const QVector<QVariant> &data       = QVector<QVariant>(),
-      QString                  name       = QString(),
-      int                      partID     = 0);
+      QString                  partName   = QString(),
+      int                      partID     = 0,
+      QString                  itemName   = QString());
 
     ~HeaderItem();
 
@@ -64,22 +65,23 @@ class HeaderItem
 
     QString type() const { return m_itemData[2].toString(); }
 
-    QString getName() const { return m_name; }
+    const QString &getPartName() const { return m_partName; }
+    int            getPartID() const { return m_partID; }
+    const QString &getItemName() const { return m_itemName; }
 
-    int getPartID() const { return m_partID; }
-
-    void setName(const QString &name) { m_name = name; }
-
+    void setPartName(const QString &name) { m_partName = name; }
     void setPartID(int partID) { m_partID = partID; }
+    void setItemName(const QString &name) { m_itemName = name; }
 
   protected:
     void appendChild(HeaderItem *child) { m_childItems.append(child); }
 
   private:
-    QVector<QVariant>            m_itemData;
+    QVector<QVariant>     m_itemData;
     HeaderItem *          m_parentItem;
     QVector<HeaderItem *> m_childItems;
 
-    QString m_name;
+    QString m_partName;
+    QString m_itemName;
     int     m_partID;
 };
