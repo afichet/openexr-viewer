@@ -288,15 +288,48 @@ HeaderItem *HeaderModel::addItem(
   QString                    partName,
   int                        part_number)
 {
-    std::stringstream ss;
-    ss << attr.value().min << " " << attr.value().size();
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::Box2iAttribute::staticTypeName()},
+      {name, "", Imf::Box2iAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    std::stringstream sMin;
+    sMin << attr.value().min;
+
+    new HeaderItem(attrItem,
+                   {"min", sMin.str().c_str(), "vec2i"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sMax;
+    sMax << attr.value().max;
+
+    new HeaderItem(attrItem,
+                   {"max", sMax.str().c_str(), "vec2i"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sWidth;
+    sWidth << attr.value().size().x;
+
+    new HeaderItem(attrItem,
+                   {"width", sWidth.str().c_str(), "int"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sHeight;
+    sHeight << attr.value().size().y;
+
+    new HeaderItem(attrItem,
+                   {"height", sHeight.str().c_str(), "int"},
+                   partName,
+                   part_number,
+                   name);
 
     return attrItem;
 }
@@ -309,15 +342,49 @@ HeaderItem *HeaderModel::addItem(
   QString                    partName,
   int                        part_number)
 {
-    std::stringstream ss;
-    ss << attr.value().min << " " << attr.value().size();
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::Box2fAttribute::staticTypeName()},
+      {name, "", Imf::Box2fAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    std::stringstream sMin;
+    sMin << attr.value().min;
+
+    new HeaderItem(attrItem,
+                   {"min", sMin.str().c_str(), "vec2f"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sMax;
+    sMax << attr.value().max;
+
+    new HeaderItem(attrItem,
+                   {"max", sMax.str().c_str(), "vec2f"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sWidth;
+    sWidth << attr.value().size().x;
+
+    new HeaderItem(attrItem,
+                   {"width", sWidth.str().c_str(), "float"},
+                   partName,
+                   part_number,
+                   name);
+
+    std::stringstream sHeight;
+    sHeight << attr.value().size().y;
+
+    new HeaderItem(attrItem,
+                   {"height", sHeight.str().c_str(), "float"},
+                   partName,
+                   part_number,
+                   name);
+
 
     return attrItem;
 }
@@ -381,16 +448,52 @@ HeaderItem *HeaderModel::addItem(
   QString                             partName,
   int                                 part_number)
 {
-    std::stringstream ss;
-    ss << attr.value().red << " " << attr.value().green << " "
-       << attr.value().blue << " " << attr.value().white;
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::ChromaticitiesAttribute::staticTypeName()},
+      {name, "", Imf::ChromaticitiesAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    std::stringstream sRed;
+    sRed << attr.value().red;
+
+    new HeaderItem(
+                attrItem,
+                {"red", sRed.str().c_str(), "vec2f"},
+                partName,
+                part_number,
+                name);
+
+    std::stringstream sGreen;
+    sGreen << attr.value().green;
+
+    new HeaderItem(
+                attrItem,
+                {"green", sGreen.str().c_str(), "vec2f"},
+                partName,
+                part_number,
+                name);
+
+    std::stringstream sBlue;
+    sBlue << attr.value().blue;
+
+    new HeaderItem(
+                attrItem,
+                {"blue", sBlue.str().c_str(), "vec2f"},
+                partName,
+                part_number,
+                name);
+
+    std::stringstream sWhite;
+    sWhite << attr.value().white;
+
+    new HeaderItem(
+                attrItem,
+                {"white", sWhite.str().c_str(), "vec2f"},
+                partName,
+                part_number,
+                name);
 
     return attrItem;
 }
@@ -650,23 +753,61 @@ HeaderItem *HeaderModel::addItem(
   QString                      partName,
   int                          part_number)
 {
-    std::stringstream ss;
-    ss << std::endl
-       << "\tCount: " << attr.value().count() << std::endl
-       << "\tFilm MFC code: " << attr.value().filmMfcCode() << std::endl
-       << "\tFilm type: " << attr.value().filmType() << std::endl
-       << "\tPerf offset: " << attr.value().perfOffset() << std::endl
-       << "\tPerfs per count: " << attr.value().perfsPerCount() << std::endl
-       << "\tPerfs per frame: " << attr.value().perfsPerFrame() << std::endl
-       << "\tPrefix: " << attr.value().prefix();
-
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::KeyCodeAttribute::staticTypeName()},
+      {name, "", Imf::KeyCodeAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    new HeaderItem(
+                attrItem,
+                {"Film NFC code", attr.value().filmMfcCode(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Film type", attr.value().filmType(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Prefix", attr.value().prefix(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Count", attr.value().count(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Perf offset", attr.value().perfOffset(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Prefs per frame", attr.value().perfsPerFrame(), "int"},
+                partName,
+                part_number,
+                name);
+
+    new HeaderItem(
+                attrItem,
+                {"Perfs per count", attr.value().perfsPerCount(), "int"},
+                partName,
+                part_number,
+                name);
 
     return attrItem;
 }
