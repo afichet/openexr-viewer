@@ -37,11 +37,8 @@
 #include <model/HeaderItem.h>
 #include <model/LayerItem.h>
 
-#include <vector>
-
 #include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfMultiPartInputFile.h>
-
 
 #include <OpenEXR/ImfBoxAttribute.h>
 #include <OpenEXR/ImfChannelListAttribute.h>
@@ -57,7 +54,7 @@
 #include <OpenEXR/ImfKeyCodeAttribute.h>
 #include <OpenEXR/ImfLineOrderAttribute.h>
 #include <OpenEXR/ImfMatrixAttribute.h>
-#include <OpenEXR/ImfOpaqueAttribute.h>
+//#include <OpenEXR/ImfOpaqueAttribute.h>
 #include <OpenEXR/ImfPreviewImageAttribute.h>
 #include <OpenEXR/ImfRationalAttribute.h>
 #include <OpenEXR/ImfStringAttribute.h>
@@ -137,6 +134,12 @@ class HeaderModel: public QAbstractItemModel
       int                        part_number);
 
     // Channel List
+    HeaderItem *addItem(
+      const char *                     name,
+      const Imf::ChannelListAttribute &attr,
+      HeaderItem *                     parent,
+      QString                          partName,
+      int                              part_number);
 
     // Chromaticities
     HeaderItem *addItem(

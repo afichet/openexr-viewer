@@ -36,29 +36,6 @@
 
 #include <QFileInfo>
 
-#include <OpenEXR/ImfBoxAttribute.h>
-#include <OpenEXR/ImfChannelListAttribute.h>
-#include <OpenEXR/ImfChromaticitiesAttribute.h>
-#include <OpenEXR/ImfCompressionAttribute.h>
-#include <OpenEXR/ImfDeepImageStateAttribute.h>
-#include <OpenEXR/ImfDoubleAttribute.h>
-#include <OpenEXR/ImfEnvmapAttribute.h>
-#include <OpenEXR/ImfFloatAttribute.h>
-#include <OpenEXR/ImfFloatVectorAttribute.h>
-#include <OpenEXR/ImfIDManifestAttribute.h>
-#include <OpenEXR/ImfIntAttribute.h>
-#include <OpenEXR/ImfKeyCodeAttribute.h>
-#include <OpenEXR/ImfLineOrderAttribute.h>
-#include <OpenEXR/ImfMatrixAttribute.h>
-#include <OpenEXR/ImfOpaqueAttribute.h>
-#include <OpenEXR/ImfPreviewImageAttribute.h>
-#include <OpenEXR/ImfRationalAttribute.h>
-#include <OpenEXR/ImfStringAttribute.h>
-#include <OpenEXR/ImfStringVectorAttribute.h>
-#include <OpenEXR/ImfTileDescriptionAttribute.h>
-#include <OpenEXR/ImfTimeCodeAttribute.h>
-#include <OpenEXR/ImfVecAttribute.h>
-
 HeaderModel::HeaderModel(int n_parts, QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
@@ -255,9 +232,11 @@ HeaderItem *HeaderModel::addItem(
   QString               partName,
   int                   part_number)
 {
+    // Try to see if we have a function to handle such attribute type
     // clang-format off
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, Box2iAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, Box2fAttribute);
+    CALL_FOR_CLASS(name, attribute, parent, partName, part_number, ChannelListAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, ChromaticitiesAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, CompressionAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, DoubleAttribute);
@@ -284,62 +263,21 @@ HeaderItem *HeaderModel::addItem(
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3iAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3fAttribute);
     CALL_FOR_CLASS(name, attribute, parent, partName, part_number, V3dAttribute);
+    // Opaque -> unknown
+    // CALL_FOR_CLASS(name, attribute, parent, partName, part_number, OpaqueAttribute);
     // clang-format on
 
-    HeaderItem *attrItem = new HeaderItem(parent);
+    // We've tried everything we knew so far... this is an unknown attribute
+    HeaderItem *attrItem = new HeaderItem(
+      parent,
+      {name, "Unsupported", attribute.typeName()},
+      partName,
+      part_number,
+      name);
 
-    const char *type = attribute.typeName();
-
-    std::stringstream ss;
-
-    // Channel List
-    if (strcmp(type, Imf::ChannelListAttribute::staticTypeName()) == 0) {
-        auto   attr         = Imf::ChannelListAttribute::cast(attribute);
-        size_t channelCount = 0;
-
-        // Sanity check
-        if (m_partRootLayer[part_number]) {
-            delete m_partRootLayer[part_number];
-            m_partRootLayer[part_number] = nullptr;
-        }
-
-        m_partRootLayer[part_number] = new LayerItem;
-
-        for (Imf::ChannelList::ConstIterator chIt = attr.value().begin();
-             chIt != attr.value().end();
-             chIt++) {
-            m_partRootLayer[part_number]->addLeaf(chIt.name(), &chIt.channel());
-            ++channelCount;
-        }
-
-        ss << channelCount;
-
-        m_partRootLayer[part_number]->constructItemHierarchy(
-          attrItem,
-          partName,
-          part_number);
-    }
-
-    // Opaque -> When unknown
-    //        else if (strcmp(type, Imf::OpaqueAttribute::staticTypeName()) == 0)
-    //        {
-    //            auto attr = Imf::OpaqueAttribute::cast(attribute);
-    //        }
-
-    else {
-        ss << "Unsupported";
-    }
-
-    QVector<QVariant> itemData = {name, QString(ss.str().c_str()), type};
-    attrItem->setData(itemData);
-    attrItem->setItemName(name);
-    attrItem->setPartName(partName);
-    attrItem->setPartID(part_number);
 
     return attrItem;
 }
-
-
 
 
 // Box2i
@@ -380,6 +318,55 @@ HeaderItem *HeaderModel::addItem(
       partName,
       part_number,
       name);
+
+    return attrItem;
+}
+
+HeaderItem *HeaderModel::addItem(
+  const char *                     name,
+  const Imf::ChannelListAttribute &attr,
+  HeaderItem *                     parent,
+  QString                          partName,
+  int                              part_number)
+{
+    HeaderItem *attrItem = new HeaderItem(parent);
+
+    std::stringstream ss;
+
+    // Channel List
+    size_t channelCount = 0;
+
+    // Sanity check
+    if (m_partRootLayer[part_number]) {
+        delete m_partRootLayer[part_number];
+        m_partRootLayer[part_number] = nullptr;
+    }
+
+    m_partRootLayer[part_number] = new LayerItem;
+
+    for (Imf::ChannelList::ConstIterator chIt = attr.value().begin();
+         chIt != attr.value().end();
+         chIt++) {
+        m_partRootLayer[part_number]->addLeaf(chIt.name(), &chIt.channel());
+        ++channelCount;
+    }
+
+    ss << channelCount;
+
+    m_partRootLayer[part_number]->constructItemHierarchy(
+      attrItem,
+      partName,
+      part_number);
+
+
+    QVector<QVariant> itemData = {
+      name,
+      QString(ss.str().c_str()),
+      Imf::Box2fAttribute::staticTypeName()};
+    attrItem->setData(itemData);
+    attrItem->setItemName(name);
+    attrItem->setPartName(partName);
+    attrItem->setPartID(part_number);
 
     return attrItem;
 }
