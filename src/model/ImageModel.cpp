@@ -46,6 +46,7 @@ ImageModel::ImageModel(QObject *parent)
   , m_exposure(0)
   , m_imageLoadingWatcher(new QFutureWatcher<void>(this))
   , m_imageEditingWatcher(new QFutureWatcher<void>(this))
+  , m_pixelAspectRatio(1.f)
 {}
 
 QRect ImageModel::getDisplayWindow() const

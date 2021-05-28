@@ -67,6 +67,8 @@ void FramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
             m_width           = datW.max.x - datW.min.x + 1;
             m_height          = datW.max.y - datW.min.y + 1;
 
+            m_pixelAspectRatio = part.header().pixelAspectRatio();
+
             Imf::Slice graySlice;
             // TODO: Check it that can be guess from the header
             // also, check if this can be nested
@@ -136,7 +138,7 @@ void FramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
             m_image         = QImage(m_width, m_height, QImage::Format_RGB888);
             m_isImageLoaded = true;
 
-            emit imageLoaded(m_width, m_height);
+            emit imageLoaded();
 
             updateImage();
         } catch (std::exception &e) {

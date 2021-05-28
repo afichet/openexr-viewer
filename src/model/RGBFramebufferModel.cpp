@@ -66,6 +66,8 @@ void RGBFramebufferModel::load(
             m_width           = datW.max.x - datW.min.x + 1;
             m_height          = datW.max.y - datW.min.y + 1;
 
+            m_pixelAspectRatio = part.header().pixelAspectRatio();
+
             m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
 
             Imath::Box2i dispW = part.header().displayWindow();
@@ -351,7 +353,7 @@ void RGBFramebufferModel::load(
             m_image = QImage(m_width, m_height, QImage::Format_RGBA8888);
             m_isImageLoaded = true;
 
-            emit imageLoaded(m_width, m_height);
+            emit imageLoaded();
 
             updateImage();
         } catch (std::exception &e) {

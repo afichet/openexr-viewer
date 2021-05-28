@@ -48,7 +48,7 @@ class GraphicsView: public QGraphicsView
   public slots:
     void setModel(const ImageModel *model);
 
-    void onImageLoaded(int width, int height);
+    void onImageLoaded();
     void onImageChanged();
 
     void setZoomLevel(double zoom);
@@ -93,8 +93,8 @@ class GraphicsView: public QGraphicsView
     double _zoomLevel;
     bool   _autoscale;
 
-    QRect _dataWindow;
-    QRect _displayWindow;
+    QRectF _dataWindow;
+    QRectF _displayWindow;
 
     bool _showDataWindow;
     bool _showDisplayWindow;

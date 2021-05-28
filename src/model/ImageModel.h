@@ -55,13 +55,14 @@ class ImageModel: public QObject
 
     int width() const { return m_width; }
     int height() const { return m_height; }
+    float pixelAspectRatio() const { return m_pixelAspectRatio; }
 
     QRect getDisplayWindow() const;
     QRect getDataWindow() const;
 
   signals:
     void imageChanged();
-    void imageLoaded(int width, int height);
+    void imageLoaded();
     void exposureChanged(double exposure);
     void loadFailed(QString message);
 
@@ -80,4 +81,5 @@ class ImageModel: public QObject
 
     QRect m_dataWindow;
     QRect m_displayWindow;
+    float m_pixelAspectRatio;
 };

@@ -74,23 +74,37 @@ void GraphicsView::setModel(const ImageModel *model)
 {
     _model = model;
 
+    // clang-format off
     connect(_model, SIGNAL(imageChanged()), this, SLOT(onImageChanged()));
-    connect(
-      _model,
-      SIGNAL(imageLoaded(int, int)),
-      this,
-      SLOT(onImageLoaded(int, int)));
+    connect(_model, SIGNAL(imageLoaded()),  this, SLOT(onImageLoaded()));
+    // clang-format on
 }
 
-void GraphicsView::onImageLoaded(int width, int height)
+void GraphicsView::onImageLoaded()
 {
-    // Adapt display and data windows to the image display starting at 0, 0
     _dataWindow    = _model->getDataWindow();
     _displayWindow = _model->getDisplayWindow();
 
+    // Stretch or shrink width according to pixelAspectRatio
+    const float aspect = _model->pixelAspectRatio();
+
+    const int displayWindowW = aspect * _displayWindow.width();
+    const int displayWindowCenterX = _displayWindow.center().x();
+
+    _displayWindow.setLeft(displayWindowCenterX - displayWindowW/2.f);
+    _displayWindow.setRight(displayWindowCenterX + displayWindowW/2.f);
+
+    const int dataWindowW = aspect * _dataWindow.width();
+    const int dataWindowCenterX = _dataWindow.center().x();
+
+    _dataWindow.setLeft(dataWindowCenterX - dataWindowW/2.f);
+    _dataWindow.setRight(dataWindowCenterX + dataWindowW/2.f);
+
+    // Adapt display and data windows to the image display starting at 0, 0
     _displayWindow.translate(
       -_dataWindow.topLeft().x(),
       -_dataWindow.topLeft().y());
+
     _dataWindow.translate(
       -_dataWindow.topLeft().x(),
       -_dataWindow.topLeft().y());
@@ -109,8 +123,21 @@ void GraphicsView::onImageChanged()
         _imageItem = nullptr;
     }
 
-    const QImage &image = _model->getLoadedImage();
-    _imageItem          = scene()->addPixmap(QPixmap::fromImage(image));
+    const QImage &loadedImage = _model->getLoadedImage();
+
+    // We need to resize the image according to pixelAspectRatio
+    // Small optim, no need to process the transform is aspect ratio = 1
+    if (_model->pixelAspectRatio() != 1.f) {
+        const QImage aspectCorrectedImage = loadedImage.scaled(
+                    loadedImage.width() * _model->pixelAspectRatio(),
+                    loadedImage.height(),
+                    Qt::IgnoreAspectRatio,
+                    Qt::SmoothTransformation);
+
+        _imageItem = scene()->addPixmap(QPixmap::fromImage(aspectCorrectedImage));
+    } else {
+        _imageItem = scene()->addPixmap(QPixmap::fromImage(loadedImage));
+    }
 }
 
 void GraphicsView::setZoomLevel(double zoom)
@@ -164,15 +191,15 @@ void GraphicsView::open(const QString &filename)
 void GraphicsView::showDisplayWindow(bool show)
 {
     _showDisplayWindow = show;
-    scene()
-      ->invalidate();   // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
+    scene()->invalidate();
+    // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 
 void GraphicsView::showDataWindow(bool show)
 {
     _showDataWindow = show;
-    scene()
-      ->invalidate();   // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
+    scene()->invalidate();   
+    // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 
 // void GraphicsView::showDatawindowBoders(bool visible)
