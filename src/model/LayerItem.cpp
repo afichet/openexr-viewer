@@ -65,8 +65,9 @@ HeaderItem *LayerItem::constructItemHierarchy(
         return new HeaderItem(
           parent,
           {m_rootName, "", "framebuffer"},
-          m_channelName,
-          partID);
+          partName,
+          partID,
+          m_channelName);
     }
 
     HeaderItem *currRoot = nullptr;
