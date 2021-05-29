@@ -298,38 +298,42 @@ HeaderItem *HeaderModel::addItem(
     std::stringstream sMin;
     sMin << attr.value().min;
 
-    new HeaderItem(attrItem,
-                   {"min", sMin.str().c_str(), "vec2i"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"min", sMin.str().c_str(), "vec2i"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sMax;
     sMax << attr.value().max;
 
-    new HeaderItem(attrItem,
-                   {"max", sMax.str().c_str(), "vec2i"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"max", sMax.str().c_str(), "vec2i"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sWidth;
     sWidth << attr.value().size().x;
 
-    new HeaderItem(attrItem,
-                   {"width", sWidth.str().c_str(), "int"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"width", sWidth.str().c_str(), "int"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sHeight;
     sHeight << attr.value().size().y;
 
-    new HeaderItem(attrItem,
-                   {"height", sHeight.str().c_str(), "int"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"height", sHeight.str().c_str(), "int"},
+      partName,
+      part_number,
+      name);
 
     return attrItem;
 }
@@ -352,43 +356,48 @@ HeaderItem *HeaderModel::addItem(
     std::stringstream sMin;
     sMin << attr.value().min;
 
-    new HeaderItem(attrItem,
-                   {"min", sMin.str().c_str(), "vec2f"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"min", sMin.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sMax;
     sMax << attr.value().max;
 
-    new HeaderItem(attrItem,
-                   {"max", sMax.str().c_str(), "vec2f"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"max", sMax.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sWidth;
     sWidth << attr.value().size().x;
 
-    new HeaderItem(attrItem,
-                   {"width", sWidth.str().c_str(), "float"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"width", sWidth.str().c_str(), "float"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sHeight;
     sHeight << attr.value().size().y;
 
-    new HeaderItem(attrItem,
-                   {"height", sHeight.str().c_str(), "float"},
-                   partName,
-                   part_number,
-                   name);
+    new HeaderItem(
+      attrItem,
+      {"height", sHeight.str().c_str(), "float"},
+      partName,
+      part_number,
+      name);
 
 
     return attrItem;
 }
 
+// Channel list
 HeaderItem *HeaderModel::addItem(
   const char *                     name,
   const Imf::ChannelListAttribute &attr,
@@ -459,41 +468,41 @@ HeaderItem *HeaderModel::addItem(
     sRed << attr.value().red;
 
     new HeaderItem(
-                attrItem,
-                {"red", sRed.str().c_str(), "vec2f"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"red", sRed.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sGreen;
     sGreen << attr.value().green;
 
     new HeaderItem(
-                attrItem,
-                {"green", sGreen.str().c_str(), "vec2f"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"green", sGreen.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sBlue;
     sBlue << attr.value().blue;
 
     new HeaderItem(
-                attrItem,
-                {"blue", sBlue.str().c_str(), "vec2f"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"blue", sBlue.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     std::stringstream sWhite;
     sWhite << attr.value().white;
 
     new HeaderItem(
-                attrItem,
-                {"white", sWhite.str().c_str(), "vec2f"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"white", sWhite.str().c_str(), "vec2f"},
+      partName,
+      part_number,
+      name);
 
     return attrItem;
 }
@@ -761,53 +770,53 @@ HeaderItem *HeaderModel::addItem(
       name);
 
     new HeaderItem(
-                attrItem,
-                {"Film NFC code", attr.value().filmMfcCode(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Film NFC code", attr.value().filmMfcCode(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Film type", attr.value().filmType(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Film type", attr.value().filmType(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Prefix", attr.value().prefix(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Prefix", attr.value().prefix(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Count", attr.value().count(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Count", attr.value().count(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Perf offset", attr.value().perfOffset(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Perf offset", attr.value().perfOffset(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Prefs per frame", attr.value().perfsPerFrame(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Prefs per frame", attr.value().perfsPerFrame(), "int"},
+      partName,
+      part_number,
+      name);
 
     new HeaderItem(
-                attrItem,
-                {"Perfs per count", attr.value().perfsPerCount(), "int"},
-                partName,
-                part_number,
-                name);
+      attrItem,
+      {"Perfs per count", attr.value().perfsPerCount(), "int"},
+      partName,
+      part_number,
+      name);
 
     return attrItem;
 }

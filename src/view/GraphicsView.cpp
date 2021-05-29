@@ -88,17 +88,17 @@ void GraphicsView::onImageLoaded()
     // Stretch or shrink width according to pixelAspectRatio
     const float aspect = _model->pixelAspectRatio();
 
-    const int displayWindowW = aspect * _displayWindow.width();
+    const int displayWindowW       = aspect * _displayWindow.width();
     const int displayWindowCenterX = _displayWindow.center().x();
 
-    _displayWindow.setLeft(displayWindowCenterX - displayWindowW/2.f);
-    _displayWindow.setRight(displayWindowCenterX + displayWindowW/2.f);
+    _displayWindow.setLeft(displayWindowCenterX - displayWindowW / 2.f);
+    _displayWindow.setRight(displayWindowCenterX + displayWindowW / 2.f);
 
-    const int dataWindowW = aspect * _dataWindow.width();
+    const int dataWindowW       = aspect * _dataWindow.width();
     const int dataWindowCenterX = _dataWindow.center().x();
 
-    _dataWindow.setLeft(dataWindowCenterX - dataWindowW/2.f);
-    _dataWindow.setRight(dataWindowCenterX + dataWindowW/2.f);
+    _dataWindow.setLeft(dataWindowCenterX - dataWindowW / 2.f);
+    _dataWindow.setRight(dataWindowCenterX + dataWindowW / 2.f);
 
     // Adapt display and data windows to the image display starting at 0, 0
     _displayWindow.translate(
@@ -129,12 +129,13 @@ void GraphicsView::onImageChanged()
     // Small optim, no need to process the transform is aspect ratio = 1
     if (_model->pixelAspectRatio() != 1.f) {
         const QImage aspectCorrectedImage = loadedImage.scaled(
-                    loadedImage.width() * _model->pixelAspectRatio(),
-                    loadedImage.height(),
-                    Qt::IgnoreAspectRatio,
-                    Qt::SmoothTransformation);
+          loadedImage.width() * _model->pixelAspectRatio(),
+          loadedImage.height(),
+          Qt::IgnoreAspectRatio,
+          Qt::SmoothTransformation);
 
-        _imageItem = scene()->addPixmap(QPixmap::fromImage(aspectCorrectedImage));
+        _imageItem
+          = scene()->addPixmap(QPixmap::fromImage(aspectCorrectedImage));
     } else {
         _imageItem = scene()->addPixmap(QPixmap::fromImage(loadedImage));
     }
@@ -198,7 +199,7 @@ void GraphicsView::showDisplayWindow(bool show)
 void GraphicsView::showDataWindow(bool show)
 {
     _showDataWindow = show;
-    scene()->invalidate();   
+    scene()->invalidate();
     // scene()->sceneRect(), QGraphicsScene::ForegroundLayer);
 }
 

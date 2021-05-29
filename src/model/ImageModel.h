@@ -53,8 +53,8 @@ class ImageModel: public QObject
 
     bool isImageLoaded() const { return m_isImageLoaded; }
 
-    int width() const { return m_width; }
-    int height() const { return m_height; }
+    int   width() const { return m_width; }
+    int   height() const { return m_height; }
     float pixelAspectRatio() const { return m_pixelAspectRatio; }
 
     QRect getDisplayWindow() const;
