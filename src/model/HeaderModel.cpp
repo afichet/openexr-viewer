@@ -796,56 +796,60 @@ HeaderItem *HeaderModel::addItem(
         }
 
         // IdLifetime
-        switch(chManifest.getLifetime()) {
-        case Imf::IDManifest::LIFETIME_FRAME:
-            new HeaderItem(
-                      manifestGroup,
-                      {"liftime",
-                       "frame"
-                       "Imf::IDManifest::IdLifetime"},
-                      partName,
-                      part_number,
-                      name);
-            break;
+        switch (chManifest.getLifetime()) {
+            case Imf::IDManifest::LIFETIME_FRAME:
+                new HeaderItem(
+                  manifestGroup,
+                  {"liftime",
+                   "frame"
+                   "Imf::IDManifest::IdLifetime"},
+                  partName,
+                  part_number,
+                  name);
+                break;
 
-        case Imf::IDManifest::LIFETIME_SHOT:
-            new HeaderItem(
-                      manifestGroup,
-                      {"liftime",
-                       "shot"
-                       "Imf::IDManifest::IdLifetime"},
-                      partName,
-                      part_number,
-                      name);
-            break;
+            case Imf::IDManifest::LIFETIME_SHOT:
+                new HeaderItem(
+                  manifestGroup,
+                  {"liftime",
+                   "shot"
+                   "Imf::IDManifest::IdLifetime"},
+                  partName,
+                  part_number,
+                  name);
+                break;
 
-        case Imf::IDManifest::LIFETIME_STABLE:
-            new HeaderItem(
-                      manifestGroup,
-                      {"liftime",
-                       "stable"
-                       "Imf::IDManifest::IdLifetime"},
-                      partName,
-                      part_number,
-                      name);
-            break;
+            case Imf::IDManifest::LIFETIME_STABLE:
+                new HeaderItem(
+                  manifestGroup,
+                  {"liftime",
+                   "stable"
+                   "Imf::IDManifest::IdLifetime"},
+                  partName,
+                  part_number,
+                  name);
+                break;
         }
 
         // Hash Scheme
         new HeaderItem(
-                    manifestGroup,
-                    {"hashScheme", chManifest.getHashScheme().c_str(), Imf::StringAttribute::staticTypeName()},
-                    partName,
-                    part_number,
-                    name);
+          manifestGroup,
+          {"hashScheme",
+           chManifest.getHashScheme().c_str(),
+           Imf::StringAttribute::staticTypeName()},
+          partName,
+          part_number,
+          name);
 
         // Encoding scheme
         new HeaderItem(
-                    manifestGroup,
-                    {"encodingScheme", chManifest.getEncodingScheme().c_str(), Imf::StringAttribute::staticTypeName()},
-                    partName,
-                    part_number,
-                    name);
+          manifestGroup,
+          {"encodingScheme",
+           chManifest.getEncodingScheme().c_str(),
+           Imf::StringAttribute::staticTypeName()},
+          partName,
+          part_number,
+          name);
     }
 
     return attrItem;
