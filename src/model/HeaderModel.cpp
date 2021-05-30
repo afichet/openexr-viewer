@@ -36,6 +36,8 @@
 
 #include <QFileInfo>
 
+#include <OpenEXR/ImfIDManifest.h>
+
 HeaderModel::HeaderModel(int n_parts, QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
@@ -338,6 +340,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Box2f
 HeaderItem *HeaderModel::addItem(
   const char *               name,
@@ -397,6 +400,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Channel list
 HeaderItem *HeaderModel::addItem(
   const char *                     name,
@@ -447,7 +451,6 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
-// Channel List
 
 // Chromaticities
 HeaderItem *HeaderModel::addItem(
@@ -507,6 +510,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Compression
 HeaderItem *HeaderModel::addItem(
   const char *                     name,
@@ -561,6 +565,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Deep image state
 HeaderItem *HeaderModel::addItem(
   const char *                        name,
@@ -598,6 +603,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Double
 HeaderItem *HeaderModel::addItem(
   const char *                name,
@@ -618,6 +624,7 @@ HeaderItem *HeaderModel::addItem(
 
     return attrItem;
 }
+
 
 // Envmap
 HeaderItem *HeaderModel::addItem(
@@ -672,6 +679,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Float vector
 HeaderItem *HeaderModel::addItem(
   const char *                     name,
@@ -685,10 +693,14 @@ HeaderItem *HeaderModel::addItem(
     size_t            floatCount = 0;
     std::stringstream ss;
 
+    int i = 0;
     for (auto fIt = attr.value().cbegin(); fIt != attr.value().cend(); fIt++) {
+        std::stringstream sI;
+        sI << name << "[" << i++ << "]";
+
         new HeaderItem(
           attrItem,
-          {*fIt, "", "float"},
+          {sI.str().c_str(), *fIt, Imf::FloatAttribute::staticTypeName()},
           partName,
           part_number,
           name);
@@ -718,16 +730,123 @@ HeaderItem *HeaderModel::addItem(
   QString                         partName,
   int                             part_number)
 {
-    std::stringstream ss;
-    // TODO!
-    //        ss << attr.value();
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::IDManifestAttribute::staticTypeName()},
+      {name, "", Imf::IDManifestAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    Imf::IDManifest manifest(attr.value());
+
+    for (int i = 0; i < manifest.size(); i++) {
+        std::stringstream sI;
+        sI << name << "[" << i << "]";
+
+        const Imf::IDManifest::ChannelGroupManifest chManifest = manifest[i];
+
+        HeaderItem *manifestGroup = new HeaderItem(
+          attrItem,
+          {sI.str().c_str(), "", "ChannelGroupManifest"},
+          partName,
+          part_number,
+          name);
+
+        // Channels
+        HeaderItem *manifestGroupChannels = new HeaderItem(
+          manifestGroup,
+          {"channels", "", ""},
+          partName,
+          part_number,
+          name);
+
+        for (const auto &ch : chManifest.getChannels()) {
+            new HeaderItem(
+              manifestGroupChannels,
+              {"", ch.c_str(), Imf::StringAttribute::staticTypeName()},
+              partName,
+              part_number,
+              name);
+        }
+
+        // Components
+        const std::vector<std::string> &components = chManifest.getComponents();
+
+        HeaderItem *manifestGroupComponents = new HeaderItem(
+          manifestGroup,
+          {"components",
+           QString::number(components.size()),
+           Imf::StringVectorAttribute::staticTypeName()},
+          partName,
+          part_number,
+          name);
+
+        for (size_t i = 0; i < components.size(); i++) {
+            std::stringstream sC;
+            sC << "component[" << i << "]";
+
+            new HeaderItem(
+              manifestGroupComponents,
+              {sC.str().c_str(),
+               components[i].c_str(),
+               Imf::StringAttribute::staticTypeName()},
+              partName,
+              part_number,
+              name);
+        }
+
+        // IdLifetime
+        switch(chManifest.getLifetime()) {
+        case Imf::IDManifest::LIFETIME_FRAME:
+            new HeaderItem(
+                      manifestGroup,
+                      {"liftime",
+                       "frame"
+                       "Imf::IDManifest::IdLifetime"},
+                      partName,
+                      part_number,
+                      name);
+            break;
+
+        case Imf::IDManifest::LIFETIME_SHOT:
+            new HeaderItem(
+                      manifestGroup,
+                      {"liftime",
+                       "shot"
+                       "Imf::IDManifest::IdLifetime"},
+                      partName,
+                      part_number,
+                      name);
+            break;
+
+        case Imf::IDManifest::LIFETIME_STABLE:
+            new HeaderItem(
+                      manifestGroup,
+                      {"liftime",
+                       "stable"
+                       "Imf::IDManifest::IdLifetime"},
+                      partName,
+                      part_number,
+                      name);
+            break;
+        }
+
+        // Hash Scheme
+        new HeaderItem(
+                    manifestGroup,
+                    {"hashScheme", chManifest.getHashScheme().c_str(), Imf::StringAttribute::staticTypeName()},
+                    partName,
+                    part_number,
+                    name);
+
+        // Encoding scheme
+        new HeaderItem(
+                    manifestGroup,
+                    {"encodingScheme", chManifest.getEncodingScheme().c_str(), Imf::StringAttribute::staticTypeName()},
+                    partName,
+                    part_number,
+                    name);
+    }
 
     return attrItem;
 }
@@ -753,6 +872,7 @@ HeaderItem *HeaderModel::addItem(
 
     return attrItem;
 }
+
 
 // Key code
 HeaderItem *HeaderModel::addItem(
@@ -821,6 +941,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Line order
 HeaderItem *HeaderModel::addItem(
   const char *                   name,
@@ -832,14 +953,16 @@ HeaderItem *HeaderModel::addItem(
     std::stringstream ss;
     switch (attr.value()) {
         case Imf::LineOrder::INCREASING_Y:
-            ss << "Increasing Y: first scan line has lowest y coordinate";
+            ss
+              << "Increasing Y";   //: first scan line has lowest y coordinate";
             break;
         case Imf::LineOrder::DECREASING_Y:
-            ss << "Decreasing Y: first scan line has highest y coordinate";
+            ss
+              << "Decreasing Y";   //: first scan line has highest y coordinate";
             break;
         case Imf::LineOrder::RANDOM_Y:
-            ss << "Random Y: tiles are written in random order";
-            break;   // Only for tiled
+            ss << "Random Y";   //: tiles are written in random order";
+            break;              // Only for tiled
         default:
             ss << "unknown line order: " << attr.value();
             break;
@@ -854,6 +977,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // Matrix33f
 HeaderItem *HeaderModel::addItem(
   const char *              name,
@@ -862,18 +986,33 @@ HeaderItem *HeaderModel::addItem(
   QString                   partName,
   int                       part_number)
 {
-    std::stringstream ss;
     // TODO
 
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::M33fAttribute::staticTypeName()},
+      {name, "", Imf::M33fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    std::stringstream ss;
+
+    // clang-format off
+    ss << attr.value()[0][0] << "\t" << attr.value()[0][1] << "\t" << attr.value()[0][2] << std::endl
+       << attr.value()[1][0] << "\t" << attr.value()[1][1] << "\t" << attr.value()[1][2] << std::endl
+       << attr.value()[2][0] << "\t" << attr.value()[2][1] << "\t" << attr.value()[2][2];
+    // clang-format on
+
+    new HeaderItem(
+      attrItem,
+      {"", ss.str().c_str(), Imf::M33fAttribute::staticTypeName()},
       partName,
       part_number,
       name);
 
     return attrItem;
 }
+
 
 // Matrix33d
 HeaderItem *HeaderModel::addItem(
@@ -883,17 +1022,31 @@ HeaderItem *HeaderModel::addItem(
   QString                   partName,
   int                       part_number)
 {
-    std::stringstream ss;
-    // TODO
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::M33dAttribute::staticTypeName()},
+      {name, "", Imf::M33dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    std::stringstream ss;
+
+    // clang-format off
+    ss << attr.value()[0][0] << "\t" << attr.value()[0][1] << "\t" << attr.value()[0][2] << std::endl
+       << attr.value()[1][0] << "\t" << attr.value()[1][1] << "\t" << attr.value()[1][2] << std::endl
+       << attr.value()[2][0] << "\t" << attr.value()[2][1] << "\t" << attr.value()[2][2];
+    // clang-format on
+
+    new HeaderItem(
+      attrItem,
+      {"", ss.str().c_str(), Imf::M33dAttribute::staticTypeName()},
       partName,
       part_number,
       name);
 
     return attrItem;
 }
+
 
 // Matrix44f
 HeaderItem *HeaderModel::addItem(
@@ -903,18 +1056,32 @@ HeaderItem *HeaderModel::addItem(
   QString                   partName,
   int                       part_number)
 {
-    std::stringstream ss;
-    // TODO
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::M44fAttribute::staticTypeName()},
+      {name, "", Imf::M44fAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    std::stringstream ss;
+
+    // clang-format off
+    ss << attr.value()[0][0] << "\t" << attr.value()[0][1] << "\t" << attr.value()[0][2] << "\t" << attr.value()[0][3] << std::endl
+       << attr.value()[1][0] << "\t" << attr.value()[1][1] << "\t" << attr.value()[1][2] << "\t" << attr.value()[1][3] << std::endl
+       << attr.value()[2][0] << "\t" << attr.value()[2][1] << "\t" << attr.value()[2][2] << "\t" << attr.value()[2][3] << std::endl
+       << attr.value()[3][0] << "\t" << attr.value()[3][1] << "\t" << attr.value()[3][2] << "\t" << attr.value()[3][3];
+    // clang-format on
+
+    new HeaderItem(
+      attrItem,
+      {"", ss.str().c_str(), Imf::M44fAttribute::staticTypeName()},
       partName,
       part_number,
       name);
 
     return attrItem;
 }
+
 
 // Matrix44d
 HeaderItem *HeaderModel::addItem(
@@ -924,18 +1091,32 @@ HeaderItem *HeaderModel::addItem(
   QString                   partName,
   int                       part_number)
 {
-    std::stringstream ss;
-    // TODO
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::M44dAttribute::staticTypeName()},
+      {name, "", Imf::M44dAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+    std::stringstream ss;
+
+    // clang-format off
+    ss << attr.value()[0][0] << "\t" << attr.value()[0][1] << "\t" << attr.value()[0][2] << "\t" << attr.value()[0][3] << std::endl
+       << attr.value()[1][0] << "\t" << attr.value()[1][1] << "\t" << attr.value()[1][2] << "\t" << attr.value()[1][3] << std::endl
+       << attr.value()[2][0] << "\t" << attr.value()[2][1] << "\t" << attr.value()[2][2] << "\t" << attr.value()[2][3] << std::endl
+       << attr.value()[3][0] << "\t" << attr.value()[3][1] << "\t" << attr.value()[3][2] << "\t" << attr.value()[3][3];
+    // clang-format on
+
+    new HeaderItem(
+      attrItem,
+      {"", ss.str().c_str(), Imf::M44dAttribute::staticTypeName()},
       partName,
       part_number,
       name);
 
     return attrItem;
 }
+
 
 // Preview image
 HeaderItem *HeaderModel::addItem(
@@ -945,8 +1126,10 @@ HeaderItem *HeaderModel::addItem(
   QString                           partName,
   int                               part_number)
 {
+    // TODO Improve: shall be possible to display the preview image
     std::stringstream ss;
-    // TODO
+
+    ss << attr.value().width() << "x" << attr.value().height() << std::endl;
 
     HeaderItem *attrItem = new HeaderItem(
       parent,
@@ -968,7 +1151,26 @@ HeaderItem *HeaderModel::addItem(
   int                           part_number)
 {
     std::stringstream ss;
-    // TODO
+
+    // n/d                for d > 0
+    // positive infinity  for n > 0, d == 0
+    // negative infinity  for n < 0, d == 0
+    // not a number (NaN) for n == 0, d == 0
+
+    const int          n = attr.value().n;
+    const unsigned int d = attr.value().d;
+
+    if (d == 0) {
+        if (n > 0) {
+            ss << "+inf";
+        } else if (n < 0) {
+            ss << "-inf";
+        } else {
+            ss << "NaN";
+        }
+    } else {
+        ss << n << "/" << d;
+    }
 
     HeaderItem *attrItem = new HeaderItem(
       parent,
@@ -999,6 +1201,7 @@ HeaderItem *HeaderModel::addItem(
     return attrItem;
 }
 
+
 // String vector
 HeaderItem *HeaderModel::addItem(
   const char *                      name,
@@ -1013,11 +1216,17 @@ HeaderItem *HeaderModel::addItem(
 
     size_t stringCount = 0;
 
+    int i = 0;
     for (auto sIt = attr.value().cbegin(); sIt != attr.value().cend(); sIt++) {
+        std::stringstream sI;
+        sI << name << "[" << i++ << "]";
+
         // Create a child
         new HeaderItem(
           attrItem,
-          {sIt->c_str(), "", "string"},
+          {sI.str().c_str(),
+           sIt->c_str(),
+           Imf::StringAttribute::staticTypeName()},
           partName,
           part_number,
           name);
@@ -1047,15 +1256,88 @@ HeaderItem *HeaderModel::addItem(
   QString                              partName,
   int                                  part_number)
 {
-    std::stringstream ss;
-    // TODO
-
     HeaderItem *attrItem = new HeaderItem(
       parent,
-      {name, ss.str().c_str(), Imf::TileDescriptionAttribute::staticTypeName()},
+      {name, "", Imf::TileDescriptionAttribute::staticTypeName()},
       partName,
       part_number,
       name);
+
+    new HeaderItem(
+      attrItem,
+      {"xSize", attr.value().xSize, "unsigned int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"ySize", attr.value().ySize, "unsigned int"},
+      partName,
+      part_number,
+      name);
+
+    switch (attr.value().mode) {
+        case Imf::ONE_LEVEL:
+            new HeaderItem(
+              attrItem,
+              {"mode", "one level", "Imf::LevelMode"},
+              partName,
+              part_number,
+              name);
+            break;
+        case Imf::MIPMAP_LEVELS:
+            new HeaderItem(
+              attrItem,
+              {"mode", "mipmap levels", "Imf::LevelMode"},
+              partName,
+              part_number,
+              name);
+            break;
+        case Imf::RIPMAP_LEVELS:
+            new HeaderItem(
+              attrItem,
+              {"mode", "ripmal levels", "Imf::LevelMode"},
+              partName,
+              part_number,
+              name);
+            break;
+        case Imf::NUM_LEVELMODES:
+            new HeaderItem(
+              attrItem,
+              {"mode", "unknown", "Imf::LevelMode"},
+              partName,
+              part_number,
+              name);
+            break;
+    }
+
+    switch (attr.value().roundingMode) {
+        case Imf::ROUND_DOWN:
+            new HeaderItem(
+              attrItem,
+              {"roundingMode", "round down", "Imf::LevelRoundingMode"},
+              partName,
+              part_number,
+              name);
+            break;
+        case Imf::ROUND_UP:
+            new HeaderItem(
+              attrItem,
+              {"roundingMode", "round up", "Imf::LevelRoundingMode"},
+              partName,
+              part_number,
+              name);
+            break;
+        case Imf::NUM_ROUNDINGMODES:
+            new HeaderItem(
+              attrItem,
+              {"roundingMode", "unknown", "Imf::LevelRoundingMode"},
+              partName,
+              part_number,
+              name);
+            break;
+    }
 
     return attrItem;
 }
@@ -1077,6 +1359,126 @@ HeaderItem *HeaderModel::addItem(
     HeaderItem *attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::TimeCodeAttribute::staticTypeName()},
+      partName,
+      part_number,
+      name);
+
+
+    new HeaderItem(
+      attrItem,
+      {"hours", attr.value().hours(), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"minutes", attr.value().minutes(), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"seconds", attr.value().seconds(), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"frame", attr.value().frame(), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"colorFrame", attr.value().colorFrame() ? "yes" : "no", "bool"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"fieldPhase", attr.value().fieldPhase() ? "yes" : "no", "bool"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"bgf0", attr.value().bgf0() ? "yes" : "no", "bool"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"bgf1", attr.value().bgf1() ? "yes" : "no", "bool"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"bgf2", attr.value().bgf2() ? "yes" : "no", "bool"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup1", attr.value().binaryGroup(1), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup2", attr.value().binaryGroup(2), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup3", attr.value().binaryGroup(3), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup4", attr.value().binaryGroup(4), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup5", attr.value().binaryGroup(5), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup6", attr.value().binaryGroup(6), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup7", attr.value().binaryGroup(7), "int"},
+      partName,
+      part_number,
+      name);
+
+    new HeaderItem(
+      attrItem,
+      {"binaryGroup8", attr.value().binaryGroup(8), "int"},
       partName,
       part_number,
       name);
