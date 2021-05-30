@@ -37,6 +37,7 @@
 #include <cassert>
 #include <cstring>
 #include <exception>
+#include <cmath>
 
 TabulatedColormap::TabulatedColormap(): _array(3), _n_elems(1) {}
 
@@ -90,16 +91,16 @@ void TabulatedColormap::getRGBValue(float v, float RGB[]) const
     assert(v >= 0.f);
     assert(v <= 1.f);
 
-    int closet_idx = v * (_n_elems - 1);
+    const int closet_idx = v * (_n_elems - 1);
 
     assert(closet_idx < _n_elems);
     assert(closet_idx >= 0);
 
     memcpy(RGB, &_array[3 * closet_idx], 3 * sizeof(float));
 #else
-    int   low  = int(v * float(_n_elems));
-    int   high = std::min(_n_elems - 1, low + 1);
-    float a    = v * float(_n_elems) - low;
+    const int   low  = int(std::floor(v * float(_n_elems - 1)));
+    const int   high = std::min(_n_elems - 1, low + 1);
+    const float a    = v * float(_n_elems - 1) - low;
 
     for (int c = 0; c < 3; c++) {
         RGB[c] = _array[3 * low + c]
