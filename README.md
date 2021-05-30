@@ -135,7 +135,10 @@ License
 
 It is licensed under the 3-clause BSD license.
 
-This software uses the colormaps from https://bids.github.io/colormap/
-by Nathaniel J. Smith, Stefan van der Walt, and (in the case of
-viridis) Eric Firing. These are licensed under CC0 license
+This software uses the colormaps:
+
+- from https://bids.github.io/colormap/ by Nathaniel J. Smith, Stefan
+van der Walt, and (in the case of viridis) Eric Firing. These are
+licensed under CC0 license
 (http://creativecommons.org/publicdomain/zero/1.0/).
+- Turbo from https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f by Anton Mikhailov licensed under Apache-2.0.

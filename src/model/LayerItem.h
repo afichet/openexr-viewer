@@ -32,14 +32,43 @@
 
 #pragma once
 
-#include "Colormap.h"
+#include <model/HeaderItem.h>
 
-class YColormap: public Colormap
+#include <OpenEXR/ImfChannelListAttribute.h>
+
+class LayerItem
 {
   public:
-    YColormap();
+    LayerItem(LayerItem *parent = nullptr);
 
-    virtual ~YColormap();
+    ~LayerItem();
 
-    virtual void getRGBValue(float v, float RGB[3]) const;
+    void addLeaf(const QString channelName, const Imf::Channel *leafChannel);
+
+    HeaderItem *constructItemHierarchy(
+      HeaderItem *parent, const QString &partName, int partID);
+
+    size_t getNChilds() const;
+
+    bool hasRGBChilds() const;
+    bool hasRGBAChilds() const;
+    bool hasYCChilds() const;
+    bool hasYCAChilds() const;
+    bool hasYChild() const;
+    bool hasYAChilds() const;
+    bool hasAChild() const;
+
+    QString getFullName() const;
+
+  protected:
+    LayerItem *getAddLeaf(const QString channelName);
+
+  private:
+    QMap<QString, LayerItem *> m_childItems;
+    LayerItem *                m_parentItem;
+
+    const Imf::Channel *m_channelPtr;
+    QString             m_rootName;
+
+    QString m_channelName;
 };

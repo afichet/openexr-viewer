@@ -11,6 +11,7 @@
   </description>
   <launchable type="desktop-id">openexr-viewer.desktop</launchable>
   <releases>
+    <release date="2021-05-30" version="0.4"/>
     <release date="2021-05-22" version="0.3"/>
   </releases>
   <provides>

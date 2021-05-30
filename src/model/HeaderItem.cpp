@@ -30,16 +30,84 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "HeaderItem.h"
 
-#include "Colormap.h"
-
-class YColormap: public Colormap
+HeaderItem::HeaderItem(
+  HeaderItem *             parentItem,
+  const QVector<QVariant> &data,
+  QString                  partName,
+  int                      partID,
+  QString                  itemName)
+  : m_itemData(data)
+  , m_parentItem(parentItem)
+  , m_partName(partName)
+  , m_itemName(itemName)
+  , m_partID(partID)
 {
-  public:
-    YColormap();
+    // If not root item
+    if (m_parentItem) {
+        m_parentItem->appendChild(this);
+    }
+}
 
-    virtual ~YColormap();
+HeaderItem::~HeaderItem()
+{
+    qDeleteAll(m_childItems);
 
-    virtual void getRGBValue(float v, float RGB[3]) const;
-};
+    //    if (m_parentItem) {
+    //        m_parentItem->m_childItems.removeAll(this);
+    //    }
+}
+
+void HeaderItem::appendData(QVariant sibbling)
+{
+    m_itemData.append(sibbling);
+}
+
+void HeaderItem::setData(QVector<QVariant> data)
+{
+    m_itemData = data;
+}
+
+HeaderItem *HeaderItem::child(int row)
+{
+    if (row < 0 || row >= m_childItems.size()) {
+        return nullptr;
+    }
+
+    return m_childItems.at(row);
+}
+
+int HeaderItem::childCount() const
+{
+    return m_childItems.size();
+}
+
+int HeaderItem::columnCount() const
+{
+    return m_itemData.size();
+}
+
+QVariant HeaderItem::data(int column) const
+{
+    if (column < 0 || column >= m_itemData.size()) {
+        return QVariant();
+    }
+
+    return m_itemData.at(column);
+}
+
+int HeaderItem::row() const
+{
+    if (m_parentItem) {
+        return m_parentItem->m_childItems.indexOf(
+          const_cast<HeaderItem *>(this));
+    }
+
+    return 0;
+}
+
+HeaderItem *HeaderItem::parentItem()
+{
+    return m_parentItem;
+}

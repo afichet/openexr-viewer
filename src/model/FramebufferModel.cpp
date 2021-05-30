@@ -1,71 +1,73 @@
-//
-// Copyright (c) 2021 Alban Fichet <alban.fichet at gmx.fr>
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//  * Redistributions of source code must retain the above copyright notice, this
-// list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright notice,
-// this list of conditions and the following disclaimer in the documentation and/or
-// other materials provided with the distribution.
-//  * Neither the name of %ORGANIZATION% nor the names of its contributors may be
-// used to endorse or promote products derived from this software without specific
-// prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+/**
+ * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.
+ *  * Neither the name of the organization(s) nor the names of its
+ * contributors may be used to endorse or promote products derived
+ * from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "FramebufferModel.h"
 
 #include <util/ColormapModule.h>
 
-#include <QtConcurrent/QtConcurrent>
 #include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
-#include <OpenEXR/ImfInputPart.h>
-#include <OpenEXR/ImfHeader.h>
-#include <OpenEXR/ImfFrameBuffer.h>
 #include <OpenEXR/ImfAttribute.h>
+#include <OpenEXR/ImfFrameBuffer.h>
+#include <OpenEXR/ImfHeader.h>
+#include <OpenEXR/ImfInputPart.h>
 
 #include <Imath/ImathBox.h>
 
-FramebufferModel::FramebufferModel(
-        const QString &layerName,
-        QObject *parent)
-    : ImageModel(parent)
-    , m_layer(layerName)
-    , m_min(0.f)
-    , m_max(1.f)
-    , m_cmap(ColormapModule::create("grayscale"))
-{
-}
+FramebufferModel::FramebufferModel(const QString &layerName, QObject *parent)
+  : ImageModel(parent)
+  , m_layer(layerName)
+  , m_min(0.f)
+  , m_max(1.f)
+  , m_cmap(ColormapModule::create("grayscale"))
+{}
 
 FramebufferModel::~FramebufferModel()
 {
     delete m_cmap;
 }
 
-void FramebufferModel::load(
-    Imf::MultiPartInputFile& file,
-    int partId)
+void FramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
 {
     QFuture<void> imageLoading = QtConcurrent::run([&]() {
         try {
             Imf::InputPart part(file, partId);
 
             Imath::Box2i datW = part.header().dataWindow();
-            m_width  = datW.max.x - datW.min.x + 1;
-            m_height = datW.max.y - datW.min.y + 1;
+            m_width           = datW.max.x - datW.min.x + 1;
+            m_height          = datW.max.y - datW.min.y + 1;
+
+            m_pixelAspectRatio = part.header().pixelAspectRatio();
 
             Imf::Slice graySlice;
             // TODO: Check it that can be guess from the header
@@ -81,18 +83,23 @@ void FramebufferModel::load(
                 int dispW_width  = dispW.max.x - dispW.min.x + 1;
                 int dispW_height = dispW.max.y - dispW.min.y + 1;
 
-                m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width/2, dispW_height/2);
+                m_displayWindow = QRect(
+                  dispW.min.x,
+                  dispW.min.y,
+                  dispW_width / 2,
+                  dispW_height / 2);
 
                 m_pixelBuffer = new float[m_width * m_height];
 
                 // Luminance Chroma channels
                 graySlice = Imf::Slice::Make(
-                            Imf::PixelType::FLOAT,
-                            m_pixelBuffer,
-                            datW,
-                            sizeof(float), m_width * sizeof(float),
-                            2, 2
-                            );
+                  Imf::PixelType::FLOAT,
+                  m_pixelBuffer,
+                  datW,
+                  sizeof(float),
+                  m_width * sizeof(float),
+                  2,
+                  2);
             } else {
                 m_dataWindow = QRect(datW.min.x, datW.min.y, m_width, m_height);
 
@@ -101,14 +108,15 @@ void FramebufferModel::load(
                 int dispW_width  = dispW.max.x - dispW.min.x + 1;
                 int dispW_height = dispW.max.y - dispW.min.y + 1;
 
-                m_displayWindow = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
+                m_displayWindow
+                  = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
 
                 m_pixelBuffer = new float[m_width * m_height];
 
                 graySlice = Imf::Slice::Make(
-                            Imf::PixelType::FLOAT,
-                            m_pixelBuffer,
-                            datW);
+                  Imf::PixelType::FLOAT,
+                  m_pixelBuffer,
+                  datW);
             }
 
             Imf::FrameBuffer framebuffer;
@@ -127,13 +135,13 @@ void FramebufferModel::load(
                 m_datasetMax = std::max(m_datasetMax, (double)m_pixelBuffer[i]);
             }
 
-            m_image = QImage(m_width, m_height, QImage::Format_RGB888);
+            m_image         = QImage(m_width, m_height, QImage::Format_RGB888);
             m_isImageLoaded = true;
 
-            emit imageLoaded(m_width, m_height);
+            emit imageLoaded();
 
             updateImage();
-        }  catch (std::exception &e) {
+        } catch (std::exception &e) {
             emit loadFailed(e.what());
             return;
         }
@@ -156,7 +164,9 @@ void FramebufferModel::setMaxValue(double value)
 
 void FramebufferModel::setColormap(ColormapModule::Map map)
 {
-    if (!m_isImageLoaded) { return; }
+    if (!m_isImageLoaded) {
+        return;
+    }
 
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
@@ -179,7 +189,9 @@ void FramebufferModel::setColormap(ColormapModule::Map map)
 
 void FramebufferModel::updateImage()
 {
-    if (!m_isImageLoaded) { return; }
+    if (!m_isImageLoaded) {
+        return;
+    }
 
     // Several call can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
@@ -191,7 +203,7 @@ void FramebufferModel::updateImage()
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
         for (int y = 0; y < m_image.height(); y++) {
-            unsigned char * line = m_image.scanLine(y);
+            unsigned char *line = m_image.scanLine(y);
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
@@ -205,7 +217,9 @@ void FramebufferModel::updateImage()
                 }
             }
 
-            if (m_imageEditingWatcher->isCanceled()) { break; }
+            if (m_imageEditingWatcher->isCanceled()) {
+                break;
+            }
         }
 
         // We do not notify any canceled process: this would result in
