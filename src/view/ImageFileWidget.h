@@ -32,75 +32,51 @@
 
 #pragma once
 
-#include <QTabWidget>
-#include <QLabel>
-#include <QMainWindow>
-#include <QVector>
-#include <QCloseEvent>
-#include <QDropEvent>
-#include <QByteArray>
+#include <QWidget>
 
-#include <model/HeaderItem.h>
-#include <model/RGBFramebufferModel.h>
+#include <QMdiArea>
+#include <QSplitter>
+#include <QTreeView>
 
-#include "ImageFileWidget.h"
+#include <model/OpenEXRImage.h>
 
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-    class MainWindow;
-}
-QT_END_NAMESPACE
-
-class MainWindow: public QMainWindow
+class ImageFileWidget: public QWidget
 {
     Q_OBJECT
+public:
+    explicit ImageFileWidget(QWidget *parent = nullptr);
 
-  public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    virtual ~ImageFileWidget();
 
-  public slots:
+    QString getOpenedFolder() const { return m_openedFolder; }
+    QString getOpenedFilename() const { return m_openedFilename; }
+    QByteArray getSplitterState() const { return m_splitter->saveState(); }
+
+    void setSplitterState(const QByteArray& state) { m_splitter->restoreState(state); }
+
+public slots:
     void open(const QString &filename);
 
-  private slots:
-    void on_action_Open_triggered();
-    void on_action_Quit_triggered();
+    void setTabbed();
+    void setCascade();
+    void setTiled();
 
-  protected:
-    void closeEvent(QCloseEvent *event) override;
-    //    void showEvent(QShowEvent* event) override;
-
-  private:
-    void dropEvent(QDropEvent *event) override;
-    void dragEnterEvent(QDragEnterEvent *ev) override;
-
-    void writeSettings();
-    void readSettings();
+protected:
+    QString getTitle(int partId, const QString &layer) const;
+    void openItem(HeaderItem *item);
 
 
+private slots:
+    void onDoubleClicked(const QModelIndex &index);
 
-  private slots:
-    void on_action_Tabbed_triggered();
+    void onLoadFailed(const QString &msg);
 
-    void on_action_Cascade_triggered();
+private:
+    QSplitter *m_splitter;
+    QTreeView *m_treeView;
+    QMdiArea  *m_mdiArea;
 
-    void on_action_Tiled_triggered();
-
-    void on_action_Refresh_triggered();
-
-    void onCurrentChanged(int index);
-
-  private:
-    Ui::MainWindow *ui;
-
-    QTabWidget *m_openFileTabs;
-
-    QLabel *m_statusBarMessage;
-
-    QVector<ImageFileWidget*> m_imageFileWidgets;
-
-    QString m_currentOpenedFolder;
-
-    QByteArray m_splitterState;
+    OpenEXRImage *m_img;
+    QString m_openedFolder;
+    QString m_openedFilename;
 };

@@ -65,6 +65,9 @@ set(PROJECT_SOURCES
     src/view/mainwindow.h
     src/view/mainwindow.ui
 
+    src/view/ImageFileWidget.cpp
+    src/view/ImageFileWidget.h
+
     src/view/GraphicsScene.cpp
     src/view/GraphicsScene.h
 
