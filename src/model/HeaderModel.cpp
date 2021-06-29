@@ -317,8 +317,12 @@ HeaderItem *HeaderModel::addItem(
       part_number,
       name);
 
+
+    const int width  = attr.value().max.x - attr.value().min.x + 1;
+    const int height = attr.value().max.y - attr.value().min.y + 1;
+
     std::stringstream sWidth;
-    sWidth << attr.value().size().x;
+    sWidth << width;
 
     new HeaderItem(
       attrItem,
@@ -328,7 +332,7 @@ HeaderItem *HeaderModel::addItem(
       name);
 
     std::stringstream sHeight;
-    sHeight << attr.value().size().y;
+    sHeight << height;
 
     new HeaderItem(
       attrItem,
@@ -376,8 +380,11 @@ HeaderItem *HeaderModel::addItem(
       part_number,
       name);
 
+    const float width  = attr.value().max.x - attr.value().min.x + 1;
+    const float height = attr.value().max.y - attr.value().min.y + 1;
+
     std::stringstream sWidth;
-    sWidth << attr.value().size().x;
+    sWidth << width;
 
     new HeaderItem(
       attrItem,
@@ -387,7 +394,7 @@ HeaderItem *HeaderModel::addItem(
       name);
 
     std::stringstream sHeight;
-    sHeight << attr.value().size().y;
+    sHeight << height;
 
     new HeaderItem(
       attrItem,
