@@ -30,7 +30,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "FramebufferModel.h"
+#include "YFramebufferModel.h"
 
 #include <util/ColormapModule.h>
 
@@ -44,7 +44,7 @@
 
 #include <Imath/ImathBox.h>
 
-FramebufferModel::FramebufferModel(const QString &layerName, QObject *parent)
+YFramebufferModel::YFramebufferModel(const QString &layerName, QObject *parent)
   : ImageModel(parent)
   , m_layer(layerName)
   , m_min(0.f)
@@ -52,12 +52,12 @@ FramebufferModel::FramebufferModel(const QString &layerName, QObject *parent)
   , m_cmap(ColormapModule::create("grayscale"))
 {}
 
-FramebufferModel::~FramebufferModel()
+YFramebufferModel::~YFramebufferModel()
 {
     delete m_cmap;
 }
 
-void FramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
+void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
 {
     QFuture<void> imageLoading = QtConcurrent::run([&]() {
         try {
@@ -150,19 +150,19 @@ void FramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
     m_imageLoadingWatcher->setFuture(imageLoading);
 }
 
-void FramebufferModel::setMinValue(double value)
+void YFramebufferModel::setMinValue(double value)
 {
     m_min = value;
     updateImage();
 }
 
-void FramebufferModel::setMaxValue(double value)
+void YFramebufferModel::setMaxValue(double value)
 {
     m_max = value;
     updateImage();
 }
 
-void FramebufferModel::setColormap(ColormapModule::Map map)
+void YFramebufferModel::setColormap(ColormapModule::Map map)
 {
     if (!m_isImageLoaded) {
         return;
@@ -187,7 +187,7 @@ void FramebufferModel::setColormap(ColormapModule::Map map)
     updateImage();
 }
 
-void FramebufferModel::updateImage()
+void YFramebufferModel::updateImage()
 {
     if (!m_isImageLoaded) {
         return;

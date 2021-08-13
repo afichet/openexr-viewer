@@ -38,7 +38,7 @@
 #include <QMessageBox>
 
 #include "RGBFramebufferWidget.h"
-#include "FramebufferWidget.h"
+#include "YFramebufferWidget.h"
 
 ImageFileWidget::ImageFileWidget(QWidget *parent)
     : QWidget(parent)
@@ -219,16 +219,16 @@ void ImageFileWidget::openItem(HeaderItem *item)
     }
 
     // If the window does not exist yet, create it
-    FramebufferWidget *   graphicViewBW = nullptr;
-    FramebufferModel *    imageModelBW  = nullptr;
+    YFramebufferWidget *  graphicViewBW = nullptr;
+    YFramebufferModel *   imageModelBW  = nullptr;
     RGBFramebufferWidget *graphicView   = nullptr;
     RGBFramebufferModel * imageModel    = nullptr;
 
     QMdiSubWindow *subWindow = nullptr;
 
     if (item->type() == "framebuffer") {
-        graphicViewBW = new FramebufferWidget(m_mdiArea);
-        imageModelBW = new FramebufferModel(item->getItemName(), graphicViewBW);
+        graphicViewBW = new YFramebufferWidget(m_mdiArea);
+        imageModelBW = new YFramebufferModel(item->getItemName(), graphicViewBW);
 
         QObject::connect(
                     imageModelBW,

@@ -39,7 +39,7 @@
 #include <model/attribute/HeaderModel.h>
 
 #include <model/framebuffer/ImageModel.h>
-#include <model/framebuffer/FramebufferModel.h>
+#include <model/framebuffer/YFramebufferModel.h>
 #include <model/framebuffer/RGBFramebufferModel.h>
 
 class OpenEXRImage

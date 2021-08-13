@@ -39,8 +39,6 @@
 #include <QVector>
 #include <array>
 
-#include <OpenEXR/ImfMultiPartInputFile.h>
-
 class ImageModel: public QObject
 {
     Q_OBJECT

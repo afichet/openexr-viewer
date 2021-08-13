@@ -33,6 +33,7 @@
 #pragma once
 
 #include "ImageModel.h"
+#include <OpenEXR/ImfMultiPartInputFile.h>
 
 class RGBFramebufferModel: public ImageModel
 {

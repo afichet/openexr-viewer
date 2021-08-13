@@ -32,42 +32,46 @@
 
 #pragma once
 
-#include "ImageModel.h"
+#include <QWidget>
 
-#include <util/ColormapModule.h>
+#include <model/framebuffer/YFramebufferModel.h>
 
-class FramebufferModel: public ImageModel
+namespace Ui
 {
+    class YFramebufferWidget;
+}
+
+class YFramebufferWidget: public QWidget
+{
+    Q_OBJECT
+
   public:
-    FramebufferModel(const QString &layerName, QObject *parent = nullptr);
+    explicit YFramebufferWidget(QWidget *parent = nullptr);
+    ~YFramebufferWidget();
 
-    virtual ~FramebufferModel();
+    void setModel(YFramebufferModel *model);
 
-    virtual void load(Imf::MultiPartInputFile &file, int partId);
+  signals:
+    void openFileOnDropEvent(const QString &filename);
 
-    const QString &getLayerName() const { return m_layer; }
-    const int      getPartId() const { return m_partID; }
+  private slots:
+    void on_sbMinValue_valueChanged(double arg1);
 
-    double getDatasetMin() const { return m_datasetMin; }
-    double getDatasetMax() const { return m_datasetMax; }
+    void on_sbMaxValue_valueChanged(double arg1);
 
-  public slots:
-    void setMinValue(double value);
-    void setMaxValue(double value);
-    void setColormap(ColormapModule::Map map);
+    void on_buttonAuto_clicked();
 
-  protected:
-    void updateImage();
+    void onOpenFileOnDropEvent(const QString &filename);
+
+    void on_cbColormap_currentIndexChanged(int index);
+
+    void on_cbShowDataWindow_stateChanged(int arg1);
+
+    void on_cbShowDisplayWindow_stateChanged(int arg1);
+
+    void on_cbScale_stateChanged(int arg1);
 
   private:
-    int     m_partID;
-    QString m_layer;
-
-    double m_min;
-    double m_max;
-
-    double m_datasetMin;
-    double m_datasetMax;
-
-    Colormap *m_cmap;
+    Ui::YFramebufferWidget *ui;
+    YFramebufferModel *     m_model;
 };

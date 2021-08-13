@@ -30,14 +30,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "FramebufferWidget.h"
-#include "ui_FramebufferWidget.h"
+#include "YFramebufferWidget.h"
+#include "ui_YFramebufferWidget.h"
 
 #include <util/ColormapModule.h>
 
-FramebufferWidget::FramebufferWidget(QWidget *parent)
+YFramebufferWidget::YFramebufferWidget(QWidget *parent)
   : QWidget(parent)
-  , ui(new Ui::FramebufferWidget)
+  , ui(new Ui::YFramebufferWidget)
   , m_model(nullptr)
 {
     ui->setupUi(this);
@@ -54,33 +54,33 @@ FramebufferWidget::FramebufferWidget(QWidget *parent)
     }
 }
 
-FramebufferWidget::~FramebufferWidget()
+YFramebufferWidget::~YFramebufferWidget()
 {
     delete ui;
     if (m_model) delete m_model;
 }
 
-void FramebufferWidget::setModel(FramebufferModel *model)
+void YFramebufferWidget::setModel(YFramebufferModel *model)
 {
     m_model = model;
     ui->graphicsView->setModel(model);
 }
 
-void FramebufferWidget::on_sbMinValue_valueChanged(double arg1)
+void YFramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
     ui->sbMaxValue->setMinimum(arg1);
     ui->scaleWidget->setMin(arg1);
     if (m_model) m_model->setMinValue(arg1);
 }
 
-void FramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
+void YFramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
     ui->scaleWidget->setMax(arg1);
     if (m_model) m_model->setMaxValue(arg1);
 }
 
-void FramebufferWidget::on_buttonAuto_clicked()
+void YFramebufferWidget::on_buttonAuto_clicked()
 {
     if (m_model) {
         ui->sbMinValue->setValue(m_model->getDatasetMin());
@@ -88,12 +88,12 @@ void FramebufferWidget::on_buttonAuto_clicked()
     }
 }
 
-void FramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+void YFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
 {
     emit openFileOnDropEvent(filename);
 }
 
-void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
+void YFramebufferWidget::on_cbColormap_currentIndexChanged(int index)
 {
     ColormapModule::Map cmap = (ColormapModule::Map)index;
 
@@ -102,17 +102,17 @@ void FramebufferWidget::on_cbColormap_currentIndexChanged(int index)
     if (m_model) m_model->setColormap(cmap);
 }
 
-void FramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
+void YFramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
 {
     ui->graphicsView->showDataWindow(arg1 == Qt::Checked);
 }
 
-void FramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
+void YFramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
 {
     ui->graphicsView->showDisplayWindow(arg1 == Qt::Checked);
 }
 
-void FramebufferWidget::on_cbScale_stateChanged(int arg1)
+void YFramebufferWidget::on_cbScale_stateChanged(int arg1)
 {
     if (arg1 == Qt::Checked) {
         ui->scaleWidget->show();

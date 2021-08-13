@@ -78,9 +78,9 @@ set(PROJECT_SOURCES
     src/view/RGBFramebufferWidget.h
     src/view/RGBFramebufferWidget.ui
 
-    src/view/FramebufferWidget.cpp
-    src/view/FramebufferWidget.h
-    src/view/FramebufferWidget.ui
+    src/view/YFramebufferWidget.cpp
+    src/view/YFramebufferWidget.h
+    src/view/YFramebufferWidget.ui
 
     src/view/ScaleWidget.cpp
     src/view/ScaleWidget.h
@@ -97,8 +97,8 @@ set(PROJECT_SOURCES
 
     src/model/framebuffer/ImageModel.cpp
     src/model/framebuffer/ImageModel.h
-    src/model/framebuffer/FramebufferModel.cpp
-    src/model/framebuffer/FramebufferModel.h
+    src/model/framebuffer/YFramebufferModel.cpp
+    src/model/framebuffer/YFramebufferModel.h
     src/model/framebuffer/RGBFramebufferModel.cpp
     src/model/framebuffer/RGBFramebufferModel.h
 
