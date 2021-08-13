@@ -76,7 +76,7 @@ HeaderItem *LayerItem::constructItemHierarchy(
     if (m_parentItem) {
         currRoot = new HeaderItem(
           parent,
-          {m_rootName, (int)getNChilds(), "channellist"});
+          {m_rootName, (int)childCount(), "channellist"});
     } else {
         currRoot = parent;
     }
@@ -272,14 +272,19 @@ HeaderItem *LayerItem::constructItemHierarchy(
     }
 
     for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
-        if (!ignoredKeys.contains(it.key()) || it.value()->getNChilds() != 0)
+        if (!ignoredKeys.contains(it.key()) || it.value()->childCount() != 0)
             it.value()->constructItemHierarchy(currRoot, partName, partID);
     }
 
     return currRoot;
 }
 
-size_t LayerItem::getNChilds() const
+LayerItem *LayerItem::child(int index) const
+{
+    return m_childItems.values().at(index);
+}
+
+int LayerItem::childCount() const
 {
     return m_childItems.size();
 }

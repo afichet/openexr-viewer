@@ -54,7 +54,6 @@ class HeaderItem
     HeaderItem *child(int row);
 
     int childCount() const;
-
     int columnCount() const;
 
     QVariant data(int column) const;

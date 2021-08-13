@@ -85,16 +85,25 @@ set(PROJECT_SOURCES
     src/view/ScaleWidget.cpp
     src/view/ScaleWidget.h
 
+    # ------------------------------------------------------------------------
+    # Model
+    # ------------------------------------------------------------------------
     src/model/OpenEXRImage.cpp
     src/model/OpenEXRImage.h
 
-    src/model/attribute/LayerItem.cpp
-    src/model/attribute/LayerItem.h
+    # OpenEXR attributes
     src/model/attribute/HeaderItem.cpp
     src/model/attribute/HeaderItem.h
     src/model/attribute/HeaderModel.cpp
     src/model/attribute/HeaderModel.h
 
+    # OpenEXR layer fields (specific kind of attributes)
+    src/model/attribute/LayerItem.cpp
+    src/model/attribute/LayerItem.h
+    src/model/attribute/LayerModel.cpp
+    src/model/attribute/LayerModel.h
+
+    # Framebuffers (image content i.e. layer data)
     src/model/framebuffer/ImageModel.cpp
     src/model/framebuffer/ImageModel.h
     src/model/framebuffer/YFramebufferModel.cpp
@@ -102,6 +111,10 @@ set(PROJECT_SOURCES
     src/model/framebuffer/RGBFramebufferModel.cpp
     src/model/framebuffer/RGBFramebufferModel.h
 
+
+    # ------------------------------------------------------------------------
+    # Utilities
+    # ------------------------------------------------------------------------
     src/util/Colormap.cpp
     src/util/Colormap.h
     src/util/TabulatedColormap.cpp

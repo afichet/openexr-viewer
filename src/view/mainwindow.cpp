@@ -66,14 +66,16 @@ MainWindow::MainWindow(QWidget *parent)
     // clang-format on
 }
 
+
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+
 void MainWindow::open(const QString &filename)
 {
-    QString filename_no_path = QFileInfo(filename).baseName();
+    QString filename_no_path = QFileInfo(filename).fileName();
 
     ImageFileWidget *fileWidget = new ImageFileWidget(m_openFileTabs);
     fileWidget->open(filename);
@@ -82,6 +84,7 @@ void MainWindow::open(const QString &filename)
     m_openFileTabs->addTab(fileWidget, filename_no_path);
     m_openFileTabs->setCurrentWidget(fileWidget);
 }
+
 
 void MainWindow::on_action_Open_triggered()
 {
@@ -96,16 +99,19 @@ void MainWindow::on_action_Open_triggered()
     }
 }
 
+
 void MainWindow::on_action_Quit_triggered()
 {
     close();
 }
+
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
     event->accept();
 }
+
 
 void MainWindow::dropEvent(QDropEvent *ev)
 {
@@ -127,10 +133,12 @@ void MainWindow::dropEvent(QDropEvent *ev)
     }
 }
 
+
 void MainWindow::dragEnterEvent(QDragEnterEvent *ev)
 {
     ev->acceptProposedAction();
 }
+
 
 void MainWindow::writeSettings()
 {
@@ -147,6 +155,7 @@ void MainWindow::writeSettings()
     settings.setValue("openedFolder", m_currentOpenedFolder);
     settings.endGroup();
 }
+
 
 void MainWindow::readSettings()
 {
@@ -171,9 +180,6 @@ void MainWindow::readSettings()
 }
 
 
-
-
-
 void MainWindow::on_action_Tabbed_triggered()
 {
     ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
@@ -182,6 +188,7 @@ void MainWindow::on_action_Tabbed_triggered()
         widget->setTabbed();
     }
 }
+
 
 void MainWindow::on_action_Cascade_triggered()
 {
@@ -192,6 +199,7 @@ void MainWindow::on_action_Cascade_triggered()
     }
 }
 
+
 void MainWindow::on_action_Tiled_triggered()
 {
     ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
@@ -201,12 +209,14 @@ void MainWindow::on_action_Tiled_triggered()
     }
 }
 
+
 void MainWindow::on_action_Refresh_triggered()
 {
 //    open(m_img->getFilename());
 
     // TODO: Shall refresh and reopen all windows
 }
+
 
 void MainWindow::onCurrentChanged(int index)
 {

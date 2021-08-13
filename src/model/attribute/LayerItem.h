@@ -36,6 +36,8 @@
 
 #include <OpenEXR/ImfChannelListAttribute.h>
 
+#include <QVariant>
+
 class LayerItem
 {
   public:
@@ -48,7 +50,10 @@ class LayerItem
     HeaderItem *constructItemHierarchy(
       HeaderItem *parent, const QString &partName, int partID);
 
-    size_t getNChilds() const;
+    LayerItem *child(int index) const;
+    int childCount() const;
+
+    LayerItem *parentItem() { return m_parentItem; }
 
     bool hasRGBChilds() const;
     bool hasRGBAChilds() const;
