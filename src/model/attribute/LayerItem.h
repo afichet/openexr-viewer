@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <model/HeaderItem.h>
+#include <model/attribute/HeaderItem.h>
 
 #include <OpenEXR/ImfChannelListAttribute.h>
 

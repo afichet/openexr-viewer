@@ -36,10 +36,11 @@
 
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
-#include <model/FramebufferModel.h>
-#include <model/HeaderModel.h>
-#include <model/ImageModel.h>
-#include <model/RGBFramebufferModel.h>
+#include <model/attribute/HeaderModel.h>
+
+#include <model/framebuffer/ImageModel.h>
+#include <model/framebuffer/FramebufferModel.h>
+#include <model/framebuffer/RGBFramebufferModel.h>
 
 class OpenEXRImage
 {

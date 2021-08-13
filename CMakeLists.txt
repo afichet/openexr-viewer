@@ -87,20 +87,20 @@ set(PROJECT_SOURCES
 
     src/model/OpenEXRImage.cpp
     src/model/OpenEXRImage.h
-    src/model/LayerItem.cpp
-    src/model/LayerItem.h
-    src/model/HeaderItem.cpp
-    src/model/HeaderItem.h
 
-    src/model/ImageModel.cpp
-    src/model/ImageModel.h
-    src/model/FramebufferModel.cpp
-    src/model/FramebufferModel.h
-    src/model/RGBFramebufferModel.cpp
-    src/model/RGBFramebufferModel.h
+    src/model/attribute/LayerItem.cpp
+    src/model/attribute/LayerItem.h
+    src/model/attribute/HeaderItem.cpp
+    src/model/attribute/HeaderItem.h
+    src/model/attribute/HeaderModel.cpp
+    src/model/attribute/HeaderModel.h
 
-    src/model/HeaderModel.cpp
-    src/model/HeaderModel.h
+    src/model/framebuffer/ImageModel.cpp
+    src/model/framebuffer/ImageModel.h
+    src/model/framebuffer/FramebufferModel.cpp
+    src/model/framebuffer/FramebufferModel.h
+    src/model/framebuffer/RGBFramebufferModel.cpp
+    src/model/framebuffer/RGBFramebufferModel.h
 
     src/util/Colormap.cpp
     src/util/Colormap.h

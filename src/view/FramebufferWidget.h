@@ -34,7 +34,7 @@
 
 #include <QWidget>
 
-#include <model/FramebufferModel.h>
+#include <model/framebuffer/FramebufferModel.h>
 
 namespace Ui
 {

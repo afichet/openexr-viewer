@@ -40,8 +40,8 @@
 #include <QDropEvent>
 #include <QByteArray>
 
-#include <model/HeaderItem.h>
-#include <model/RGBFramebufferModel.h>
+#include <model/attribute/HeaderItem.h>
+#include <model/framebuffer/RGBFramebufferModel.h>
 
 #include "ImageFileWidget.h"
 

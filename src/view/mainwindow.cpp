@@ -41,8 +41,8 @@
 #include <QMimeData>
 #include <QSettings>
 
-#include <model/HeaderModel.h>
-#include <model/LayerItem.h>
+#include <model/attribute/HeaderModel.h>
+#include <model/attribute/LayerItem.h>
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)

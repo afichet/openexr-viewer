@@ -33,7 +33,7 @@
 #pragma once
 
 #include <QWidget>
-#include <model/RGBFramebufferModel.h>
+#include <model/framebuffer/RGBFramebufferModel.h>
 
 namespace Ui
 {

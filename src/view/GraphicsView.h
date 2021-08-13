@@ -34,7 +34,7 @@
 
 #include <QGraphicsView>
 
-#include <model/ImageModel.h>
+#include <model/framebuffer/ImageModel.h>
 
 #include <iostream>
 

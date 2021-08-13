@@ -34,8 +34,8 @@
 
 #include <QAbstractItemModel>
 
-#include <model/HeaderItem.h>
-#include <model/LayerItem.h>
+#include <model/attribute/HeaderItem.h>
+#include <model/attribute/LayerItem.h>
 
 #include <OpenEXR/ImfHeader.h>
 #include <OpenEXR/ImfMultiPartInputFile.h>
