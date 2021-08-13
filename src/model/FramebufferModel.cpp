@@ -168,7 +168,7 @@ void FramebufferModel::setColormap(ColormapModule::Map map)
         return;
     }
 
-    // Several call can occur within a short time e.g., when changing exposure
+    // Several calls can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
     // process to end
     // Also, bad idea to change the colormap if a process is using it
@@ -193,7 +193,7 @@ void FramebufferModel::updateImage()
         return;
     }
 
-    // Several call can occur within a short time e.g., when changing exposure
+    // Several calls can occur within a short time e.g., when changing exposure
     // Ensure to cancel any previous running conversion and wait for the
     // process to end
     if (m_imageEditingWatcher->isRunning()) {
