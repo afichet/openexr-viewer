@@ -34,7 +34,6 @@
 
 #include <QAbstractItemModel>
 
-#include <vector>
 
 #include <model/attribute/LayerItem.h>
 
@@ -42,19 +41,22 @@
 
 class LayerModel: public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     enum LayerInfo {
-        PREVIEW = 0,
-        NAME,
+        LAYER = 0,
         TYPE,
         N_LAYER_INFO
     };
 
-    LayerModel(QObject * parent);
+    LayerModel(
+            Imf::MultiPartInputFile &file,
+            const QString &filename,
+            QObject * parent);
 
     ~LayerModel();
 
-    void addFile(const Imf::MultiPartInputFile &file, const QString &filename);
+    LayerItem* getRoot() const { return m_rootItem; }
 
     /**
      * Qt logic for accessing the model
@@ -82,4 +84,5 @@ public:
 private:
     LayerItem * m_rootItem;
 
+    Imf::MultiPartInputFile& m_fileHandle;
 };

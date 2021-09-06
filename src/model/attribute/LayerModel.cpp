@@ -32,22 +32,64 @@
 
 #include "LayerModel.h"
 
-LayerModel::LayerModel(QObject *parent)
+#include <OpenEXR/ImfHeader.h>
+#include <OpenEXR/ImfChannelList.h>
+
+#include <QImage>
+#include <QIcon>
+
+LayerModel::LayerModel(
+        Imf::MultiPartInputFile &file,
+        const QString &filename,
+        QObject *parent)
   : QAbstractItemModel(parent)
-{}
+  , m_rootItem(new LayerItem(file))
+  , m_fileHandle(file)
+{
+    const int nParts = file.parts();
+
+    // To avoid having an extra item, we only add a root part for multipart files
+    if (nParts > 1) {
+        for (int part = 0; part < nParts; part++) {
+            const Imf::Header &exrHeader = file.header(part);
+
+            std::string partName = "Untitled part";
+
+            if (exrHeader.hasName()) {
+                partName = exrHeader.name();
+            }
+
+            LayerItem * leaf = m_rootItem->addLeaf(m_fileHandle, partName, nullptr, part);
+
+            // Now list layers and add those to the part group
+            const Imf::ChannelList &exrChannels = exrHeader.channels();
+
+            for (Imf::ChannelList::ConstIterator it = exrChannels.begin(); it != exrChannels.end(); it++) {
+                leaf->addLeaf(m_fileHandle, it.name(), &it.channel(), part);
+            }
+        }
+    } else {
+        const Imf::Header &exrHeader = file.header(0);
+
+        // Now list layers and add those to the file group
+        const Imf::ChannelList &exrChannels = exrHeader.channels();
+
+        for (Imf::ChannelList::ConstIterator it = exrChannels.begin(); it != exrChannels.end(); it++) {
+            m_rootItem->addLeaf(m_fileHandle, it.name(), &it.channel());
+        }
+    }
+
+    m_rootItem->groupLayers();
+//    m_rootItem->createThumbnails();
+//    LayerItem::groupLayers(m_rootItem);
+}
 
 
 LayerModel::~LayerModel()
 {
-
+    delete m_rootItem;
 }
 
-void LayerModel::addFile(
-        const Imf::MultiPartInputFile &file,
-        const QString &filename)
-{
-
-}
 
 QVariant LayerModel::data(const QModelIndex &index, int role) const
 {
@@ -55,14 +97,97 @@ QVariant LayerModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role != Qt::DisplayRole) {
-        return QVariant();
+    LayerItem *item = static_cast<LayerItem *>(index.internalPointer());
+
+    // clang-format off
+    switch (role) {
+        case Qt::DecorationRole:
+            switch(index.column()) {
+                case LAYER:
+                    switch(item->getType()) {
+                        case LayerItem::R:
+                        case LayerItem::G:
+                        case LayerItem::B:
+                        case LayerItem::A:
+                        case LayerItem::Y:
+                        case LayerItem::RY:
+                        case LayerItem::BY:
+                        case LayerItem::GENERAL:
+                            return QIcon(":/svg/038-image.svg");
+
+                        case LayerItem::RGB:
+                        case LayerItem::RGBA:
+                        case LayerItem::YA:
+                        case LayerItem::YC:
+                        case LayerItem::YCA:
+                            return QIcon(":/svg/090-archive-2.svg");
+
+                        case LayerItem::GROUP:
+                        case LayerItem::PART:
+                            return QIcon(":/svg/100-folder-27.svg");
+
+                        // This shall never happen but avoid warning message from compiler
+                        case LayerItem::N_LAYERTYPES:
+                            return QVariant();
+                    }
+
+                    //item->getPreview();
+
+                default:
+                    return QVariant();
+            }
+            break;
+
+        case Qt::DisplayRole:
+            switch(index.column()) {
+                case LAYER:
+                    return QString::fromStdString(item->getLeafName());
+
+                case TYPE:
+                    switch(item->getType()) {
+                        case LayerItem::R:       return tr("Red");
+                        case LayerItem::G:       return tr("Green");
+                        case LayerItem::B:       return tr("Blue");
+                        case LayerItem::A:       return tr("Alpha");
+                        case LayerItem::Y:       return tr("Luminance");
+                        case LayerItem::RY:      return tr("Chroma R");
+                        case LayerItem::BY:      return tr("Chroma B");
+                        case LayerItem::RGB:     return tr("RGB");
+                        case LayerItem::RGBA:    return tr("RGBA");
+                        case LayerItem::YA:      return tr("Luminance Alpha");
+                        case LayerItem::YC:      return tr("Luminance Chroma");
+                        case LayerItem::YCA:     return tr("Luminance Chroma Alpha");
+                        case LayerItem::GROUP:   return tr("Group");
+                        case LayerItem::PART:    return tr("Part") + " " + QString::number(item->getPart());
+                        case LayerItem::GENERAL: return tr("Framebuffer");
+                        default: return QVariant();
+                    }
+
+                default:
+                    return QVariant();
+            }
+            break;
+
+        case Qt::ToolTipRole:
+            {
+                QString tooltip = "";
+                tooltip += "<b>Part ID:</b> " + QString::number(item->getPart());
+
+                // When it is a layer group, we do not want to display an empty layer name
+                if (item->getType() != LayerItem::GROUP && item->getType() != LayerItem::PART) {
+                    tooltip += "<br/>";
+                    tooltip += "<b>Layer name:</b> " + QString::fromStdString(item->getOriginalFullName());
+                }
+                return tooltip;
+            }
+        default:
+            return QVariant();
     }
+    // clang-format on
 
-    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
-
-    return item->data(index.column());
+    return QVariant();
 }
+
 
 Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
 {
@@ -73,17 +198,16 @@ Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
+
 QVariant LayerModel::headerData(
   int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case PREVIEW:
-            return QVariant();
-        case NAME:
-            return m_rootItem->getFullName();
+        case LAYER:
+            return "Layer";
         case TYPE:
-            return QVariant();
+            return "Type";
         default:
             return QVariant();
         }
@@ -91,6 +215,7 @@ QVariant LayerModel::headerData(
 
     return QVariant();
 }
+
 
 QModelIndex
 LayerModel::index(int row, int column, const QModelIndex &parent) const
@@ -114,6 +239,7 @@ LayerModel::index(int row, int column, const QModelIndex &parent) const
     return QModelIndex();
 }
 
+
 QModelIndex LayerModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid()) {
@@ -130,6 +256,7 @@ QModelIndex LayerModel::parent(const QModelIndex &index) const
     int row = 0;//parentItem->row();
     return createIndex(row, 0, parentItem);
 }
+
 
 int LayerModel::rowCount(const QModelIndex &parent) const
 {
@@ -148,13 +275,9 @@ int LayerModel::rowCount(const QModelIndex &parent) const
     return parentItem->childCount();
 }
 
+
 int LayerModel::columnCount(const QModelIndex &) const
 {
-//    if (parent.isValid()) {
-//        return static_cast<LayerItem *>(parent.internalPointer())
-//          ->columnCount();
-//    }
-
     return N_LAYER_INFO;
 }
 

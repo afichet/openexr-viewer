@@ -50,6 +50,23 @@ HeaderItem::HeaderItem(
     }
 }
 
+//HeaderItem::HeaderItem(
+//        HeaderItem *parentItem,
+//        const QVector<QVariant> &data,
+//        std::string partName, int partID,
+//        std::string itemName)
+//    : m_itemData(data)
+//    , m_parentItem(parentItem)
+//    , m_partName(QString::fromStdString(partName))
+//    , m_itemName(QString::fromStdString(itemName))
+//    , m_partID(partID)
+//{
+//    // If not root item
+//    if (m_parentItem) {
+//        m_parentItem->appendChild(this);
+//    }
+//}
+
 HeaderItem::~HeaderItem()
 {
     qDeleteAll(m_childItems);

@@ -66,7 +66,10 @@
 class HeaderModel: public QAbstractItemModel
 {
   public:
-    HeaderModel(int n_parts, QObject *parent);
+    HeaderModel(
+            Imf::MultiPartInputFile &file,
+            int n_parts,
+            QObject *parent);
 
     ~HeaderModel();
 
@@ -365,4 +368,6 @@ class HeaderModel: public QAbstractItemModel
     std::vector<std::vector<std::string>> m_headerItems;
 
     std::vector<LayerItem *> m_partRootLayer;
+
+    Imf::MultiPartInputFile& m_fileHandle;
 };

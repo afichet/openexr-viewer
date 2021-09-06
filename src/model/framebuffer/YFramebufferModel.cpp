@@ -44,7 +44,9 @@
 
 #include <Imath/ImathBox.h>
 
-YFramebufferModel::YFramebufferModel(const QString &layerName, QObject *parent)
+YFramebufferModel::YFramebufferModel(
+        const std::string &layerName,
+        QObject *parent)
   : ImageModel(parent)
   , m_layer(layerName)
   , m_min(0.f)
@@ -121,7 +123,7 @@ void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
 
             Imf::FrameBuffer framebuffer;
 
-            framebuffer.insert(m_layer.toStdString().c_str(), graySlice);
+            framebuffer.insert(m_layer, graySlice);
 
             part.setFrameBuffer(framebuffer);
             part.readPixels(datW.min.y, datW.max.y);

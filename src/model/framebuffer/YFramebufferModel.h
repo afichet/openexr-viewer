@@ -40,13 +40,13 @@
 class YFramebufferModel: public ImageModel
 {
   public:
-    YFramebufferModel(const QString &layerName, QObject *parent = nullptr);
+    YFramebufferModel(const std::string &layerName, QObject *parent = nullptr);
 
     virtual ~YFramebufferModel();
 
     virtual void load(Imf::MultiPartInputFile &file, int partId);
 
-    const QString &getLayerName() const { return m_layer; }
+    const std::string &getLayerName() const { return m_layer; }
     const int      getPartId() const { return m_partID; }
 
     double getDatasetMin() const { return m_datasetMin; }
@@ -62,7 +62,7 @@ class YFramebufferModel: public ImageModel
 
   private:
     int     m_partID;
-    QString m_layer;
+    std::string m_layer;
 
     double m_min;
     double m_max;

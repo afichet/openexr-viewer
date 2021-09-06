@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
@@ -37,43 +37,119 @@
 #include <OpenEXR/ImfChannelListAttribute.h>
 
 #include <QVariant>
+#include <QImage>
+
+#include <vector>
 
 class LayerItem
 {
   public:
-    LayerItem(LayerItem *parent = nullptr);
+    enum LayerType {
+        // Single channel
+        R, G, B, A,
+        Y, RY, BY,
+        GENERAL,
+        // Group Types,
+        RGB, RGBA,
+        YA, YC, YCA,
+        GROUP, PART,
+        N_LAYERTYPES
+    };
+
+    LayerItem(
+            Imf::MultiPartInputFile &file,
+            LayerItem *pParent = nullptr,
+            const std::string& leafName = "",
+            const std::string& originalChannelName = "",
+            const Imf::Channel *pChannel = nullptr,
+            int part = -1);
 
     ~LayerItem();
 
-    void addLeaf(const QString channelName, const Imf::Channel *leafChannel);
+    LayerItem *addLeaf(
+            Imf::MultiPartInputFile &file,
+            const std::string& channelName,
+            const Imf::Channel* pChannel,
+            int part = -1
+            );
+
+
+    void createThumbnails();
+
+    // Perfoms the grouping of known layer groups: RGB, RGBA, YC, YCA...
+    void groupLayers();
 
     HeaderItem *constructItemHierarchy(
-      HeaderItem *parent, const QString &partName, int partID);
+            HeaderItem *parent,
+            const std::string &partName,
+            int partID
+            );
 
     LayerItem *child(int index) const;
+    LayerItem *child(const std::string& name) const;
+    LayerItem *child(const LayerType& type) const;
+
+    int childIndex(const std::string& name) const;
+    int childIndex(const LayerType& type) const;
+
     int childCount() const;
 
-    LayerItem *parentItem() { return m_parentItem; }
+    const std::vector<LayerItem*> & children() const { return m_childItems; }
 
-    bool hasRGBChilds() const;
-    bool hasRGBAChilds() const;
-    bool hasYCChilds() const;
-    bool hasYCAChilds() const;
-    bool hasYChild() const;
-    bool hasYAChilds() const;
-    bool hasAChild() const;
+    LayerItem *parentItem() { return m_pParentItem; }
 
-    QString getFullName() const;
+    bool hasChild(const std::string& name) const;
+    bool hasChildLeaf(const std::string& name) const;
+    bool hasChildLeaf(const LayerType& type) const;
 
-  protected:
-    LayerItem *getAddLeaf(const QString channelName);
+    bool hasRGBChildLeafs() const;
+    bool hasRGBAChildLeafs() const;
+    bool hasYCChildLeafs() const;
+    bool hasYCAChildLeafs() const;
+    bool hasYChildLeaf() const;
+    bool hasYAChildLeafs() const;
+    bool hasAChildLeaf() const;
+
+
+    std::string getFullName() const;
+    std::string getLeafName() const;
+    std::string getOriginalFullName() const;
+    int getPart() const;
+
+    const QImage& getPreview() const;
+
+//    void printHierarchy(std::string front) const;
+
+    LayerType getType() const { return m_type; }
 
   private:
-    QMap<QString, LayerItem *> m_childItems;
-    LayerItem *                m_parentItem;
+    LayerType constructType();
 
-    const Imf::Channel *m_channelPtr;
-    QString             m_rootName;
+    void createThumbnails(LayerItem* item);
+    void createThumbnail();
 
-    QString m_channelName;
+
+
+    std::vector<LayerItem*> m_childItems;
+    LayerItem *             m_pParentItem;
+
+    // Name of the root hierarchy (removes double '.')
+    std::string m_rootName;
+
+    // Name of the current leaf
+    std::string m_leafName;
+
+    // Full original channel name
+    std::string m_channelName;
+
+    LayerType m_type;
+
+    Imf::MultiPartInputFile& m_fileHandle;
+    const Imf::Channel *m_pChannel;
+    const int m_part;
+
+    int m_previewSize;
+
+    QImage m_preview;
+    uchar *m_previewBuffer;
 };

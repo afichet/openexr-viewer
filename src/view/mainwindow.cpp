@@ -32,6 +32,7 @@
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include <view/about.h>
 
 #include <cassert>
 
@@ -229,3 +230,10 @@ void MainWindow::onCurrentChanged(int index)
     m_statusBarMessage->setText(widget->getOpenedFilename());
 
 }
+
+void MainWindow::on_action_About_triggered()
+{
+    About about_window(this);
+    about_window.exec();
+}
+

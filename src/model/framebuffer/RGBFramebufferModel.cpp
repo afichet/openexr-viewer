@@ -32,7 +32,7 @@
 
 #include "RGBFramebufferModel.h"
 
-#include <cmath>
+#include <util/ColorTransform.h>
 
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
@@ -45,8 +45,9 @@
 
 #include <Imath/ImathBox.h>
 
-RGBFramebufferModel::RGBFramebufferModel(
-  const QString &parentLayerName, LayerType layerType, QObject *parent)
+RGBFramebufferModel::RGBFramebufferModel(const std::string &parentLayerName,
+        LayerType layerType,
+        QObject *parent)
   : ImageModel(parent)
   , m_parentLayer(parentLayerName)
   , m_layerType(layerType)
@@ -90,13 +91,11 @@ void RGBFramebufferModel::load(
                 chromaticities = c->value();
             }
 
-            // TODO viewport
-
             m_pixelBuffer = new float[4 * m_width * m_height];
 
             // Check if there is alpha channel
             if (hasAlpha) {
-                QString          aLayer = m_parentLayer + "A";
+                std::string          aLayer = m_parentLayer + "A";
                 Imf::FrameBuffer framebuffer;
 
                 Imf::Slice aSlice = Imf::Slice::Make(
@@ -106,7 +105,7 @@ void RGBFramebufferModel::load(
                   4 * sizeof(float),
                   4 * m_width * sizeof(float));
 
-                framebuffer.insert(aLayer.toStdString(), aSlice);
+                framebuffer.insert(aLayer, aSlice);
 
                 part.setFrameBuffer(framebuffer);
                 part.readPixels(datW.min.y, datW.max.y);
@@ -121,9 +120,9 @@ void RGBFramebufferModel::load(
 
             switch (m_layerType) {
                 case Layer_RGB: {
-                    QString rLayer = m_parentLayer + "R";
-                    QString gLayer = m_parentLayer + "G";
-                    QString bLayer = m_parentLayer + "B";
+                    std::string rLayer = m_parentLayer + "R";
+                    std::string gLayer = m_parentLayer + "G";
+                    std::string bLayer = m_parentLayer + "B";
 
                     Imf::FrameBuffer framebuffer;
 
@@ -148,9 +147,9 @@ void RGBFramebufferModel::load(
                       4 * sizeof(float),
                       4 * m_width * sizeof(float));
 
-                    framebuffer.insert(rLayer.toStdString().c_str(), rSlice);
-                    framebuffer.insert(gLayer.toStdString().c_str(), gSlice);
-                    framebuffer.insert(bLayer.toStdString().c_str(), bSlice);
+                    framebuffer.insert(rLayer, rSlice);
+                    framebuffer.insert(gLayer, gSlice);
+                    framebuffer.insert(bLayer, bSlice);
 
                     part.setFrameBuffer(framebuffer);
                     part.readPixels(datW.min.y, datW.max.y);
@@ -183,9 +182,9 @@ void RGBFramebufferModel::load(
                 } break;
 
                 case Layer_YC: {
-                    QString yLayer  = m_parentLayer + "Y";
-                    QString ryLayer = m_parentLayer + "RY";
-                    QString byLayer = m_parentLayer + "BY";
+                    std::string yLayer  = m_parentLayer + "Y";
+                    std::string ryLayer = m_parentLayer + "RY";
+                    std::string byLayer = m_parentLayer + "BY";
 
                     Imf::FrameBuffer framebuffer;
 
@@ -221,9 +220,9 @@ void RGBFramebufferModel::load(
                       2,
                       2);
 
-                    framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
-                    framebuffer.insert(ryLayer.toStdString().c_str(), rySlice);
-                    framebuffer.insert(byLayer.toStdString().c_str(), bySlice);
+                    framebuffer.insert(yLayer, ySlice);
+                    framebuffer.insert(ryLayer, rySlice);
+                    framebuffer.insert(byLayer, bySlice);
 
                     part.setFrameBuffer(framebuffer);
                     part.readPixels(datW.min.y, datW.max.y);
@@ -322,7 +321,7 @@ void RGBFramebufferModel::load(
                 break;
 
                 case Layer_Y: {
-                    QString yLayer = m_parentLayer + "Y";
+                    std::string yLayer = m_parentLayer;
 
                     Imf::FrameBuffer framebuffer;
 
@@ -333,19 +332,16 @@ void RGBFramebufferModel::load(
                       4 * sizeof(float),
                       4 * m_width * sizeof(float));
 
-                    framebuffer.insert(yLayer.toStdString().c_str(), ySlice);
+                    framebuffer.insert(yLayer, ySlice);
 
                     part.setFrameBuffer(framebuffer);
                     part.readPixels(datW.min.y, datW.max.y);
 
                     #pragma omp parallel for
-                    for (int y = 0; y < m_height; y++) {
-                        for (int x = 0; x < m_width; x++) {
-                            m_pixelBuffer[4 * (y * m_width + x) + 1]
-                              = m_pixelBuffer[4 * (y * m_width + x) + 0];
-                            m_pixelBuffer[4 * (y * m_width + x) + 2]
-                              = m_pixelBuffer[4 * (y * m_width + x) + 0];
-                        }
+                    for (int i = 0; i < m_height * m_width; i++) {
+                        m_pixelBuffer[4 * i + 1] = m_pixelBuffer[4 * i + 0];
+                        m_pixelBuffer[4 * i + 2] = m_pixelBuffer[4 * i + 0];
+                        m_pixelBuffer[4 * i + 3] = 255;
                     }
                 } break;
             }
@@ -365,17 +361,10 @@ void RGBFramebufferModel::load(
     m_imageLoadingWatcher->setFuture(imageLoading);
 }
 
-float RGBFramebufferModel::to_sRGB(float rgb_color)
-{
-    const double a = 0.055;
-    if (rgb_color < 0.0031308)
-        return 12.92 * rgb_color;
-    else
-        return (1.0 + a) * std::pow(rgb_color, 1.0 / 2.4) - a;
-}
-
 void RGBFramebufferModel::setExposure(double value)
 {
+    if (m_exposure == value) return;
+
     m_exposure = value;
     updateImage();
 }
@@ -402,11 +391,11 @@ void RGBFramebufferModel::updateImage()
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
-                const float r = to_sRGB(
+                const float r = ColorTransform::to_sRGB(
                   m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 0]);
-                const float g = to_sRGB(
+                const float g = ColorTransform::to_sRGB(
                   m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 1]);
-                const float b = to_sRGB(
+                const float b = ColorTransform::to_sRGB(
                   m_exposure_mul * m_pixelBuffer[4 * (y * m_width + x) + 2]);
 
                 const float a = m_pixelBuffer[4 * (y * m_width + x) + 3];

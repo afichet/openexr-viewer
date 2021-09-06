@@ -38,9 +38,13 @@
 
 #include <OpenEXR/ImfIDManifest.h>
 
-HeaderModel::HeaderModel(int n_parts, QObject *parent)
+HeaderModel::HeaderModel(
+        Imf::MultiPartInputFile &file,
+        int n_parts,
+        QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
+  , m_fileHandle(file)
 {
     m_headerItems.resize(n_parts);
     m_partRootLayer.resize(n_parts);
@@ -422,12 +426,12 @@ HeaderItem *HeaderModel::addItem(
         m_partRootLayer[part_number] = nullptr;
     }
 
-    m_partRootLayer[part_number] = new LayerItem;
+    m_partRootLayer[part_number] = new LayerItem(m_fileHandle);
 
     for (Imf::ChannelList::ConstIterator chIt = attr.value().begin();
          chIt != attr.value().end();
          chIt++) {
-        m_partRootLayer[part_number]->addLeaf(chIt.name(), &chIt.channel());
+        m_partRootLayer[part_number]->addLeaf(m_fileHandle, chIt.name(), &chIt.channel());
         ++channelCount;
     }
 
@@ -435,7 +439,7 @@ HeaderItem *HeaderModel::addItem(
 
     m_partRootLayer[part_number]->constructItemHierarchy(
       attrItem,
-      partName,
+      partName.toStdString(),
       part_number);
 
 

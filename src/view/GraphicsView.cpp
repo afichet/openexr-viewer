@@ -146,6 +146,8 @@ void GraphicsView::setZoomLevel(double zoom)
     if (_model == nullptr || !_model->isImageLoaded())
         return;   // || zoom == _zoomLevel) return;
 
+    if (_zoomLevel == zoom) return;
+
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
@@ -170,6 +172,7 @@ void GraphicsView::autoscale()
 {
     scene()->setSceneRect(_displayWindow);
     fitInView(_displayWindow, Qt::KeepAspectRatio);
+
     const double zoomLevel
       = std::min(viewportTransform().m11(), viewportTransform().m22());
 
@@ -185,7 +188,6 @@ void GraphicsView::autoscale()
 
 void GraphicsView::open(const QString &filename)
 {
-    std::cout << filename.toStdString() << std::endl;
     emit openFileOnDropEvent(filename);
 }
 
@@ -227,6 +229,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
         QGraphicsView::wheelEvent(event);
     } else {
         if (_model == nullptr || !_model->isImageLoaded()) return;
+
         const QPoint delta = event->angleDelta();
 
         if (delta.y() != 0) {
@@ -241,8 +244,6 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
-    QGraphicsView::resizeEvent(e);
-
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (_autoscale) {

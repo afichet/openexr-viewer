@@ -45,6 +45,13 @@ class HeaderItem
       int                      partID     = 0,
       QString                  itemName   = QString());
 
+//    explicit HeaderItem(
+//      HeaderItem *             parentItem = nullptr,
+//      const QVector<QVariant> &data       = QVector<QVariant>(),
+//      std::string              partName   = "",
+//      int                      partID     = 0,
+//      std::string              itemName   = "");
+
     ~HeaderItem();
 
     void appendData(QVariant sibbling);

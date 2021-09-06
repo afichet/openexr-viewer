@@ -32,56 +32,320 @@
 
 #include "LayerItem.h"
 
+#include <util/ColorTransform.h>
+
 #include <cassert>
 
 #include <QString>
+#include <QPainter>
 
-LayerItem::LayerItem(LayerItem *parent)
-  : m_parentItem(parent)
-  , m_channelPtr(nullptr)
-{}
+#include <ImfFrameBuffer.h>
+#include <ImfInputPart.h>
+#include <ImfHeader.h>
+
+LayerItem::LayerItem(
+        Imf::MultiPartInputFile &file,
+        LayerItem *pParent,
+        const std::string& leafName,
+        const std::string& originalChannelName,
+        const Imf::Channel *pChannel,
+        int part)
+    : m_pParentItem(pParent)
+    , m_rootName("")
+    , m_leafName(leafName)
+    , m_channelName(originalChannelName)
+    , m_fileHandle(file)
+    , m_pChannel(pChannel)
+    , m_part(part)
+    , m_previewSize(64)
+    , m_previewBuffer(new uchar[4 * m_previewSize * m_previewSize])
+{
+    if (pParent) {
+        m_rootName = pParent->getFullName();
+        pParent->m_childItems.push_back(this);
+    }
+
+    m_type = constructType();
+}
 
 LayerItem::~LayerItem()
 {
-    for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
-        delete it.value();
+    for (LayerItem* it: m_childItems) {
+        delete it;
+    }
+
+    delete[] m_previewBuffer;
+}
+
+LayerItem *LayerItem::addLeaf(
+        Imf::MultiPartInputFile &file,
+        const std::string& channelName,
+        const Imf::Channel* pChannel,
+        int part)
+{
+    QStringList channelHierachy = QString::fromStdString(channelName).split(".");
+
+    LayerItem *pLeafPtr = this;
+
+    for (auto &leafName : channelHierachy) {
+        LayerItem *pExistingLeaf = pLeafPtr->child(leafName.toStdString());
+
+        if (pExistingLeaf != nullptr) {
+            pLeafPtr = pExistingLeaf;
+        } else {
+            LayerItem *pNewLeaf  = new LayerItem(
+                        file,
+                        pLeafPtr,
+                        leafName.toStdString(),
+                        "",
+                        nullptr,
+                        part);
+
+            pLeafPtr = pNewLeaf;
+        }
+    }
+
+    // Sanity check
+    if (pLeafPtr->m_pChannel) {
+        std::cerr << "The leaf is already populated with a framebuffer!" << std::endl;
+        std::cerr << "Leaf dump:" << std::endl
+                  << "----------" << std::endl
+                  << "channel name: " << pLeafPtr->m_channelName << std::endl
+                  << "root name:    " << pLeafPtr->m_rootName << std::endl
+                  << "leaf name:    " << pLeafPtr->m_leafName << std::endl;
+
+        assert(0);
+    }
+
+    // Saves the original full channel name
+    pLeafPtr->m_channelName = channelName;
+    pLeafPtr->m_pChannel    = pChannel;
+
+    // Determine channel type based on the leaf name
+    pLeafPtr->m_type = pLeafPtr->constructType();
+
+    return pLeafPtr;
+}
+
+void LayerItem::createThumbnails()
+{
+    createThumbnails(this);
+}
+
+
+void LayerItem::groupLayers()
+{
+    if (hasRGBAChildLeafs()) {
+        // TODO: Get channel name... a bit hacky for now
+        LayerItem* item = child(LayerItem::R);
+        std::string layerName = item->m_channelName.substr(0, item->m_channelName.size() - 1);
+
+        LayerItem* rgbaRoot = new LayerItem(
+                    m_fileHandle,
+                    this,
+                    "RGBA",
+                    layerName,
+                    nullptr,
+                    m_part);
+
+        int rIdx = childIndex(LayerItem::R);
+        rgbaRoot->m_childItems.push_back(m_childItems[rIdx]);
+        m_childItems[rIdx]->m_pParentItem = rgbaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), rIdx));
+
+        int gIdx = childIndex(LayerItem::G);
+        rgbaRoot->m_childItems.push_back(m_childItems[gIdx]);
+        m_childItems[gIdx]->m_pParentItem = rgbaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), gIdx));
+
+        int bIdx = childIndex(LayerItem::B);
+        rgbaRoot->m_childItems.push_back(m_childItems[bIdx]);
+        m_childItems[bIdx]->m_pParentItem = rgbaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), bIdx));
+
+        int aIdx = childIndex(LayerItem::A);
+        rgbaRoot->m_childItems.push_back(m_childItems[aIdx]);
+        m_childItems[aIdx]->m_pParentItem = rgbaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), aIdx));
+
+        for (LayerItem* it: m_childItems) {
+            if (it->m_type != LayerType::RGBA) {
+                it->groupLayers();
+            }
+        }
+    } else if (hasRGBChildLeafs()) {
+        // TODO: Get channel name... a bit hacky for now
+        LayerItem* item = child(LayerItem::R);
+        std::string layerName = item->m_channelName.substr(0, item->m_channelName.size() - 1);
+
+        LayerItem* rgbRoot = new LayerItem(
+                    m_fileHandle,
+                    this,
+                    "RGB",
+                    layerName,
+                    nullptr,
+                    m_part);
+
+        int rIdx = childIndex(LayerItem::R);
+        rgbRoot->m_childItems.push_back(m_childItems[rIdx]);
+        m_childItems[rIdx]->m_pParentItem = rgbRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), rIdx));
+
+        int gIdx = childIndex(LayerItem::G);
+        rgbRoot->m_childItems.push_back(m_childItems[gIdx]);
+        m_childItems[gIdx]->m_pParentItem = rgbRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), gIdx));
+
+        int bIdx = childIndex(LayerItem::B);
+        rgbRoot->m_childItems.push_back(m_childItems[bIdx]);
+        m_childItems[bIdx]->m_pParentItem = rgbRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), bIdx));
+
+        for (LayerItem* it: m_childItems) {
+            if (it->m_type != LayerType::RGB) {
+                it->groupLayers();
+            }
+        }
+    } else if (hasYCAChildLeafs()) {
+        // TODO: Get channel name... a bit hacky for now
+        LayerItem* item = child(LayerItem::Y);
+        std::string layerName = item->m_channelName.substr(0, item->m_channelName.size() - 1);
+
+        LayerItem* ycaRoot = new LayerItem(
+                    m_fileHandle,
+                    this,
+                    "YCA",
+                    layerName,
+                    nullptr,
+                    m_part);
+
+        int yIdx = childIndex(LayerItem::Y);
+        ycaRoot->m_childItems.push_back(m_childItems[yIdx]);
+        m_childItems[yIdx]->m_pParentItem = ycaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), yIdx));
+
+        int ryIdx = childIndex(LayerItem::RY);
+        ycaRoot->m_childItems.push_back(m_childItems[ryIdx]);
+        m_childItems[ryIdx]->m_pParentItem = ycaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), ryIdx));
+
+        int byIdx = childIndex(LayerItem::BY);
+        ycaRoot->m_childItems.push_back(m_childItems[byIdx]);
+        m_childItems[byIdx]->m_pParentItem = ycaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), byIdx));
+
+        int aIdx = childIndex(LayerItem::A);
+        ycaRoot->m_childItems.push_back(m_childItems[aIdx]);
+        m_childItems[aIdx]->m_pParentItem = ycaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), aIdx));
+
+        for (LayerItem* it: m_childItems) {
+            if (it->m_type != LayerType::YCA) {
+                it->groupLayers();
+            }
+        }
+
+    } else if (hasYCChildLeafs()) {
+        // TODO: Get channel name... a bit hacky for now
+        LayerItem* item = child(LayerItem::Y);
+        std::string layerName = item->m_channelName.substr(0, item->m_channelName.size() - 1);
+
+        LayerItem* ycRoot = new LayerItem(
+                    m_fileHandle,
+                    this,
+                    "YC",
+                    layerName,
+                    nullptr,
+                    m_part);
+
+        int yIdx = childIndex(LayerItem::Y);
+        ycRoot->m_childItems.push_back(m_childItems[yIdx]);
+        m_childItems[yIdx]->m_pParentItem = ycRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), yIdx));
+
+        int ryIdx = childIndex(LayerItem::RY);
+        ycRoot->m_childItems.push_back(m_childItems[ryIdx]);
+        m_childItems[ryIdx]->m_pParentItem = ycRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), ryIdx));
+
+        int byIdx = childIndex(LayerItem::BY);
+        ycRoot->m_childItems.push_back(m_childItems[byIdx]);
+        m_childItems[byIdx]->m_pParentItem = ycRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), byIdx));
+
+        for (LayerItem* it: m_childItems) {
+            if (it->m_type != LayerType::YC) {
+                it->groupLayers();
+            }
+        }
+    } else if (hasYAChildLeafs()) {
+        // TODO: Get channel name... a bit hacky for now
+        LayerItem* item = child(LayerItem::Y);
+        std::string layerName = item->m_channelName.substr(0, item->m_channelName.size() - 1);
+
+        LayerItem* yaRoot = new LayerItem(
+                    m_fileHandle,
+                    this,
+                    "YA",
+                    layerName,
+                    nullptr,
+                    m_part);
+
+        int yIdx = childIndex(LayerItem::Y);
+        yaRoot->m_childItems.push_back(m_childItems[yIdx]);
+        m_childItems[yIdx]->m_pParentItem = yaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), yIdx));
+
+        int aIdx = childIndex(LayerItem::A);
+        yaRoot->m_childItems.push_back(m_childItems[aIdx]);
+        m_childItems[aIdx]->m_pParentItem = yaRoot;
+        m_childItems.erase(std::next(m_childItems.begin(), aIdx));
+
+        for (LayerItem* it: m_childItems) {
+            if (it->m_type != LayerType::YA) {
+                it->groupLayers();
+            }
+        }
+    } else {
+        // No grouping so far...
+        for (LayerItem* it: m_childItems) {
+            it->groupLayers();
+        }
     }
 }
 
-void LayerItem::addLeaf(
-  const QString channelName, const Imf::Channel *leafChannel)
-{
-    LayerItem *leafNode     = getAddLeaf(channelName);
-    leafNode->m_channelPtr  = leafChannel;
-    leafNode->m_channelName = channelName;
-}
 
 HeaderItem *LayerItem::constructItemHierarchy(
-  HeaderItem *parent, const QString &partName, int partID)
+        HeaderItem *parent,
+        const std::string &partName,
+        int partID)
 {
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
-        assert(m_channelPtr != nullptr);
+        assert(m_pChannel != nullptr);
         return new HeaderItem(
           parent,
-          {m_rootName, "", "framebuffer"},
-          partName,
+          {QString::fromStdString(m_leafName), "", "framebuffer"},
+          QString::fromStdString(partName),
           partID,
-          m_channelName);
+          QString::fromStdString(m_leafName));
     }
 
     HeaderItem *currRoot = nullptr;
 
     // Avoid empty root on top level
-    if (m_parentItem) {
+    if (m_pParentItem) {
         currRoot = new HeaderItem(
-          parent,
-          {m_rootName, (int)childCount(), "channellist"});
+                    parent,
+                    {QString::fromStdString(m_leafName), (int)childCount(), "channellist"},
+                    QString::fromStdString(partName),
+                    partID,
+                    QString::fromStdString(m_leafName));
     } else {
         currRoot = parent;
     }
 
-    if (m_channelPtr) {
+    if (m_pChannel) {
         // It's a leaf...
         // Both are valid but I prefer the nested representation
         // OpenEXRItem* leafNode = new OpenEXRItem(parent, {m_rootName, "",
@@ -89,77 +353,77 @@ HeaderItem *LayerItem::constructItemHierarchy(
         new HeaderItem(
           currRoot,
           {".", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_channelName);
+          QString::fromStdString(m_leafName));
     }
 
     QStringList ignoredKeys;
 
     // If we find RGB final leaf, we make a virtual group
-    if (hasRGBAChilds()) {
+    if (hasRGBAChildLeafs()) {
         HeaderItem *rgbaRoot = new HeaderItem(
           currRoot,
           {"RGBA", "", "RGB framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["R"]->m_channelName.chopped(1));
+          QString::fromStdString(m_rootName));
 
         new HeaderItem(
           rgbaRoot,
           {"R", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["R"]->m_channelName);
+          "R");
         new HeaderItem(
           rgbaRoot,
           {"G", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["G"]->m_channelName);
+          "G");
         new HeaderItem(
           rgbaRoot,
           {"B", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["B"]->m_channelName);
+          "B");
         new HeaderItem(
           rgbaRoot,
           {"A", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["A"]->m_channelName);
+          "A");
 
         ignoredKeys.append("R");
         ignoredKeys.append("G");
         ignoredKeys.append("B");
         ignoredKeys.append("A");
-    } else if (hasRGBChilds()) {
+    } else if (hasRGBChildLeafs()) {
         HeaderItem *rgbRoot = new HeaderItem(
           currRoot,
           {"RGB", "", "RGB framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["R"]->m_channelName.chopped(1));
+          QString::fromStdString(m_rootName));
 
         new HeaderItem(
           rgbRoot,
           {"R", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["R"]->m_channelName);
+          "R");
         new HeaderItem(
           rgbRoot,
           {"G", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["G"]->m_channelName);
+          "G");
         new HeaderItem(
           rgbRoot,
           {"B", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["B"]->m_channelName);
+          "B");
 
         ignoredKeys.append("R");
         ignoredKeys.append("G");
@@ -170,194 +434,606 @@ HeaderItem *LayerItem::constructItemHierarchy(
     // Not an else, can be both
     // Note if there is both + Alpha channel, that is quite odd, alpha is then
     // shared between to groups
-    if (hasYCAChilds()) {
+    if (hasYCAChildLeafs()) {
         HeaderItem *ycaRoot = new HeaderItem(
           currRoot,
           {"YCA", "", "YC framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName.chopped(1));
+          QString::fromStdString(m_rootName));
 
         new HeaderItem(
           ycaRoot,
           {"Y", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName);
+          "Y");
         new HeaderItem(
           ycaRoot,
           {"RY", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["RY"]->m_channelName);
+          "RY");
         new HeaderItem(
           ycaRoot,
           {"BY", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["BY"]->m_channelName);
+          "BY");
         new HeaderItem(
           ycaRoot,
           {"A", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["A"]->m_channelName);
+          "A");
 
         ignoredKeys.append("Y");
         ignoredKeys.append("RY");
         ignoredKeys.append("BY");
         ignoredKeys.append("A");
-    } else if (hasYCChilds()) {
+    } else if (hasYCChildLeafs()) {
         HeaderItem *ycRoot = new HeaderItem(
           currRoot,
           {"YC", "", "YC framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName.chopped(1));
+          QString::fromStdString(m_rootName));
 
         new HeaderItem(
           ycRoot,
           {"Y", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName);
+          "Y");
         new HeaderItem(
           ycRoot,
           {"RY", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["RY"]->m_channelName);
+          "RY");
         new HeaderItem(
           ycRoot,
           {"BY", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["BY"]->m_channelName);
+          "BY");
 
         ignoredKeys.append("Y");
         ignoredKeys.append("RY");
         ignoredKeys.append("BY");
-    } else if (hasYAChilds()) {
+    } else if (hasYAChildLeafs()) {
         HeaderItem *yaRoot = new HeaderItem(
           currRoot,
           {"YA", "", "Y framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName.chopped(1));
+          QString::fromStdString(m_rootName));
 
         new HeaderItem(
           yaRoot,
           {"Y", "", "Luminance framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName);
+          "Y");
         new HeaderItem(
           yaRoot,
           {"A", "", "framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["A"]->m_channelName);
+          "A");
 
         ignoredKeys.append("Y");
         ignoredKeys.append("A");
-    } else if (hasYChild()) {
+    } else if (hasYChildLeaf()) {
         new HeaderItem(
           currRoot,
           {"Y", "", "Luminance framebuffer"},
-          partName,
+          QString::fromStdString(partName),
           partID,
-          m_childItems["Y"]->m_channelName.chopped(1));
+          "Y");
 
         ignoredKeys.append("Y");
     }
 
-    for (auto it = m_childItems.begin(); it != m_childItems.end(); it++) {
-        if (!ignoredKeys.contains(it.key()) || it.value()->childCount() != 0)
-            it.value()->constructItemHierarchy(currRoot, partName, partID);
+    for (LayerItem* it: m_childItems) {
+        if (!ignoredKeys.contains(QString::fromStdString(it->m_leafName)) || it->childCount() != 0) {
+            it->constructItemHierarchy(currRoot, partName, partID);
+        }
     }
 
     return currRoot;
 }
 
+/* ----------------------------------------------------------------------------
+ * Child introspection and access functions
+ * ------------------------------------------------------------------------- */
+
 LayerItem *LayerItem::child(int index) const
 {
-    return m_childItems.values().at(index);
+    return m_childItems[index];
 }
+
+
+LayerItem *LayerItem::child(const std::string &name) const
+{
+    for (LayerItem* it: m_childItems) {
+        if (it->m_leafName == name) {
+            return it;
+        }
+    }
+
+    return nullptr;
+}
+
+
+LayerItem *LayerItem::child(const LayerType &type) const
+{
+    for (LayerItem* it: m_childItems) {
+        if (it->m_type == type) {
+            return it;
+        }
+    }
+
+    return nullptr;
+}
+
+
+int LayerItem::childIndex(const std::string &name) const
+{
+    for (size_t i = 0; i < m_childItems.size(); i++) {
+        if (m_childItems[i]->m_leafName == name) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+int LayerItem::childIndex(const LayerType &type) const
+{
+    for (size_t i = 0; i < m_childItems.size(); i++) {
+        if (m_childItems[i]->m_type == type) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 
 int LayerItem::childCount() const
 {
     return m_childItems.size();
 }
 
-bool LayerItem::hasRGBChilds() const
+
+bool LayerItem::hasChild(const std::string &name) const
 {
-    return m_childItems.contains("R") && m_childItems["R"]->m_channelPtr
-           && m_childItems.contains("G") && m_childItems["G"]->m_channelPtr
-           && m_childItems.contains("B") && m_childItems["B"]->m_channelPtr;
-}
-
-bool LayerItem::hasRGBAChilds() const
-{
-    return hasRGBChilds() && hasAChild();
-}
-
-bool LayerItem::hasYCChilds() const
-{
-    return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr
-           && m_childItems.contains("RY") && m_childItems["RY"]->m_channelPtr
-           && m_childItems.contains("BY") && m_childItems["BY"]->m_channelPtr;
-}
-
-bool LayerItem::hasYCAChilds() const
-{
-    return hasYCChilds() && hasAChild();
-}
-
-bool LayerItem::hasYChild() const
-{
-    return m_childItems.contains("Y") && m_childItems["Y"]->m_channelPtr;
-}
-
-bool LayerItem::hasYAChilds() const
-{
-    return hasYChild() && hasAChild();
-}
-
-bool LayerItem::hasAChild() const
-{
-    return m_childItems.contains("A") && m_childItems["A"]->m_channelPtr;
-}
-
-QString LayerItem::getFullName() const
-{
-    QString name = m_rootName;
-
-    LayerItem *parent = m_parentItem;
-
-    while (parent) {
-        name += parent->m_rootName + "." + name;
-        parent = parent->m_parentItem;
+    if (child(name) != nullptr) {
+        return true;
     }
 
-    return name;
+    return false;
 }
 
-LayerItem *LayerItem::getAddLeaf(const QString channelName)
+
+bool LayerItem::hasChildLeaf(const std::string &name) const
 {
-    QStringList channelHierachy = channelName.split(".");
+    LayerItem *childItem = child(name);
 
-    LayerItem *leafPtr = this;
+    if (childItem != nullptr) {
+        return childItem->m_pChannel != nullptr;
+    }
 
-    for (auto &s : channelHierachy) {
-        if (leafPtr->m_childItems.contains(s)) {
-            leafPtr = leafPtr->m_childItems[s];
+    return false;
+}
+
+
+bool LayerItem::hasChildLeaf(const LayerType &type) const
+{
+    LayerItem *childItem = child(type);
+
+    if (childItem != nullptr) {
+        return childItem->m_pChannel != nullptr;
+    }
+
+    return false;
+}
+
+
+bool LayerItem::hasRGBChildLeafs() const
+{
+    return hasChildLeaf(R)
+        && hasChildLeaf(G)
+        && hasChildLeaf(B);
+}
+
+
+bool LayerItem::hasRGBAChildLeafs() const
+{
+    return hasRGBChildLeafs()
+        && hasAChildLeaf();
+}
+
+
+bool LayerItem::hasYCChildLeafs() const
+{
+    return hasYChildLeaf()
+        && hasChildLeaf(RY)
+        && hasChildLeaf(BY);
+}
+
+bool LayerItem::hasYCAChildLeafs() const
+{
+    return hasYCChildLeafs()
+        && hasAChildLeaf();
+}
+
+bool LayerItem::hasYChildLeaf() const
+{
+    return hasChildLeaf(Y);
+}
+
+bool LayerItem::hasYAChildLeafs() const
+{
+    return hasYChildLeaf() && hasAChildLeaf();
+}
+
+bool LayerItem::hasAChildLeaf() const
+{
+    return hasChildLeaf(A);
+}
+
+/* ----------------------------------------------------------------------------
+ * Layer names
+ * ------------------------------------------------------------------------- */
+
+std::string LayerItem::getFullName() const
+{
+    if (m_pParentItem) {
+        return m_pParentItem->getFullName() + "." + m_leafName;
+    }
+
+    return m_leafName;
+}
+
+std::string LayerItem::getLeafName() const
+{
+    return m_leafName;
+}
+
+std::string LayerItem::getOriginalFullName() const
+{
+    return m_channelName;
+}
+
+int LayerItem::getPart() const
+{
+    return (m_part == -1) ? 0 : m_part; // TODO
+    LayerItem const* item = this;
+
+    // Go to the parent untill getting a part
+    while (item->m_type != PART) {
+        item = item->m_pParentItem;
+
+        // No part so it is single part file, we return 0
+        if (item == nullptr) return 0;
+    }
+
+    // Check if the item has a valid part ID
+    assert(item->m_part >= 0);
+
+    return item->m_part;
+}
+
+const QImage &LayerItem::getPreview() const
+{
+    return m_preview;
+}
+
+
+LayerItem::LayerType LayerItem::constructType() {
+    if (m_leafName == "R") {
+        return R;
+    } else if (m_leafName == "G") {
+        return G;
+    } else if (m_leafName == "B") {
+        return B;
+    } else if (m_leafName == "Y") {
+        return Y;
+    } else if (m_leafName == "A") {
+        return A;
+    } else if (m_leafName == "Y") {
+        return Y;
+    } else if (m_leafName == "RY") {
+        return RY;
+    } else if (m_leafName == "BY") {
+        return BY;
+    } else if (m_leafName == "RGB") {
+        return RGB;
+    } else if (m_leafName == "RGBA") {
+        return RGBA;
+    } else if (m_leafName == "YA") {
+        return YA;
+    } else if (m_leafName == "YC") {
+        return YC;
+    } else if (m_leafName == "YCA") {
+        return YCA;
+    }
+
+    // None of the above names but still holds a framebuffer
+    if (m_pChannel) {
+        return GENERAL;
+    }
+
+    if (m_pParentItem == nullptr) {
+        return PART;
+    }
+
+    // If part id is not set to -1, it is a part
+    // also, root item is either a part or a file made of multiple parts
+    if (m_part != -1 && (m_pParentItem == nullptr || m_pParentItem->m_pParentItem == nullptr)) {
+        return PART;
+    }
+
+    return GROUP;
+}
+
+
+void LayerItem::createThumbnails(LayerItem *item)
+{
+    item->createThumbnail();
+
+//#pragma omp parallel for
+    for (LayerItem* it: m_childItems) {
+        it->createThumbnails(it);
+    }
+}
+
+
+void LayerItem::createThumbnail()
+{
+    memset(m_previewBuffer, 0, 4 * m_previewSize * m_previewSize * sizeof(uchar));
+
+    int colorOffset = 0;
+    switch (m_type) {
+    case R: colorOffset = 0; break;
+    case G: colorOffset = 1; break;
+    case B: colorOffset = 2; break;
+    default: break;
+    }
+
+    switch (m_type) {
+    case R:
+    case G:
+    case B:
+    {
+        Imf::InputPart part(m_fileHandle, getPart());
+
+        const Imath::Box2i datW  = part.header().dataWindow();
+        const Imath::Box2i dispW = part.header().displayWindow();
+
+        const int width        = datW.max.x - datW.min.x + 1;
+        const int height       = datW.max.y - datW.min.y + 1;
+        const int dispW_width  = dispW.max.x - dispW.min.x + 1;
+        const int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+        const QRect dataWindow       = QRect(datW.min.x, datW.min.y, width, height);
+        const QRect displayWindow    = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
+        const float pixelAspectRatio = part.header().pixelAspectRatio();
+
+        float* pixelBuffer = new float[width * height];
+
+        const Imf::Slice graySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    pixelBuffer,
+                    datW,
+                    sizeof(float),
+                    width * sizeof(float));
+
+        Imf::FrameBuffer framebuffer;
+
+        framebuffer.insert(m_channelName, graySlice);
+
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(datW.min.y, datW.max.y);
+
+        const float aspect = (float)width / (float)height;
+
+        // m_previewSize sets the max size
+        int previewHeight = m_previewSize;
+        int previewWidth  = m_previewSize;
+
+        printf("Aspect: %f\n", aspect);
+
+        if (aspect > 1.f) {
+            previewHeight /= aspect;
+            printf("Horizontal, height: %d\n", previewHeight);
+
         } else {
-            LayerItem *newPtr  = new LayerItem(leafPtr);
-            newPtr->m_rootName = s;
-            leafPtr->m_childItems.insert(s, newPtr);
-            leafPtr = newPtr;
+            previewWidth *= aspect;
+            printf("Vertical\n");
         }
-    }
 
-    return leafPtr;
+        const int previewHeightOffset = (m_previewSize - previewHeight) / 2;
+
+        for (int yOffset = previewHeightOffset; yOffset < previewHeight + previewHeightOffset; yOffset++) {
+            const int y = yOffset - previewHeightOffset;
+            const int y_orig = std::round((float)y / (float)(previewHeight - 1) * (float)(height - 1));
+
+            if (y_orig >= 0 && y_orig < height) {
+                for (int x = 0; x < previewWidth; x++) {
+                    const int x_orig = std::round((float)x / (float)(previewWidth - 1) * (float)(width - 1));
+
+                    if (x_orig >= 0 && x_orig < width) {
+                        m_previewBuffer[4 * (yOffset * m_previewSize + x) + colorOffset] =
+                                ColorTransform::to_sRGB_255(pixelBuffer[y_orig * width + x_orig]);
+                        m_previewBuffer[4 * (yOffset * m_previewSize + x) + 3] = 255;
+                    }
+                }
+            }
+        }
+
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        delete[] pixelBuffer;
+    }
+        break;
+
+    case Y:
+    {
+        Imf::InputPart part(m_fileHandle, getPart());
+
+        const Imath::Box2i datW  = part.header().dataWindow();
+        const Imath::Box2i dispW = part.header().displayWindow();
+
+        const int width        = datW.max.x - datW.min.x + 1;
+        const int height       = datW.max.y - datW.min.y + 1;
+        const int dispW_width  = dispW.max.x - dispW.min.x + 1;
+        const int dispW_height = dispW.max.y - dispW.min.y + 1;
+
+        const QRect dataWindow       = QRect(datW.min.x, datW.min.y, width, height);
+        const QRect displayWindow    = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
+        const float pixelAspectRatio = part.header().pixelAspectRatio();
+
+        float* pixelBuffer = new float[width * height];
+
+        const Imf::Slice graySlice = Imf::Slice::Make(
+                    Imf::PixelType::FLOAT,
+                    pixelBuffer,
+                    datW,
+                    sizeof(float),
+                    width * sizeof(float));
+
+        Imf::FrameBuffer framebuffer;
+
+        framebuffer.insert(m_channelName, graySlice);
+
+        part.setFrameBuffer(framebuffer);
+        part.readPixels(datW.min.y, datW.max.y);
+
+        const float aspect = (float)width / (float)height;
+
+        // m_previewSize sets the max size
+        int previewHeight = m_previewSize;
+        int previewWidth  = m_previewSize;
+
+        printf("Aspect: %f\n", aspect);
+
+        if (aspect > 1.f) {
+            previewHeight /= aspect;
+            printf("Horizontal, height: %d\n", previewHeight);
+
+        } else {
+            previewWidth *= aspect;
+            printf("Vertical\n");
+        }
+
+        const int previewHeightOffset = (m_previewSize - previewHeight) / 2;
+
+        for (int yOffset = previewHeightOffset; yOffset < previewHeight + previewHeightOffset; yOffset++) {
+            const int y = yOffset - previewHeightOffset;
+            const int y_orig = std::round((float)y / (float)(previewHeight - 1) * (float)(height - 1));
+
+            if (y_orig >= 0 && y_orig < height) {
+                for (int x = 0; x < previewWidth; x++) {
+                    const int x_orig = std::round((float)x / (float)(previewWidth - 1) * (float)(width - 1));
+                    const uchar pixelVal = ColorTransform::to_sRGB_255(pixelBuffer[y_orig * width + x_orig]);
+
+                    if (x_orig >= 0 && x_orig < width) {
+                        for (int c = 0; c < 3; c++) {
+                            m_previewBuffer[4 * (yOffset * m_previewSize + x) + c] = pixelVal;
+                        }
+
+                        m_previewBuffer[4 * (yOffset * m_previewSize + x) + 3] = 255;
+                    }
+                }
+            }
+        }
+
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        delete[] pixelBuffer;
+    }
+        break;
+    case A:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "A");
+     }
+        break;
+    case RY:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "RY");
+    }
+        break;
+    case BY:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "BY");
+    }
+        break;
+    case GENERAL:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "Fb");
+    }
+        break;
+    case GROUP:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "Gr");
+    }
+        break;
+    case PART:
+    {
+        m_preview = QImage(m_previewBuffer, m_previewSize, m_previewSize, QImage::Format_RGBA8888);
+
+        QPainter painter(&m_preview);
+        QFont font = painter.font();
+
+        font.setPixelSize(48);
+        painter.setFont(font);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(QRect(0, 0, m_previewSize, m_previewSize), Qt::AlignCenter, "P");
+    }
+        break;
+    }
 }

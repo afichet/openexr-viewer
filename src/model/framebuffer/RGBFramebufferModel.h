@@ -46,7 +46,7 @@ class RGBFramebufferModel: public ImageModel
     };
 
     RGBFramebufferModel(
-      const QString &parentLayerName,
+      const std::string &parentLayerName,
       LayerType      layerType = Layer_RGB,
       QObject *      parent    = nullptr);
 
@@ -54,8 +54,6 @@ class RGBFramebufferModel: public ImageModel
 
     virtual void
     load(Imf::MultiPartInputFile &file, int partId, bool hasAlpha = false);
-
-    static float to_sRGB(float rgb_color);
 
   public slots:
     void setExposure(double value);
@@ -65,7 +63,7 @@ class RGBFramebufferModel: public ImageModel
 
   private:
     int       m_partID;
-    QString   m_parentLayer;
+    std::string  m_parentLayer;
     LayerType m_layerType;
     double    m_exposure;
 };

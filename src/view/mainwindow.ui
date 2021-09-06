@@ -40,8 +40,15 @@
     <addaction name="action_Cascade"/>
     <addaction name="action_Tiled"/>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_Open">
@@ -87,6 +94,11 @@
    </property>
    <property name="shortcut">
     <string>F5, Ctrl+R</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About...</string>
    </property>
   </action>
  </widget>

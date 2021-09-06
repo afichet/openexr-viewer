@@ -53,6 +53,7 @@ class OpenEXRImage: public QObject
     ~OpenEXRImage();
 
     HeaderModel *getHeaderModel() const { return m_headerModel; }
+    LayerModel *getLayerModel() const { return m_layerModel; }
 
     Imf::MultiPartInputFile &getEXR() { return m_exrIn; }
 

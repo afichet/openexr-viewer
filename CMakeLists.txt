@@ -65,6 +65,10 @@ set(PROJECT_SOURCES
     src/view/mainwindow.h
     src/view/mainwindow.ui
 
+    src/view/about.cpp
+    src/view/about.h
+    src/view/about.ui
+
     src/view/ImageFileWidget.cpp
     src/view/ImageFileWidget.h
 
@@ -125,9 +129,12 @@ set(PROJECT_SOURCES
     src/util/YColormap.h
     src/util/ColormapModule.h
     src/util/ColormapModule.cpp
+    src/util/ColorTransform.h
+    src/util/ColorTransform.cpp
 
     openexr-viewer.rc
     assets/themes/dark_flat.qrc
+    assets/icons/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

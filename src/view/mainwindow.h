@@ -71,7 +71,10 @@ class MainWindow: public QMainWindow
     void closeEvent(QCloseEvent *event) override;
     //    void showEvent(QShowEvent* event) override;
 
-  private:
+private slots:
+    void on_action_About_triggered();
+
+private:
     void dropEvent(QDropEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
 

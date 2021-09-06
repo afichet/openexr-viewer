@@ -50,9 +50,9 @@ public:
 
     QString getOpenedFolder() const { return m_openedFolder; }
     QString getOpenedFilename() const { return m_openedFilename; }
-    QByteArray getSplitterState() const { return m_splitter->saveState(); }
+    QByteArray getSplitterState() const { return m_splitterImageView->saveState(); }
 
-    void setSplitterState(const QByteArray& state) { m_splitter->restoreState(state); }
+    void setSplitterState(const QByteArray& state) { m_splitterImageView->restoreState(state); }
 
 public slots:
     void open(const QString &filename);
@@ -62,18 +62,24 @@ public slots:
     void setTiled();
 
 protected:
-    QString getTitle(int partId, const QString &layer) const;
-    void openItem(HeaderItem *item);
+    static QString getTitle(const LayerItem* item);
+    QString getTitle(int partId, const std::string &layer) const;
+    void openAttribute(HeaderItem *item);
+
+    void openLayer(const LayerItem *item);
 
 
 private slots:
-    void onDoubleClicked(const QModelIndex &index);
+    void onAttributeDoubleClicked(const QModelIndex &index);
+    void onLayerDoubleClicked(const QModelIndex& index);
 
     void onLoadFailed(const QString &msg);
 
 private:
-    QSplitter *m_splitter;
-    QTreeView *m_treeView;
+    QSplitter *m_splitterImageView;
+    QSplitter *m_splitterProperties;
+    QTreeView *m_attributesTreeView;
+    QTreeView *m_layersTreeView;
     QMdiArea  *m_mdiArea;
 
     OpenEXRImage *m_img;
