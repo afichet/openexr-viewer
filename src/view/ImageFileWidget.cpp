@@ -98,6 +98,7 @@ ImageFileWidget::~ImageFileWidget()
 
 void ImageFileWidget::open(const QString &filename)
 {
+    m_openedFilename = filename;
     m_openedFolder = QFileInfo(filename).absolutePath();
 
     // Attempt opening the image
