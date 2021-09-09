@@ -108,8 +108,8 @@ set(PROJECT_SOURCES
     src/model/attribute/LayerModel.h
 
     # Framebuffers (image content i.e. layer data)
-    src/model/framebuffer/ImageModel.cpp
-    src/model/framebuffer/ImageModel.h
+    src/model/framebuffer/FramebufferModel.cpp
+    src/model/framebuffer/FramebufferModel.h
     src/model/framebuffer/YFramebufferModel.cpp
     src/model/framebuffer/YFramebufferModel.h
     src/model/framebuffer/RGBFramebufferModel.cpp

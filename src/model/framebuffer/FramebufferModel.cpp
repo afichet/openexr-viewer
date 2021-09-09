@@ -30,14 +30,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ImageModel.h"
+#include "FramebufferModel.h"
 
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <fstream>
 
-ImageModel::ImageModel(QObject *parent)
+FramebufferModel::FramebufferModel(QObject *parent)
   : QObject(parent)
   , m_pixelBuffer(nullptr)
   , m_width(0)
@@ -49,17 +49,17 @@ ImageModel::ImageModel(QObject *parent)
   , m_pixelAspectRatio(1.f)
 {}
 
-QRect ImageModel::getDisplayWindow() const
+QRect FramebufferModel::getDisplayWindow() const
 {
     return m_displayWindow;
 }
 
-QRect ImageModel::getDataWindow() const
+QRect FramebufferModel::getDataWindow() const
 {
     return m_dataWindow;
 }
 
-ImageModel::~ImageModel()
+FramebufferModel::~FramebufferModel()
 {
     delete[] m_pixelBuffer;
 }

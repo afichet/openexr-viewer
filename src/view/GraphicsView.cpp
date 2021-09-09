@@ -70,7 +70,7 @@ GraphicsView::~GraphicsView()
     //    delete _model;
 }
 
-void GraphicsView::setModel(const ImageModel *model)
+void GraphicsView::setModel(const FramebufferModel *model)
 {
     _model = model;
 

@@ -29,6 +29,7 @@
     </property>
     <addaction name="action_Open"/>
     <addaction name="action_Refresh"/>
+    <addaction name="action_Close"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -89,16 +90,27 @@
    </property>
   </action>
   <action name="action_Refresh">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Refresh</string>
    </property>
    <property name="shortcut">
-    <string>F5, Ctrl+R</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="action_About">
    <property name="text">
     <string>&amp;About...</string>
+   </property>
+  </action>
+  <action name="action_Close">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Close</string>
    </property>
   </action>
  </widget>

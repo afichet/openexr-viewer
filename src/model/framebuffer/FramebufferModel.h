@@ -39,13 +39,13 @@
 #include <QVector>
 #include <array>
 
-class ImageModel: public QObject
+class FramebufferModel: public QObject
 {
     Q_OBJECT
 
   public:
-    ImageModel(QObject *parent = nullptr);
-    virtual ~ImageModel();
+    FramebufferModel(QObject *parent = nullptr);
+    virtual ~FramebufferModel();
 
     const QImage &getLoadedImage() const { return m_image; }
 

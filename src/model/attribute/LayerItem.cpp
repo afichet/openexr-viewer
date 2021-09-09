@@ -39,6 +39,7 @@
 #include <QString>
 #include <QPainter>
 
+#include <ImfMultiPartInputFile.h>
 #include <ImfFrameBuffer.h>
 #include <ImfInputPart.h>
 #include <ImfHeader.h>
@@ -51,12 +52,12 @@ LayerItem::LayerItem(
         const Imf::Channel *pChannel,
         int part)
     : m_pParentItem(pParent)
+    , m_part(part)
     , m_rootName("")
     , m_leafName(leafName)
     , m_channelName(originalChannelName)
     , m_fileHandle(file)
     , m_pChannel(pChannel)
-    , m_part(part)
     , m_previewSize(64)
     , m_previewBuffer(new uchar[4 * m_previewSize * m_previewSize])
 {
@@ -726,6 +727,29 @@ int LayerItem::getPart() const
 
     return item->m_part;
 }
+
+
+bool LayerItem::hasPartName() const
+{
+    // Single part file
+    if (m_part == -1) {
+        return m_fileHandle.header(0).hasName();
+    }
+
+    return m_fileHandle.header(m_part).hasName();
+}
+
+
+std::string LayerItem::getPartName() const
+{
+    // Single part file
+    if (m_part == -1) {
+        return m_fileHandle.header(0).name();
+    }
+
+    return m_fileHandle.header(m_part).name();
+}
+
 
 const QImage &LayerItem::getPreview() const
 {

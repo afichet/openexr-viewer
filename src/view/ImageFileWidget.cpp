@@ -102,7 +102,6 @@ void ImageFileWidget::open(const QString &filename)
     m_openedFolder = QFileInfo(filename).absolutePath();
 
     // Attempt opening the image
-
     OpenEXRImage *imageLoaded = nullptr;
 
     try {
@@ -184,6 +183,14 @@ void ImageFileWidget::open(const QString &filename)
     }
 }
 
+void ImageFileWidget::refresh()
+{
+    // TODO:
+    // Better refresh handling: keep all window open, close those with no valid
+    // layer...
+    open(m_openedFilename);
+}
+
 
 void ImageFileWidget::setTabbed()
 {
@@ -245,6 +252,7 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
 
     case LayerItem::GROUP:
     case LayerItem::PART:
+        layerName = "";
         break;
 
     // This shall never happen
@@ -256,13 +264,22 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
 
     // check if there is a part name
 
-}
+    QString partName;
 
+    if (item->getPart() >= 0) {
+        partName += tr("Part:") + " " + QString::number(item->getPart());
 
-QString ImageFileWidget::getTitle(int partId, const std::string &layer) const
-{
-    return QString("Part: ") + QString::number(partId) + " "
-           + QString("Layer: ") + QString::fromStdString(layer);
+        if (item->hasPartName()) {
+            partName += " (" + QString::fromStdString(item->getPartName()) + ")";
+        }
+    } else {
+        // Single part file
+        if (item->hasPartName()) {
+            partName += QString::fromStdString(item->getPartName());
+        }
+    }
+
+    return partName + " " + layerName;
 }
 
 
@@ -273,53 +290,7 @@ void ImageFileWidget::openAttribute(HeaderItem *item)
 
 void ImageFileWidget::openLayer(const LayerItem *item)
 {
-    QString title;
-
-    switch (item->getType()) {
-    // Color layer groups
-    case LayerItem::RGB:
-        title = getTitle(item->getPart(), item->getOriginalFullName() + "RGB");
-        break;
-
-    case LayerItem::RGBA:
-        title = getTitle(item->getPart(), item->getOriginalFullName() + "RGBA");
-        break;
-
-    case LayerItem::YC:
-        title = getTitle(item->getPart(), item->getOriginalFullName() + "YC");
-        break;
-
-    case LayerItem::YCA:
-        title = getTitle(item->getPart(), item->getOriginalFullName() + "YCA");
-        break;
-
-    case LayerItem::YA:
-        title = getTitle(item->getPart(), item->getOriginalFullName() + "YA");
-        break;
-
-    // Individual layers
-    case LayerItem::R:
-    case LayerItem::G:
-    case LayerItem::B:
-    case LayerItem::A:
-    case LayerItem::Y:
-    case LayerItem::RY:
-    case LayerItem::BY:
-    case LayerItem::GENERAL:
-        title = getTitle(item->getPart(), item->getOriginalFullName());
-        break;
-
-    case LayerItem::GROUP:
-    case LayerItem::PART:
-        // TODO: Later, show contact sheet
-        return;
-        break;
-
-    // This shall never happen
-    case LayerItem::N_LAYERTYPES:
-        assert(0);
-        break;
-    }
+    QString title = getTitle(item);
 
     // Check if the window already exists
     for (auto &w : m_mdiArea->subWindowList()) {
@@ -397,6 +368,9 @@ void ImageFileWidget::openLayer(const LayerItem *item)
         subWindow = m_mdiArea->addSubWindow(graphicView);
         break;
 
+    case LayerItem::R:
+    case LayerItem::G:
+    case LayerItem::B:
     case LayerItem::Y:
         graphicView = new RGBFramebufferWidget(m_mdiArea);
         imageModel  = new RGBFramebufferModel(
@@ -425,7 +399,11 @@ void ImageFileWidget::openLayer(const LayerItem *item)
         subWindow = m_mdiArea->addSubWindow(graphicView);
         break;
 
-    default:
+
+    case LayerItem::A:
+    case LayerItem::RY:
+    case LayerItem::BY:
+    case LayerItem::GENERAL:
         graphicViewBW = new YFramebufferWidget(m_mdiArea);
         imageModelBW = new YFramebufferModel(
                     item->getOriginalFullName(),

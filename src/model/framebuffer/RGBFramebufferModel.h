@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include "ImageModel.h"
+#include "FramebufferModel.h"
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
-class RGBFramebufferModel: public ImageModel
+class RGBFramebufferModel: public FramebufferModel
 {
   public:
     enum LayerType

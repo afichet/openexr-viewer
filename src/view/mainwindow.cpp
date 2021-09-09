@@ -224,15 +224,22 @@ void MainWindow::on_action_Tiled_triggered()
 
 void MainWindow::on_action_Refresh_triggered()
 {
-//    open(m_img->getFilename());
-
-    // TODO: Shall refresh and reopen all windows
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    widget->refresh();
 }
 
 
 void MainWindow::onCurrentChanged(int index)
 {
-    if (index == -1) return;
+    if (index == -1) {
+        // deactivate close and refresh functions
+        ui->action_Refresh->setEnabled(false);
+        ui->action_Close->setEnabled(false);
+        return;
+    }
+
+    ui->action_Refresh->setEnabled(true);
+    ui->action_Close->setEnabled(true);
 
     ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
     m_currentOpenedFolder = widget->getOpenedFolder();
@@ -245,5 +252,11 @@ void MainWindow::on_action_About_triggered()
 {
     About about_window(this);
     about_window.exec();
+}
+
+
+void MainWindow::on_action_Close_triggered()
+{
+    onTabCloseRequested(m_openFileTabs->currentIndex());
 }
 

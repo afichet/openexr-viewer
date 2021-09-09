@@ -32,12 +32,12 @@
 
 #pragma once
 
-#include "ImageModel.h"
+#include "FramebufferModel.h"
 
 #include <util/ColormapModule.h>
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
-class YFramebufferModel: public ImageModel
+class YFramebufferModel: public FramebufferModel
 {
   public:
     YFramebufferModel(const std::string &layerName, QObject *parent = nullptr);

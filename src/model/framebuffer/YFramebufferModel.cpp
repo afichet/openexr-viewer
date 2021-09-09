@@ -47,7 +47,7 @@
 YFramebufferModel::YFramebufferModel(
         const std::string &layerName,
         QObject *parent)
-  : ImageModel(parent)
+  : FramebufferModel(parent)
   , m_layer(layerName)
   , m_min(0.f)
   , m_max(1.f)

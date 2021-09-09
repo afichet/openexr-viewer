@@ -56,6 +56,7 @@ public:
 
 public slots:
     void open(const QString &filename);
+    void refresh();
 
     void setTabbed();
     void setCascade();

@@ -39,10 +39,7 @@
 
 #include <model/attribute/HeaderModel.h>
 #include <model/attribute/LayerModel.h>
-
-#include <model/framebuffer/ImageModel.h>
-#include <model/framebuffer/YFramebufferModel.h>
-#include <model/framebuffer/RGBFramebufferModel.h>
+#include <model/framebuffer/FramebufferModel.h>
 
 class OpenEXRImage: public QObject
 {

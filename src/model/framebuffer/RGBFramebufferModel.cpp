@@ -48,7 +48,7 @@
 RGBFramebufferModel::RGBFramebufferModel(const std::string &parentLayerName,
         LayerType layerType,
         QObject *parent)
-  : ImageModel(parent)
+  : FramebufferModel(parent)
   , m_parentLayer(parentLayerName)
   , m_layerType(layerType)
   , m_exposure(0.)

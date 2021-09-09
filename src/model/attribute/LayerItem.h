@@ -116,6 +116,9 @@ class LayerItem
     std::string getOriginalFullName() const;
     int getPart() const;
 
+    bool hasPartName() const;
+    std::string getPartName() const;
+
     const QImage& getPreview() const;
 
 //    void printHierarchy(std::string front) const;
@@ -128,16 +131,17 @@ class LayerItem
     void createThumbnails(LayerItem* item);
     void createThumbnail();
 
-
-
     std::vector<LayerItem*> m_childItems;
     LayerItem *             m_pParentItem;
+
+    // Id of the part
+    const int m_part;
 
     // Name of the root hierarchy (removes double '.')
     std::string m_rootName;
 
     // Name of the current leaf
-    std::string m_leafName;
+    const std::string m_leafName;
 
     // Full original channel name
     std::string m_channelName;
@@ -146,7 +150,6 @@ class LayerItem
 
     Imf::MultiPartInputFile& m_fileHandle;
     const Imf::Channel *m_pChannel;
-    const int m_part;
 
     int m_previewSize;
 

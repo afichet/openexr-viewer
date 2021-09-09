@@ -34,7 +34,7 @@
 
 #include <QGraphicsView>
 
-#include <model/framebuffer/ImageModel.h>
+#include <model/framebuffer/FramebufferModel.h>
 
 #include <iostream>
 
@@ -46,7 +46,7 @@ class GraphicsView: public QGraphicsView
     virtual ~GraphicsView();
 
   public slots:
-    void setModel(const ImageModel *model);
+    void setModel(const FramebufferModel *model);
 
     void onImageLoaded();
     void onImageChanged();
@@ -83,7 +83,7 @@ class GraphicsView: public QGraphicsView
     virtual void scrollContentsBy(int dx, int dy) override;
 
   private:
-    const ImageModel *   _model;
+    const FramebufferModel *   _model;
     QGraphicsPixmapItem *_imageItem;
     //    QGraphicsRectItem *_datawindowItem;
     //    QGraphicsRectItem *_displaywindowItem;
