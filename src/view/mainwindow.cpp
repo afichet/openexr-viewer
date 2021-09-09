@@ -55,16 +55,21 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setAcceptDrops(true);
 
+    m_openFileTabs->setMovable(true);
+    m_openFileTabs->setTabsClosable(true);
+
+    // clang-format off
+    connect(m_openFileTabs, SIGNAL(currentChanged(int)),
+            this,           SLOT(onCurrentChanged(int)));
+    connect(m_openFileTabs, SIGNAL(tabCloseRequested(int)),
+            this,           SLOT(onTabCloseRequested(int)));
+    // clang-format on
+
     setCentralWidget(m_openFileTabs);
 
     statusBar()->addPermanentWidget(m_statusBarMessage);
 
     readSettings();
-
-    // clang-format off
-    connect(m_openFileTabs, SIGNAL(currentChanged(int)),
-            this,           SLOT(onCurrentChanged(int)));
-    // clang-format on
 }
 
 
@@ -181,6 +186,12 @@ void MainWindow::readSettings()
 }
 
 
+void MainWindow::onTabCloseRequested(int idx)
+{
+    m_openFileTabs->removeTab(idx);
+}
+
+
 void MainWindow::on_action_Tabbed_triggered()
 {
     ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
@@ -228,7 +239,6 @@ void MainWindow::onCurrentChanged(int index)
     m_splitterState = widget->getSplitterState();
 
     m_statusBarMessage->setText(widget->getOpenedFilename());
-
 }
 
 void MainWindow::on_action_About_triggered()

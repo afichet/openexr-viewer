@@ -71,19 +71,20 @@ class MainWindow: public QMainWindow
     void closeEvent(QCloseEvent *event) override;
     //    void showEvent(QShowEvent* event) override;
 
-private slots:
-    void on_action_About_triggered();
 
-private:
+
+  private:
     void dropEvent(QDropEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
 
     void writeSettings();
     void readSettings();
 
-
-
   private slots:
+    void onTabCloseRequested(int idx);
+
+    void on_action_About_triggered();
+
     void on_action_Tabbed_triggered();
 
     void on_action_Cascade_triggered();
@@ -100,8 +101,6 @@ private:
     QTabWidget *m_openFileTabs;
 
     QLabel *m_statusBarMessage;
-
-    QVector<ImageFileWidget*> m_imageFileWidgets;
 
     QString m_currentOpenedFolder;
 
