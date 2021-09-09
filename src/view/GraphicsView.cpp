@@ -146,11 +146,13 @@ void GraphicsView::setZoomLevel(double zoom)
     if (_model == nullptr || !_model->isImageLoaded())
         return;   // || zoom == _zoomLevel) return;
 
-    if (_zoomLevel == zoom) return;
+//    if (_zoomLevel == zoom) return;
 
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
+
+    // We want autoscale when loading a new image
     _autoscale = false;
 
     emit zoomLevelChanged(zoom);
@@ -159,12 +161,14 @@ void GraphicsView::setZoomLevel(double zoom)
 void GraphicsView::zoomIn()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+
     setZoomLevel(_zoomLevel * 1.1);
 }
 
 void GraphicsView::zoomOut()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+
     setZoomLevel(_zoomLevel / 1.1);
 }
 
@@ -173,14 +177,14 @@ void GraphicsView::autoscale()
     scene()->setSceneRect(_displayWindow);
     fitInView(_displayWindow, Qt::KeepAspectRatio);
 
-    const double zoomLevel
-      = std::min(viewportTransform().m11(), viewportTransform().m22());
+    _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    _zoomLevel = std::min(_zoomLevel, 1.);
+    _zoomLevel = std::max(0.01, _zoomLevel);
 
-    if (zoomLevel > 1.) {
-        setZoomLevel(1.);
-    } else {
-        setZoomLevel(zoomLevel);
-    }
+    resetTransform();
+    scale(_zoomLevel, _zoomLevel);
+
+    emit zoomLevelChanged(_zoomLevel);
 
     // We want autoscale when loading a new image
     _autoscale = true;
@@ -248,6 +252,10 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
 
     if (_autoscale) {
         autoscale();
+    } else {
+        // Recenter the image
+        resetTransform();
+        scale(_zoomLevel, _zoomLevel);
     }
 }
 
