@@ -206,6 +206,14 @@ if (WIN32)
 endif (WIN32)
 
 
+# Warnings
+if(MSVC)
+   target_compile_options(openexr-viewer PUBLIC /W4)
+else()
+   target_compile_options(openexr-viewer PUBLIC -Wall -Wextra -Wpedantic)
+endif()
+
+
 # ----------------------------------------------------------------------------
 # Install Rules
 # ----------------------------------------------------------------------------

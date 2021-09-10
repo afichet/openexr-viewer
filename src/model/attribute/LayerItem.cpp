@@ -635,6 +635,8 @@ void LayerItem::createThumbnails(LayerItem *item)
 
 void LayerItem::createThumbnail()
 {
+    // TODO: this is unfinished and has poor performances
+    /*
     memset(
       m_previewBuffer,
       0,
@@ -944,4 +946,5 @@ void LayerItem::createThumbnail()
               "P");
         } break;
     }
+    */
 }

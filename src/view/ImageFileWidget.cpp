@@ -331,7 +331,12 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
 }
 
 
-void ImageFileWidget::openAttribute(HeaderItem *item) {}
+void ImageFileWidget::openAttribute(const HeaderItem *item)
+{
+    if (item->getLayerItem() != nullptr) {
+        openLayer(item->getLayerItem());
+    }
+}
 
 
 void ImageFileWidget::openLayer(const LayerItem *item)
@@ -418,6 +423,7 @@ void ImageFileWidget::openLayer(const LayerItem *item)
         case LayerItem::G:
         case LayerItem::B:
         case LayerItem::Y:
+        case LayerItem::YA:
             graphicView = new RGBFramebufferWidget(m_mdiArea);
             imageModel  = new RGBFramebufferModel(
               item->getOriginalFullName(),
@@ -437,7 +443,10 @@ void ImageFileWidget::openLayer(const LayerItem *item)
               SLOT(open(QString)));
 
             graphicView->setModel(imageModel);
-            imageModel->load(m_img->getEXR(), item->getPart(), true);
+            imageModel->load(
+              m_img->getEXR(),
+              item->getPart(),
+              item->getType() == LayerItem::YA);
 
             subWindow = m_mdiArea->addSubWindow(graphicView);
             break;
@@ -469,6 +478,11 @@ void ImageFileWidget::openLayer(const LayerItem *item)
 
             subWindow = m_mdiArea->addSubWindow(graphicViewBW);
             break;
+
+        case LayerItem::PART:
+        case LayerItem::GROUP:
+        case LayerItem::N_LAYERTYPES:
+            break;
     }
 
     if (subWindow) {
@@ -491,10 +505,7 @@ void ImageFileWidget::openLayer(const LayerItem *item)
 void ImageFileWidget::onAttributeDoubleClicked(const QModelIndex &index)
 {
     HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
-
-    if (item->getLayerItem() != nullptr) {
-        openLayer(item->getLayerItem());
-    }
+    openAttribute(item);
 }
 
 

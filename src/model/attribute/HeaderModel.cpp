@@ -751,7 +751,7 @@ HeaderItem *HeaderModel::addItem(
 
     Imf::IDManifest manifest(attr.value());
 
-    for (int i = 0; i < manifest.size(); i++) {
+    for (size_t i = 0; i < manifest.size(); i++) {
         std::stringstream sI;
         sI << name << "[" << i << "]";
 

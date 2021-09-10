@@ -48,8 +48,8 @@ RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
       this,             SLOT(onOpenFileOnDropEvent(QString)));
 
     connect(
-        ui->graphicsView, SIGNAL(queryPixelInfo(int, int)),
-        this,             SLOT(onQueryPixelInfo(int, int)));
+        ui->graphicsView, SIGNAL(queryPixelInfo(int,int)),
+        this,             SLOT(onQueryPixelInfo(int,int)));
     // clang-format on
 }
 

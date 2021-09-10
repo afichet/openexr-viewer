@@ -246,7 +246,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
     }
 }
 
-void GraphicsView::resizeEvent(QResizeEvent *e)
+void GraphicsView::resizeEvent(QResizeEvent *)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 

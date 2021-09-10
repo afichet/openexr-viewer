@@ -50,8 +50,7 @@ class LayerModel: public QAbstractItemModel
         N_LAYER_INFO
     };
 
-    LayerModel(
-      Imf::MultiPartInputFile &file, const QString &filename, QObject *parent);
+    LayerModel(Imf::MultiPartInputFile &file, QObject *parent);
 
     ~LayerModel();
 

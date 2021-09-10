@@ -47,7 +47,7 @@ class YFramebufferModel: public FramebufferModel
     virtual void load(Imf::MultiPartInputFile &file, int partId);
 
     const std::string &getLayerName() const { return m_layer; }
-    const int          getPartId() const { return m_partID; }
+    int                getPartId() const { return m_partID; }
 
     double              getDatasetMin() const { return m_datasetMin; }
     double              getDatasetMax() const { return m_datasetMax; }

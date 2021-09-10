@@ -38,8 +38,7 @@
 #include <QImage>
 #include <QIcon>
 
-LayerModel::LayerModel(
-  Imf::MultiPartInputFile &file, const QString &filename, QObject *parent)
+LayerModel::LayerModel(Imf::MultiPartInputFile &file, QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new LayerItem(file))
   , m_fileHandle(file)

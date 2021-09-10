@@ -82,7 +82,7 @@ class ImageFileWidget: public QWidget
   protected:
     static QString getTitle(const LayerItem *item);
     QString        getTitle(int partId, const std::string &layer) const;
-    void           openAttribute(HeaderItem *item);
+    void           openAttribute(const HeaderItem *item);
 
     void openLayer(const LayerItem *item);
 

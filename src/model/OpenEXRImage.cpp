@@ -47,7 +47,7 @@ OpenEXRImage::OpenEXRImage(const QString &filename, QObject *parent)
     m_headerModel = new HeaderModel(m_exrIn, m_exrIn.parts(), this);
     m_headerModel->addFile(m_exrIn, filename);
 
-    m_layerModel = new LayerModel(m_exrIn, filename, this);
+    m_layerModel = new LayerModel(m_exrIn, this);
 }
 
 OpenEXRImage::~OpenEXRImage()
