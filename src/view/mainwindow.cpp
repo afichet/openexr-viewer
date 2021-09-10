@@ -85,7 +85,8 @@ void MainWindow::open(const QString &filename)
 
     ImageFileWidget *fileWidget = new ImageFileWidget(m_openFileTabs);
     fileWidget->open(filename);
-    fileWidget->setSplitterState(m_splitterState);
+    fileWidget->setSplitterImageState(m_splitterImageState);
+    fileWidget->setSplitterPropertiesState(m_splitterPropertiesState);
 
     m_openFileTabs->addTab(fileWidget, filename_no_path);
     m_openFileTabs->setCurrentWidget(fileWidget);
@@ -154,10 +155,22 @@ void MainWindow::writeSettings()
       "afichet",
       "OpenEXR Viewer");
 
+    // A bit hacky...
+    QWidget *activeWidget = m_openFileTabs->currentWidget();
+
+    if (activeWidget) {
+        ImageFileWidget *widget = (ImageFileWidget *)activeWidget;
+
+        m_currentOpenedFolder     = widget->getOpenedFolder();
+        m_splitterImageState      = widget->getSplitterImageState();
+        m_splitterPropertiesState = widget->getSplitterPropertiesState();
+    }
+
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", saveGeometry());
     settings.setValue("state", saveState());
-    settings.setValue("splitter", m_splitterState);
+    settings.setValue("splitterImage", m_splitterImageState);
+    settings.setValue("splitterProperties", m_splitterPropertiesState);
     settings.setValue("openedFolder", m_currentOpenedFolder);
     settings.endGroup();
 }
@@ -174,7 +187,7 @@ void MainWindow::readSettings()
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
-    m_splitterState = settings.value("splitter").toByteArray();
+    m_splitterImageState = settings.value("splitter").toByteArray();
 
     if (settings.contains("openedFolder")) {
         m_currentOpenedFolder = settings.value("openedFolder").toString();
@@ -188,6 +201,13 @@ void MainWindow::readSettings()
 
 void MainWindow::onTabCloseRequested(int idx)
 {
+    // Saves state in case this is the last opened tab
+    ImageFileWidget *widget = (ImageFileWidget *)m_openFileTabs->widget(idx);
+
+    m_currentOpenedFolder     = widget->getOpenedFolder();
+    m_splitterImageState      = widget->getSplitterImageState();
+    m_splitterPropertiesState = widget->getSplitterPropertiesState();
+
     m_openFileTabs->removeTab(idx);
 }
 
@@ -247,8 +267,10 @@ void MainWindow::onCurrentChanged(int index)
 
     ImageFileWidget *widget
       = (ImageFileWidget *)m_openFileTabs->currentWidget();
-    m_currentOpenedFolder = widget->getOpenedFolder();
-    m_splitterState       = widget->getSplitterState();
+
+    m_currentOpenedFolder     = widget->getOpenedFolder();
+    m_splitterImageState      = widget->getSplitterImageState();
+    m_splitterPropertiesState = widget->getSplitterPropertiesState();
 
     m_statusBarMessage->setText(widget->getOpenedFilename());
 }

@@ -48,16 +48,27 @@ class ImageFileWidget: public QWidget
 
     virtual ~ImageFileWidget();
 
-    QString    getOpenedFolder() const { return m_openedFolder; }
-    QString    getOpenedFilename() const { return m_openedFilename; }
-    QByteArray getSplitterState() const
+    QString getOpenedFolder() const { return m_openedFolder; }
+    QString getOpenedFilename() const { return m_openedFilename; }
+
+    QByteArray getSplitterImageState() const
     {
         return m_splitterImageView->saveState();
     }
 
-    void setSplitterState(const QByteArray &state)
+    void setSplitterImageState(const QByteArray &state)
     {
         m_splitterImageView->restoreState(state);
+    }
+
+    QByteArray getSplitterPropertiesState() const
+    {
+        return m_splitterProperties->saveState();
+    }
+
+    void setSplitterPropertiesState(const QByteArray &state)
+    {
+        m_splitterProperties->restoreState(state);
     }
 
   public slots:

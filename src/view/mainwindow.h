@@ -106,5 +106,6 @@ class MainWindow: public QMainWindow
 
     QString m_currentOpenedFolder;
 
-    QByteArray m_splitterState;
+    QByteArray m_splitterImageState;
+    QByteArray m_splitterPropertiesState;
 };
