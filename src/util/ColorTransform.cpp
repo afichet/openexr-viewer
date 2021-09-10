@@ -46,5 +46,6 @@ float ColorTransform::to_sRGB(float rgb_color)
 
 unsigned char ColorTransform::to_sRGB_255(float rgb_color)
 {
-    return (unsigned char) (255.f * to_sRGB(std::max(0.f, std::min(1.f, rgb_color))));
+    return (
+      unsigned char)(255.f * to_sRGB(std::max(0.f, std::min(1.f, rgb_color))));
 }

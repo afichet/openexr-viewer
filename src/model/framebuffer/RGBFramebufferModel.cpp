@@ -45,9 +45,8 @@
 
 #include <Imath/ImathBox.h>
 
-RGBFramebufferModel::RGBFramebufferModel(const std::string &parentLayerName,
-        LayerType layerType,
-        QObject *parent)
+RGBFramebufferModel::RGBFramebufferModel(
+  const std::string &parentLayerName, LayerType layerType, QObject *parent)
   : FramebufferModel(parent)
   , m_parentLayer(parentLayerName)
   , m_layerType(layerType)
@@ -95,7 +94,7 @@ void RGBFramebufferModel::load(
 
             // Check if there is alpha channel
             if (hasAlpha) {
-                std::string          aLayer = m_parentLayer + "A";
+                std::string      aLayer = m_parentLayer + "A";
                 Imf::FrameBuffer framebuffer;
 
                 Imf::Slice aSlice = Imf::Slice::Make(

@@ -75,7 +75,8 @@ void YFramebufferWidget::setModel(YFramebufferModel *model)
 
 void YFramebufferWidget::onQueryPixelInfo(int x, int y)
 {
-    ui->selectInfoLabel->setText(QString::fromStdString(m_model->getColorInfo(x, y)));
+    ui->selectInfoLabel->setText(
+      QString::fromStdString(m_model->getColorInfo(x, y)));
 }
 
 

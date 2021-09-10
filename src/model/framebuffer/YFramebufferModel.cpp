@@ -45,8 +45,7 @@
 #include <Imath/ImathBox.h>
 
 YFramebufferModel::YFramebufferModel(
-        const std::string &layerName,
-        QObject *parent)
+  const std::string &layerName, QObject *parent)
   : FramebufferModel(parent)
   , m_layer(layerName)
   , m_min(0.f)

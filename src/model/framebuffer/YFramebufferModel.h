@@ -47,10 +47,10 @@ class YFramebufferModel: public FramebufferModel
     virtual void load(Imf::MultiPartInputFile &file, int partId);
 
     const std::string &getLayerName() const { return m_layer; }
-    const int      getPartId() const { return m_partID; }
+    const int          getPartId() const { return m_partID; }
 
-    double getDatasetMin() const { return m_datasetMin; }
-    double getDatasetMax() const { return m_datasetMax; }
+    double              getDatasetMin() const { return m_datasetMin; }
+    double              getDatasetMax() const { return m_datasetMax; }
     virtual std::string getColorInfo(int x, int y) const;
 
   public slots:
@@ -62,7 +62,7 @@ class YFramebufferModel: public FramebufferModel
     void updateImage();
 
   private:
-    int     m_partID;
+    int         m_partID;
     std::string m_layer;
 
     double m_min;

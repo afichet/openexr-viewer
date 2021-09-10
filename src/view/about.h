@@ -3,23 +3,24 @@
 
 #include <QDialog>
 
-namespace Ui {
-class About;
+namespace Ui
+{
+    class About;
 }
 
-class About : public QDialog
+class About: public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit About(QWidget *parent = nullptr);
     ~About();
 
-private slots:
+  private slots:
     void on_pushButton_clicked();
 
-private:
+  private:
     Ui::About *ui;
 };
 
-#endif // ABOUT_H
+#endif   // ABOUT_H

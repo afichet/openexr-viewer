@@ -46,14 +46,14 @@ class HeaderItem
       QString                  partName   = QString(),
       int                      partID     = 0,
       QString                  itemName   = QString(),
-      LayerItem               *layerItem  = nullptr);
+      LayerItem *              layerItem  = nullptr);
 
-//    explicit HeaderItem(
-//      HeaderItem *             parentItem = nullptr,
-//      const QVector<QVariant> &data       = QVector<QVariant>(),
-//      std::string              partName   = "",
-//      int                      partID     = 0,
-//      std::string              itemName   = "");
+    //    explicit HeaderItem(
+    //      HeaderItem *             parentItem = nullptr,
+    //      const QVector<QVariant> &data       = QVector<QVariant>(),
+    //      std::string              partName   = "",
+    //      int                      partID     = 0,
+    //      std::string              itemName   = "");
 
     ~HeaderItem();
 
@@ -79,7 +79,7 @@ class HeaderItem
     const QString &getItemName() const { return m_itemName; }
 
     // TODO: Hacky for now...
-    LayerItem* getLayerItem() const { return m_layerItem; }
+    LayerItem *getLayerItem() const { return m_layerItem; }
 
     void setPartName(const QString &name) { m_partName = name; }
     void setPartID(int partID) { m_partID = partID; }
@@ -98,5 +98,5 @@ class HeaderItem
     int     m_partID;
 
     // TODO: Hacky for now...
-    LayerItem* m_layerItem;
+    LayerItem *m_layerItem;
 };

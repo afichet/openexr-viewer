@@ -42,21 +42,20 @@
 class LayerModel: public QAbstractItemModel
 {
     Q_OBJECT
-public:
-    enum LayerInfo {
+  public:
+    enum LayerInfo
+    {
         LAYER = 0,
         TYPE,
         N_LAYER_INFO
     };
 
     LayerModel(
-            Imf::MultiPartInputFile &file,
-            const QString &filename,
-            QObject * parent);
+      Imf::MultiPartInputFile &file, const QString &filename, QObject *parent);
 
     ~LayerModel();
 
-    LayerItem* getRoot() const { return m_rootItem; }
+    LayerItem *getRoot() const { return m_rootItem; }
 
     /**
      * Qt logic for accessing the model
@@ -81,8 +80,8 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-private:
-    LayerItem * m_rootItem;
+  private:
+    LayerItem *m_rootItem;
 
-    Imf::MultiPartInputFile& m_fileHandle;
+    Imf::MultiPartInputFile &m_fileHandle;
 };

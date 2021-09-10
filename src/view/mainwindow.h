@@ -97,7 +97,7 @@ class MainWindow: public QMainWindow
 
     void on_action_Close_triggered();
 
-private:
+  private:
     Ui::MainWindow *ui;
 
     QTabWidget *m_openFileTabs;

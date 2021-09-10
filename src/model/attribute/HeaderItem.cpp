@@ -38,7 +38,7 @@ HeaderItem::HeaderItem(
   QString                  partName,
   int                      partID,
   QString                  itemName,
-  LayerItem               *layerItem)
+  LayerItem *              layerItem)
   : m_itemData(data)
   , m_parentItem(parentItem)
   , m_partName(partName)

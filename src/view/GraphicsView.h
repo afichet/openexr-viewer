@@ -84,8 +84,8 @@ class GraphicsView: public QGraphicsView
     virtual void scrollContentsBy(int dx, int dy) override;
 
   private:
-    const FramebufferModel *   _model;
-    QGraphicsPixmapItem *_imageItem;
+    const FramebufferModel *_model;
+    QGraphicsPixmapItem *   _imageItem;
     //    QGraphicsRectItem *_datawindowItem;
     //    QGraphicsRectItem *_displaywindowItem;
 

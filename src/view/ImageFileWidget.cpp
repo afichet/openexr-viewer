@@ -43,13 +43,13 @@
 #include "YFramebufferWidget.h"
 
 ImageFileWidget::ImageFileWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_img(nullptr)
-    , m_openedFolder(QDir::homePath())
+  : QWidget(parent)
+  , m_img(nullptr)
+  , m_openedFolder(QDir::homePath())
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    m_splitterImageView = new QSplitter(this);
+    m_splitterImageView  = new QSplitter(this);
     m_splitterProperties = new QSplitter(Qt::Vertical, m_splitterImageView);
 
     m_attributesTreeView = new QTreeView(m_splitterProperties);
@@ -99,7 +99,7 @@ ImageFileWidget::~ImageFileWidget()
 void ImageFileWidget::open(const QString &filename)
 {
     m_openedFilename = filename;
-    m_openedFolder = QFileInfo(filename).absolutePath();
+    m_openedFolder   = QFileInfo(filename).absolutePath();
 
     // Attempt opening the image
     OpenEXRImage *imageLoaded = nullptr;
@@ -136,49 +136,85 @@ void ImageFileWidget::open(const QString &filename)
     m_layersTreeView->resizeColumnToContents(0);
 
     // Detect if there is a root RGB or YC layer group
-    LayerItem const * r = m_img->getLayerModel()->getRoot();
+    LayerItem const *r = m_img->getLayerModel()->getRoot();
 
     if (r != nullptr) {
-        const LayerItem* child = nullptr;
+        const LayerItem *child = nullptr;
 
         child = r->child(LayerItem::RGBA);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         child = r->child(LayerItem::RGB);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         child = r->child(LayerItem::YCA);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         child = r->child(LayerItem::YC);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         child = r->child(LayerItem::YA);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         child = r->child(LayerItem::Y);
-        if (child) { openLayer(child); return; }
+        if (child) {
+            openLayer(child);
+            return;
+        }
 
         // When all children are parts, try to find a part with a displayable layer
         // TODO: factorize the code
-        for (LayerItem* rr: r->children()) {
+        for (LayerItem *rr : r->children()) {
             child = rr->child(LayerItem::RGBA);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
 
             child = rr->child(LayerItem::RGB);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
 
             child = rr->child(LayerItem::YCA);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
 
             child = rr->child(LayerItem::YC);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
 
             child = rr->child(LayerItem::YA);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
 
             child = rr->child(LayerItem::Y);
-            if (child) { openLayer(child); return; }
+            if (child) {
+                openLayer(child);
+                return;
+            }
         }
     }
 }
@@ -217,48 +253,59 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
     QString layerName;
 
     switch (item->getType()) {
-    // Color layer groups
-    case LayerItem::RGB:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName()) + "RGB";
-        break;
+        // Color layer groups
+        case LayerItem::RGB:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName())
+                + "RGB";
+            break;
 
-    case LayerItem::RGBA:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName()) + "RGBA";
-        break;
+        case LayerItem::RGBA:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName())
+                + "RGBA";
+            break;
 
-    case LayerItem::YC:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName()) + "YC";
-        break;
+        case LayerItem::YC:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName())
+                + "YC";
+            break;
 
-    case LayerItem::YCA:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName()) + "YCA";
-        break;
+        case LayerItem::YCA:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName())
+                + "YCA";
+            break;
 
-    case LayerItem::YA:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName()) + "YA";
-        break;
+        case LayerItem::YA:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName())
+                + "YA";
+            break;
 
-    // Individual layers
-    case LayerItem::R:
-    case LayerItem::G:
-    case LayerItem::B:
-    case LayerItem::A:
-    case LayerItem::Y:
-    case LayerItem::RY:
-    case LayerItem::BY:
-    case LayerItem::GENERAL:
-        layerName = "Layer: " + QString::fromStdString(item->getOriginalFullName());
-        break;
+        // Individual layers
+        case LayerItem::R:
+        case LayerItem::G:
+        case LayerItem::B:
+        case LayerItem::A:
+        case LayerItem::Y:
+        case LayerItem::RY:
+        case LayerItem::BY:
+        case LayerItem::GENERAL:
+            layerName
+              = "Layer: " + QString::fromStdString(item->getOriginalFullName());
+            break;
 
-    case LayerItem::GROUP:
-    case LayerItem::PART:
-        layerName = "";
-        break;
+        case LayerItem::GROUP:
+        case LayerItem::PART:
+            layerName = "";
+            break;
 
-    // This shall never happen
-    case LayerItem::N_LAYERTYPES:
-        assert(0);
-        break;
+        // This shall never happen
+        case LayerItem::N_LAYERTYPES:
+            assert(0);
+            break;
     }
 
 
@@ -270,7 +317,8 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
         partName += tr("Part:") + " " + QString::number(item->getPart());
 
         if (item->hasPartName()) {
-            partName += " (" + QString::fromStdString(item->getPartName()) + ")";
+            partName
+              += " (" + QString::fromStdString(item->getPartName()) + ")";
         }
     } else {
         // Single part file
@@ -283,9 +331,7 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
 }
 
 
-void ImageFileWidget::openAttribute(HeaderItem *item)
-{
-}
+void ImageFileWidget::openAttribute(HeaderItem *item) {}
 
 
 void ImageFileWidget::openLayer(const LayerItem *item)
@@ -309,137 +355,134 @@ void ImageFileWidget::openLayer(const LayerItem *item)
     QMdiSubWindow *subWindow = nullptr;
 
     switch (item->getType()) {
-    case LayerItem::RGB:
-    case LayerItem::RGBA:
-        graphicView = new RGBFramebufferWidget(m_mdiArea);
-        imageModel  = new RGBFramebufferModel(
-                    item->getOriginalFullName(),
-                    RGBFramebufferModel::Layer_RGB,
-                    graphicView);
+        case LayerItem::RGB:
+        case LayerItem::RGBA:
+            graphicView = new RGBFramebufferWidget(m_mdiArea);
+            imageModel  = new RGBFramebufferModel(
+              item->getOriginalFullName(),
+              RGBFramebufferModel::Layer_RGB,
+              graphicView);
 
-        QObject::connect(
-                    imageModel,
-                    SIGNAL(loadFailed(QString)),
-                    this,
-                    SLOT(onLoadFailed(QString)));
+            QObject::connect(
+              imageModel,
+              SIGNAL(loadFailed(QString)),
+              this,
+              SLOT(onLoadFailed(QString)));
 
-        QObject::connect(
-                    graphicView,
-                    SIGNAL(openFileOnDropEvent(QString)),
-                    this,
-                    SLOT(open(QString)));
+            QObject::connect(
+              graphicView,
+              SIGNAL(openFileOnDropEvent(QString)),
+              this,
+              SLOT(open(QString)));
 
-        graphicView->setModel(imageModel);
-        imageModel->load(
-                    m_img->getEXR(),
-                    item->getPart(),
-                    item->getType() == LayerItem::RGBA);
+            graphicView->setModel(imageModel);
+            imageModel->load(
+              m_img->getEXR(),
+              item->getPart(),
+              item->getType() == LayerItem::RGBA);
 
-        subWindow = m_mdiArea->addSubWindow(graphicView);
+            subWindow = m_mdiArea->addSubWindow(graphicView);
 
-        break;
+            break;
 
-    case LayerItem::YCA:
-    case LayerItem::YC:
-        graphicView = new RGBFramebufferWidget(m_mdiArea);
-        imageModel  = new RGBFramebufferModel(
-                    item->getOriginalFullName(),
-                    RGBFramebufferModel::Layer_YC,
-                    graphicView);
+        case LayerItem::YCA:
+        case LayerItem::YC:
+            graphicView = new RGBFramebufferWidget(m_mdiArea);
+            imageModel  = new RGBFramebufferModel(
+              item->getOriginalFullName(),
+              RGBFramebufferModel::Layer_YC,
+              graphicView);
 
-        QObject::connect(
-                    imageModel,
-                    SIGNAL(loadFailed(QString)),
-                    this,
-                    SLOT(onLoadFailed(QString)));
+            QObject::connect(
+              imageModel,
+              SIGNAL(loadFailed(QString)),
+              this,
+              SLOT(onLoadFailed(QString)));
 
-        QObject::connect(
-                    graphicView,
-                    SIGNAL(openFileOnDropEvent(QString)),
-                    this,
-                    SLOT(open(QString)));
+            QObject::connect(
+              graphicView,
+              SIGNAL(openFileOnDropEvent(QString)),
+              this,
+              SLOT(open(QString)));
 
-        graphicView->setModel(imageModel);
-        imageModel->load(
-                    m_img->getEXR(),
-                    item->getPart(),
-                    item->getType() == LayerItem::YCA);
+            graphicView->setModel(imageModel);
+            imageModel->load(
+              m_img->getEXR(),
+              item->getPart(),
+              item->getType() == LayerItem::YCA);
 
-        subWindow = m_mdiArea->addSubWindow(graphicView);
-        break;
+            subWindow = m_mdiArea->addSubWindow(graphicView);
+            break;
 
-    case LayerItem::R:
-    case LayerItem::G:
-    case LayerItem::B:
-    case LayerItem::Y:
-        graphicView = new RGBFramebufferWidget(m_mdiArea);
-        imageModel  = new RGBFramebufferModel(
-                    item->getOriginalFullName(),
-                    RGBFramebufferModel::Layer_Y,
-                    graphicView);
+        case LayerItem::R:
+        case LayerItem::G:
+        case LayerItem::B:
+        case LayerItem::Y:
+            graphicView = new RGBFramebufferWidget(m_mdiArea);
+            imageModel  = new RGBFramebufferModel(
+              item->getOriginalFullName(),
+              RGBFramebufferModel::Layer_Y,
+              graphicView);
 
-        QObject::connect(
-                    imageModel,
-                    SIGNAL(loadFailed(QString)),
-                    this,
-                    SLOT(onLoadFailed(QString)));
+            QObject::connect(
+              imageModel,
+              SIGNAL(loadFailed(QString)),
+              this,
+              SLOT(onLoadFailed(QString)));
 
-        QObject::connect(
-                    graphicView,
-                    SIGNAL(openFileOnDropEvent(QString)),
-                    this,
-                    SLOT(open(QString)));
+            QObject::connect(
+              graphicView,
+              SIGNAL(openFileOnDropEvent(QString)),
+              this,
+              SLOT(open(QString)));
 
-        graphicView->setModel(imageModel);
-        imageModel->load(
-                    m_img->getEXR(),
-                    item->getPart(),
-                    true);
+            graphicView->setModel(imageModel);
+            imageModel->load(m_img->getEXR(), item->getPart(), true);
 
-        subWindow = m_mdiArea->addSubWindow(graphicView);
-        break;
+            subWindow = m_mdiArea->addSubWindow(graphicView);
+            break;
 
 
-    case LayerItem::A:
-    case LayerItem::RY:
-    case LayerItem::BY:
-    case LayerItem::GENERAL:
-        graphicViewBW = new YFramebufferWidget(m_mdiArea);
-        imageModelBW = new YFramebufferModel(
-                    item->getOriginalFullName(),
-                    graphicViewBW);
+        case LayerItem::A:
+        case LayerItem::RY:
+        case LayerItem::BY:
+        case LayerItem::GENERAL:
+            graphicViewBW = new YFramebufferWidget(m_mdiArea);
+            imageModelBW  = new YFramebufferModel(
+              item->getOriginalFullName(),
+              graphicViewBW);
 
-        QObject::connect(
-                    imageModelBW,
-                    SIGNAL(loadFailed(QString)),
-                    this,
-                    SLOT(onLoadFailed(QString)));
+            QObject::connect(
+              imageModelBW,
+              SIGNAL(loadFailed(QString)),
+              this,
+              SLOT(onLoadFailed(QString)));
 
-        QObject::connect(
-                    graphicViewBW,
-                    SIGNAL(openFileOnDropEvent(QString)),
-                    this,
-                    SLOT(open(QString)));
+            QObject::connect(
+              graphicViewBW,
+              SIGNAL(openFileOnDropEvent(QString)),
+              this,
+              SLOT(open(QString)));
 
-        graphicViewBW->setModel(imageModelBW);
-        imageModelBW->load(m_img->getEXR(), item->getPart());
+            graphicViewBW->setModel(imageModelBW);
+            imageModelBW->load(m_img->getEXR(), item->getPart());
 
-        subWindow = m_mdiArea->addSubWindow(graphicViewBW);
-        break;
+            subWindow = m_mdiArea->addSubWindow(graphicViewBW);
+            break;
     }
 
     if (subWindow) {
         subWindow->setWindowTitle(title);
 
         switch (m_mdiArea->viewMode()) {
-        case QMdiArea::TabbedView:
-            subWindow->showMaximized();
-            break;
+            case QMdiArea::TabbedView:
+                subWindow->showMaximized();
+                break;
 
-        case QMdiArea::SubWindowView:
-            subWindow->resize(800, 600);
-            subWindow->show();
-            break;
+            case QMdiArea::SubWindowView:
+                subWindow->resize(800, 600);
+                subWindow->show();
+                break;
         }
     }
 }
@@ -447,11 +490,11 @@ void ImageFileWidget::openLayer(const LayerItem *item)
 
 void ImageFileWidget::onAttributeDoubleClicked(const QModelIndex &index)
 {
-     HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
 
-     if (item->getLayerItem() != nullptr) {
-         openLayer(item->getLayerItem());
-     }
+    if (item->getLayerItem() != nullptr) {
+        openLayer(item->getLayerItem());
+    }
 }
 
 
@@ -469,6 +512,6 @@ void ImageFileWidget::onLoadFailed(const QString &msg)
     QMessageBox msgBox;
     msgBox.setText(tr("Error while loading the framebuffer."));
     msgBox.setInformativeText(
-                tr("The loading process ended with the following error:") + " " + msg);
+      tr("The loading process ended with the following error:") + " " + msg);
     msgBox.exec();
 }

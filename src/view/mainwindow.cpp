@@ -194,7 +194,8 @@ void MainWindow::onTabCloseRequested(int idx)
 
 void MainWindow::on_action_Tabbed_triggered()
 {
-    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    ImageFileWidget *widget
+      = (ImageFileWidget *)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setTabbed();
@@ -204,7 +205,8 @@ void MainWindow::on_action_Tabbed_triggered()
 
 void MainWindow::on_action_Cascade_triggered()
 {
-    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    ImageFileWidget *widget
+      = (ImageFileWidget *)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setCascade();
@@ -214,7 +216,8 @@ void MainWindow::on_action_Cascade_triggered()
 
 void MainWindow::on_action_Tiled_triggered()
 {
-    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    ImageFileWidget *widget
+      = (ImageFileWidget *)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setTiled();
@@ -224,7 +227,8 @@ void MainWindow::on_action_Tiled_triggered()
 
 void MainWindow::on_action_Refresh_triggered()
 {
-    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    ImageFileWidget *widget
+      = (ImageFileWidget *)m_openFileTabs->currentWidget();
     widget->refresh();
 }
 
@@ -241,9 +245,10 @@ void MainWindow::onCurrentChanged(int index)
     ui->action_Refresh->setEnabled(true);
     ui->action_Close->setEnabled(true);
 
-    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
+    ImageFileWidget *widget
+      = (ImageFileWidget *)m_openFileTabs->currentWidget();
     m_currentOpenedFolder = widget->getOpenedFolder();
-    m_splitterState = widget->getSplitterState();
+    m_splitterState       = widget->getSplitterState();
 
     m_statusBarMessage->setText(widget->getOpenedFilename());
 }
@@ -259,4 +264,3 @@ void MainWindow::on_action_Close_triggered()
 {
     onTabCloseRequested(m_openFileTabs->currentIndex());
 }
-

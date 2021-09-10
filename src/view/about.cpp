@@ -1,18 +1,16 @@
 #include "about.h"
 #include "ui_about.h"
 
-About::About(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::About)
+About::About(QWidget *parent): QDialog(parent), ui(new Ui::About)
 {
     ui->setupUi(this);
 
     ui->textBrowser->setHtml(
-                    "<h1>OpenEXR Viewer</h1>"
-                    "<p><em>" +
-                    tr("Version ") + QApplication::applicationVersion() + "</em></p>" +
-                    tr(
-                    "<h2>Author</h2>                                                        \
+      "<h1>OpenEXR Viewer</h1>"
+      "<p><em>"
+      + tr("Version ") + QApplication::applicationVersion() + "</em></p>"
+      + tr(
+        "<h2>Author</h2>                                                        \
                     </p>Alban Fichet &lt;alban.fichet@gmx.fr&gt;</p>                              \
                                                                                             \
                     <h2>Licence GPLv3.</h2>                                                 \
@@ -50,4 +48,3 @@ void About::on_pushButton_clicked()
 {
     close();
 }
-

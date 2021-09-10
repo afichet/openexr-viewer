@@ -146,7 +146,7 @@ void GraphicsView::setZoomLevel(double zoom)
     if (_model == nullptr || !_model->isImageLoaded())
         return;   // || zoom == _zoomLevel) return;
 
-//    if (_zoomLevel == zoom) return;
+    //    if (_zoomLevel == zoom) return;
 
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
@@ -292,7 +292,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
         _startDrag = event->pos();
     } else {
         QPointF imgCoords = mapToScene(event->pos());
-        emit queryPixelInfo(imgCoords.x(), imgCoords.y());
+        emit    queryPixelInfo(imgCoords.x(), imgCoords.y());
     }
 }
 

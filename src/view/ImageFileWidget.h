@@ -43,18 +43,24 @@
 class ImageFileWidget: public QWidget
 {
     Q_OBJECT
-public:
+  public:
     explicit ImageFileWidget(QWidget *parent = nullptr);
 
     virtual ~ImageFileWidget();
 
-    QString getOpenedFolder() const { return m_openedFolder; }
-    QString getOpenedFilename() const { return m_openedFilename; }
-    QByteArray getSplitterState() const { return m_splitterImageView->saveState(); }
+    QString    getOpenedFolder() const { return m_openedFolder; }
+    QString    getOpenedFilename() const { return m_openedFilename; }
+    QByteArray getSplitterState() const
+    {
+        return m_splitterImageView->saveState();
+    }
 
-    void setSplitterState(const QByteArray& state) { m_splitterImageView->restoreState(state); }
+    void setSplitterState(const QByteArray &state)
+    {
+        m_splitterImageView->restoreState(state);
+    }
 
-public slots:
+  public slots:
     void open(const QString &filename);
     void refresh();
 
@@ -62,28 +68,28 @@ public slots:
     void setCascade();
     void setTiled();
 
-protected:
-    static QString getTitle(const LayerItem* item);
-    QString getTitle(int partId, const std::string &layer) const;
-    void openAttribute(HeaderItem *item);
+  protected:
+    static QString getTitle(const LayerItem *item);
+    QString        getTitle(int partId, const std::string &layer) const;
+    void           openAttribute(HeaderItem *item);
 
     void openLayer(const LayerItem *item);
 
 
-private slots:
+  private slots:
     void onAttributeDoubleClicked(const QModelIndex &index);
-    void onLayerDoubleClicked(const QModelIndex& index);
+    void onLayerDoubleClicked(const QModelIndex &index);
 
     void onLoadFailed(const QString &msg);
 
-private:
+  private:
     QSplitter *m_splitterImageView;
     QSplitter *m_splitterProperties;
     QTreeView *m_attributesTreeView;
     QTreeView *m_layersTreeView;
-    QMdiArea  *m_mdiArea;
+    QMdiArea * m_mdiArea;
 
     OpenEXRImage *m_img;
-    QString m_openedFolder;
-    QString m_openedFilename;
+    QString       m_openedFolder;
+    QString       m_openedFilename;
 };

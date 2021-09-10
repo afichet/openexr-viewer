@@ -39,9 +39,7 @@
 #include <QIcon>
 
 LayerModel::LayerModel(
-        Imf::MultiPartInputFile &file,
-        const QString &filename,
-        QObject *parent)
+  Imf::MultiPartInputFile &file, const QString &filename, QObject *parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new LayerItem(file))
   , m_fileHandle(file)
@@ -59,12 +57,15 @@ LayerModel::LayerModel(
                 partName = exrHeader.name();
             }
 
-            LayerItem * leaf = m_rootItem->addLeaf(m_fileHandle, partName, nullptr, part);
+            LayerItem *leaf
+              = m_rootItem->addLeaf(m_fileHandle, partName, nullptr, part);
 
             // Now list layers and add those to the part group
             const Imf::ChannelList &exrChannels = exrHeader.channels();
 
-            for (Imf::ChannelList::ConstIterator it = exrChannels.begin(); it != exrChannels.end(); it++) {
+            for (Imf::ChannelList::ConstIterator it = exrChannels.begin();
+                 it != exrChannels.end();
+                 it++) {
                 leaf->addLeaf(m_fileHandle, it.name(), &it.channel(), part);
             }
         }
@@ -74,14 +75,16 @@ LayerModel::LayerModel(
         // Now list layers and add those to the file group
         const Imf::ChannelList &exrChannels = exrHeader.channels();
 
-        for (Imf::ChannelList::ConstIterator it = exrChannels.begin(); it != exrChannels.end(); it++) {
+        for (Imf::ChannelList::ConstIterator it = exrChannels.begin();
+             it != exrChannels.end();
+             it++) {
             m_rootItem->addLeaf(m_fileHandle, it.name(), &it.channel());
         }
     }
 
     m_rootItem->groupLayers();
-//    m_rootItem->createThumbnails();
-//    LayerItem::groupLayers(m_rootItem);
+    //    m_rootItem->createThumbnails();
+    //    LayerItem::groupLayers(m_rootItem);
 }
 
 
@@ -199,17 +202,17 @@ Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
 }
 
 
-QVariant LayerModel::headerData(
-  int section, Qt::Orientation orientation, int role) const
+QVariant
+LayerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case LAYER:
-            return "Layer";
-        case TYPE:
-            return "Type";
-        default:
-            return QVariant();
+            case LAYER:
+                return "Layer";
+            case TYPE:
+                return "Type";
+            default:
+                return QVariant();
         }
     }
 
@@ -253,7 +256,7 @@ QModelIndex LayerModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    int row = 0;//parentItem->row();
+    int row = 0;   //parentItem->row();
     return createIndex(row, 0, parentItem);
 }
 
@@ -280,5 +283,3 @@ int LayerModel::columnCount(const QModelIndex &) const
 {
     return N_LAYER_INFO;
 }
-
-

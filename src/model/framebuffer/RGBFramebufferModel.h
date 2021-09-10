@@ -47,8 +47,8 @@ class RGBFramebufferModel: public FramebufferModel
 
     RGBFramebufferModel(
       const std::string &parentLayerName,
-      LayerType      layerType = Layer_RGB,
-      QObject *      parent    = nullptr);
+      LayerType          layerType = Layer_RGB,
+      QObject *          parent    = nullptr);
 
     virtual ~RGBFramebufferModel();
 
@@ -69,8 +69,8 @@ class RGBFramebufferModel: public FramebufferModel
     void updateImage();
 
   private:
-    int       m_partID;
-    std::string  m_parentLayer;
-    LayerType m_layerType;
-    double    m_exposure;
+    int         m_partID;
+    std::string m_parentLayer;
+    LayerType   m_layerType;
+    double      m_exposure;
 };

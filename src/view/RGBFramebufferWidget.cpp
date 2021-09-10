@@ -72,7 +72,8 @@ void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
 
 void RGBFramebufferWidget::onQueryPixelInfo(int x, int y)
 {
-    ui->pixelValueLabel->setText(QString::fromStdString(m_model->getColorInfo(x, y)));
+    ui->pixelValueLabel->setText(
+      QString::fromStdString(m_model->getColorInfo(x, y)));
 }
 
 

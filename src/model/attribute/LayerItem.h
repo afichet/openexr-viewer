@@ -44,34 +44,43 @@
 class LayerItem
 {
   public:
-    enum LayerType {
+    enum LayerType
+    {
         // Single channel
-        R, G, B, A,
-        Y, RY, BY,
+        R,
+        G,
+        B,
+        A,
+        Y,
+        RY,
+        BY,
         GENERAL,
         // Group Types,
-        RGB, RGBA,
-        YA, YC, YCA,
-        GROUP, PART,
+        RGB,
+        RGBA,
+        YA,
+        YC,
+        YCA,
+        GROUP,
+        PART,
         N_LAYERTYPES
     };
 
     LayerItem(
-            Imf::MultiPartInputFile &file,
-            LayerItem *pParent = nullptr,
-            const std::string& leafName = "",
-            const std::string& originalChannelName = "",
-            const Imf::Channel *pChannel = nullptr,
-            int part = -1);
+      Imf::MultiPartInputFile &file,
+      LayerItem *              pParent             = nullptr,
+      const std::string &      leafName            = "",
+      const std::string &      originalChannelName = "",
+      const Imf::Channel *     pChannel            = nullptr,
+      int                      part                = -1);
 
     ~LayerItem();
 
     LayerItem *addLeaf(
-            Imf::MultiPartInputFile &file,
-            const std::string& channelName,
-            const Imf::Channel* pChannel,
-            int part = -1
-            );
+      Imf::MultiPartInputFile &file,
+      const std::string &      channelName,
+      const Imf::Channel *     pChannel,
+      int                      part = -1);
 
 
     void createThumbnails();
@@ -80,27 +89,24 @@ class LayerItem
     void groupLayers();
 
     HeaderItem *constructItemHierarchy(
-            HeaderItem *parent,
-            const std::string &partName,
-            int partID
-            );
+      HeaderItem *parent, const std::string &partName, int partID);
 
     LayerItem *child(int index) const;
-    LayerItem *child(const std::string& name) const;
-    LayerItem *child(const LayerType& type) const;
+    LayerItem *child(const std::string &name) const;
+    LayerItem *child(const LayerType &type) const;
 
-    int childIndex(const std::string& name) const;
-    int childIndex(const LayerType& type) const;
+    int childIndex(const std::string &name) const;
+    int childIndex(const LayerType &type) const;
 
     int childCount() const;
 
-    const std::vector<LayerItem*> & children() const { return m_childItems; }
+    const std::vector<LayerItem *> &children() const { return m_childItems; }
 
     LayerItem *parentItem() { return m_pParentItem; }
 
-    bool hasChild(const std::string& name) const;
-    bool hasChildLeaf(const std::string& name) const;
-    bool hasChildLeaf(const LayerType& type) const;
+    bool hasChild(const std::string &name) const;
+    bool hasChildLeaf(const std::string &name) const;
+    bool hasChildLeaf(const LayerType &type) const;
 
     bool hasRGBChildLeafs() const;
     bool hasRGBAChildLeafs() const;
@@ -114,25 +120,25 @@ class LayerItem
     std::string getFullName() const;
     std::string getLeafName() const;
     std::string getOriginalFullName() const;
-    int getPart() const;
+    int         getPart() const;
 
-    bool hasPartName() const;
+    bool        hasPartName() const;
     std::string getPartName() const;
 
-    const QImage& getPreview() const;
+    const QImage &getPreview() const;
 
-//    void printHierarchy(std::string front) const;
+    //    void printHierarchy(std::string front) const;
 
     LayerType getType() const { return m_type; }
 
   private:
     LayerType constructType();
 
-    void createThumbnails(LayerItem* item);
+    void createThumbnails(LayerItem *item);
     void createThumbnail();
 
-    std::vector<LayerItem*> m_childItems;
-    LayerItem *             m_pParentItem;
+    std::vector<LayerItem *> m_childItems;
+    LayerItem *              m_pParentItem;
 
     // Id of the part
     const int m_part;
@@ -148,8 +154,8 @@ class LayerItem
 
     LayerType m_type;
 
-    Imf::MultiPartInputFile& m_fileHandle;
-    const Imf::Channel *m_pChannel;
+    Imf::MultiPartInputFile &m_fileHandle;
+    const Imf::Channel *     m_pChannel;
 
     int m_previewSize;
 

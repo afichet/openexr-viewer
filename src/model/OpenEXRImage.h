@@ -50,16 +50,16 @@ class OpenEXRImage: public QObject
     ~OpenEXRImage();
 
     HeaderModel *getHeaderModel() const { return m_headerModel; }
-    LayerModel *getLayerModel() const { return m_layerModel; }
+    LayerModel * getLayerModel() const { return m_layerModel; }
 
     Imf::MultiPartInputFile &getEXR() { return m_exrIn; }
 
     const QString &getFilename() const { return m_filename; }
 
   private:
-    QString m_filename;
+    QString                 m_filename;
     Imf::MultiPartInputFile m_exrIn;
 
     HeaderModel *m_headerModel;
-    LayerModel *m_layerModel;
+    LayerModel * m_layerModel;
 };
