@@ -186,7 +186,10 @@ void MainWindow::readSettings()
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
-    m_splitterImageState = settings.value("splitter").toByteArray();
+
+    m_splitterImageState = settings.value("splitterImage").toByteArray();
+    m_splitterPropertiesState
+      = settings.value("splitterProperties").toByteArray();
 
     if (settings.contains("openedFolder")) {
         m_currentOpenedFolder = settings.value("openedFolder").toString();
