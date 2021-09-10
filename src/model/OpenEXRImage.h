@@ -32,31 +32,34 @@
 
 #pragma once
 
+#include <QObject>
 #include <QAbstractItemModel>
 
 #include <OpenEXR/ImfMultiPartInputFile.h>
 
-#include <model/FramebufferModel.h>
-#include <model/HeaderModel.h>
-#include <model/ImageModel.h>
-#include <model/RGBFramebufferModel.h>
+#include <model/attribute/HeaderModel.h>
+#include <model/attribute/LayerModel.h>
+#include <model/framebuffer/FramebufferModel.h>
 
-class OpenEXRImage
+class OpenEXRImage: public QObject
 {
+    Q_OBJECT
+
   public:
     OpenEXRImage(const QString &filename, QObject *parent);
     ~OpenEXRImage();
 
-    HeaderModel *getHeaderModel() const { return _headerModel; }
+    HeaderModel *getHeaderModel() const { return m_headerModel; }
+    LayerModel * getLayerModel() const { return m_layerModel; }
 
     Imf::MultiPartInputFile &getEXR() { return m_exrIn; }
 
     const QString &getFilename() const { return m_filename; }
 
   private:
+    QString                 m_filename;
     Imf::MultiPartInputFile m_exrIn;
 
-    HeaderModel *_headerModel;
-
-    QString m_filename;
+    HeaderModel *m_headerModel;
+    LayerModel * m_layerModel;
 };

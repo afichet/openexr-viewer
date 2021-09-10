@@ -32,18 +32,18 @@
 
 #pragma once
 
+#include <QTabWidget>
 #include <QLabel>
 #include <QMainWindow>
-#include <QMdiArea>
-#include <QSplitter>
-#include <QTreeView>
-
+#include <QVector>
 #include <QCloseEvent>
 #include <QDropEvent>
+#include <QByteArray>
 
-#include <model/OpenEXRImage.h>
-#include <model/HeaderItem.h>
-#include <model/RGBFramebufferModel.h>
+#include <model/attribute/HeaderItem.h>
+#include <model/framebuffer/RGBFramebufferModel.h>
+
+#include "ImageFileWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -71,6 +71,8 @@ class MainWindow: public QMainWindow
     void closeEvent(QCloseEvent *event) override;
     //    void showEvent(QShowEvent* event) override;
 
+
+
   private:
     void dropEvent(QDropEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
@@ -78,14 +80,10 @@ class MainWindow: public QMainWindow
     void writeSettings();
     void readSettings();
 
-    void openItem(HeaderItem *item);
-
-    QString getTitle(int partId, const QString &layer) const;
-
   private slots:
-    void onDoubleClicked(const QModelIndex &index);
+    void onTabCloseRequested(int idx);
 
-    void onLoadFailed(const QString &msg);
+    void on_action_About_triggered();
 
     void on_action_Tabbed_triggered();
 
@@ -95,16 +93,18 @@ class MainWindow: public QMainWindow
 
     void on_action_Refresh_triggered();
 
+    void onCurrentChanged(int index);
+
+    void on_action_Close_triggered();
+
   private:
     Ui::MainWindow *ui;
 
-    QSplitter *m_splitter;
-    QTreeView *m_treeView;
-    QMdiArea * m_mdiArea;
-
-    OpenEXRImage *m_img;
-
-    QString m_openedFolder;
+    QTabWidget *m_openFileTabs;
 
     QLabel *m_statusBarMessage;
+
+    QString m_currentOpenedFolder;
+
+    QByteArray m_splitterState;
 };

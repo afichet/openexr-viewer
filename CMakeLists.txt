@@ -65,6 +65,13 @@ set(PROJECT_SOURCES
     src/view/mainwindow.h
     src/view/mainwindow.ui
 
+    src/view/about.cpp
+    src/view/about.h
+    src/view/about.ui
+
+    src/view/ImageFileWidget.cpp
+    src/view/ImageFileWidget.h
+
     src/view/GraphicsScene.cpp
     src/view/GraphicsScene.h
 
@@ -75,30 +82,43 @@ set(PROJECT_SOURCES
     src/view/RGBFramebufferWidget.h
     src/view/RGBFramebufferWidget.ui
 
-    src/view/FramebufferWidget.cpp
-    src/view/FramebufferWidget.h
-    src/view/FramebufferWidget.ui
+    src/view/YFramebufferWidget.cpp
+    src/view/YFramebufferWidget.h
+    src/view/YFramebufferWidget.ui
 
     src/view/ScaleWidget.cpp
     src/view/ScaleWidget.h
 
+    # ------------------------------------------------------------------------
+    # Model
+    # ------------------------------------------------------------------------
     src/model/OpenEXRImage.cpp
     src/model/OpenEXRImage.h
-    src/model/LayerItem.cpp
-    src/model/LayerItem.h
-    src/model/HeaderItem.cpp
-    src/model/HeaderItem.h
 
-    src/model/ImageModel.cpp
-    src/model/ImageModel.h
-    src/model/FramebufferModel.cpp
-    src/model/FramebufferModel.h
-    src/model/RGBFramebufferModel.cpp
-    src/model/RGBFramebufferModel.h
+    # OpenEXR attributes
+    src/model/attribute/HeaderItem.cpp
+    src/model/attribute/HeaderItem.h
+    src/model/attribute/HeaderModel.cpp
+    src/model/attribute/HeaderModel.h
 
-    src/model/HeaderModel.cpp
-    src/model/HeaderModel.h
+    # OpenEXR layer fields (specific kind of attributes)
+    src/model/attribute/LayerItem.cpp
+    src/model/attribute/LayerItem.h
+    src/model/attribute/LayerModel.cpp
+    src/model/attribute/LayerModel.h
 
+    # Framebuffers (image content i.e. layer data)
+    src/model/framebuffer/FramebufferModel.cpp
+    src/model/framebuffer/FramebufferModel.h
+    src/model/framebuffer/YFramebufferModel.cpp
+    src/model/framebuffer/YFramebufferModel.h
+    src/model/framebuffer/RGBFramebufferModel.cpp
+    src/model/framebuffer/RGBFramebufferModel.h
+
+
+    # ------------------------------------------------------------------------
+    # Utilities
+    # ------------------------------------------------------------------------
     src/util/Colormap.cpp
     src/util/Colormap.h
     src/util/TabulatedColormap.cpp
@@ -109,9 +129,12 @@ set(PROJECT_SOURCES
     src/util/YColormap.h
     src/util/ColormapModule.h
     src/util/ColormapModule.cpp
+    src/util/ColorTransform.h
+    src/util/ColorTransform.cpp
 
     openexr-viewer.rc
     assets/themes/dark_flat.qrc
+    assets/icons/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

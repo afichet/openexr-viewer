@@ -33,7 +33,7 @@
 #pragma once
 
 #include <QWidget>
-#include <model/RGBFramebufferModel.h>
+#include <model/framebuffer/RGBFramebufferModel.h>
 
 namespace Ui
 {
@@ -54,6 +54,8 @@ class RGBFramebufferWidget: public QWidget
     void openFileOnDropEvent(const QString &filename);
 
   private slots:
+    void onQueryPixelInfo(int x, int y);
+
     void on_sbExposure_valueChanged(double arg1);
 
     void onOpenFileOnDropEvent(const QString &filename);

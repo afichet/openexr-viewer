@@ -70,7 +70,7 @@ GraphicsView::~GraphicsView()
     //    delete _model;
 }
 
-void GraphicsView::setModel(const ImageModel *model)
+void GraphicsView::setModel(const FramebufferModel *model)
 {
     _model = model;
 
@@ -146,9 +146,13 @@ void GraphicsView::setZoomLevel(double zoom)
     if (_model == nullptr || !_model->isImageLoaded())
         return;   // || zoom == _zoomLevel) return;
 
+    //    if (_zoomLevel == zoom) return;
+
     _zoomLevel = std::max(0.01, zoom);
     resetTransform();
     scale(_zoomLevel, _zoomLevel);
+
+    // We want autoscale when loading a new image
     _autoscale = false;
 
     emit zoomLevelChanged(zoom);
@@ -157,12 +161,14 @@ void GraphicsView::setZoomLevel(double zoom)
 void GraphicsView::zoomIn()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+
     setZoomLevel(_zoomLevel * 1.1);
 }
 
 void GraphicsView::zoomOut()
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
+
     setZoomLevel(_zoomLevel / 1.1);
 }
 
@@ -170,14 +176,15 @@ void GraphicsView::autoscale()
 {
     scene()->setSceneRect(_displayWindow);
     fitInView(_displayWindow, Qt::KeepAspectRatio);
-    const double zoomLevel
-      = std::min(viewportTransform().m11(), viewportTransform().m22());
 
-    if (zoomLevel > 1.) {
-        setZoomLevel(1.);
-    } else {
-        setZoomLevel(zoomLevel);
-    }
+    _zoomLevel = std::min(viewportTransform().m11(), viewportTransform().m22());
+    _zoomLevel = std::min(_zoomLevel, 1.);
+    _zoomLevel = std::max(0.01, _zoomLevel);
+
+    resetTransform();
+    scale(_zoomLevel, _zoomLevel);
+
+    emit zoomLevelChanged(_zoomLevel);
 
     // We want autoscale when loading a new image
     _autoscale = true;
@@ -185,7 +192,6 @@ void GraphicsView::autoscale()
 
 void GraphicsView::open(const QString &filename)
 {
-    std::cout << filename.toStdString() << std::endl;
     emit openFileOnDropEvent(filename);
 }
 
@@ -227,6 +233,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
         QGraphicsView::wheelEvent(event);
     } else {
         if (_model == nullptr || !_model->isImageLoaded()) return;
+
         const QPoint delta = event->angleDelta();
 
         if (delta.y() != 0) {
@@ -241,12 +248,14 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
-    QGraphicsView::resizeEvent(e);
-
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (_autoscale) {
         autoscale();
+    } else {
+        // Recenter the image
+        resetTransform();
+        scale(_zoomLevel, _zoomLevel);
     }
 }
 
@@ -281,6 +290,9 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
         hBar->setValue(bar_values.first);
         vBar->setValue(bar_values.second);
         _startDrag = event->pos();
+    } else {
+        QPointF imgCoords = mapToScene(event->pos());
+        emit    queryPixelInfo(imgCoords.x(), imgCoords.y());
     }
 }
 

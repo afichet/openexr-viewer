@@ -38,16 +38,20 @@
 #include <Imath/ImathBox.h>
 
 OpenEXRImage::OpenEXRImage(const QString &filename, QObject *parent)
-  : m_exrIn(filename.toStdString().c_str())
+  : QObject(parent)
   , m_filename(filename)
-
+  , m_exrIn(filename.toStdString().c_str())
+  , m_headerModel(nullptr)
+  , m_layerModel(nullptr)
 {
-    _headerModel = new HeaderModel(m_exrIn.parts(), parent);
+    m_headerModel = new HeaderModel(m_exrIn, m_exrIn.parts(), this);
+    m_headerModel->addFile(m_exrIn, filename);
 
-    _headerModel->addFile(m_exrIn, filename);
+    m_layerModel = new LayerModel(m_exrIn, filename, this);
 }
 
 OpenEXRImage::~OpenEXRImage()
 {
-    delete _headerModel;
+    delete m_headerModel;
+    delete m_layerModel;
 }

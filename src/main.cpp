@@ -68,7 +68,13 @@ int main(int argc, char *argv[])
     w.show();
 
     if (argc > 1) {
-        w.open(argv[1]);
+        if (strcmp(argv[1], "-") == 0) {
+            // TODO: read from stdin
+            std::cerr << "Reading from stdin not yet supported!" << std::endl;
+            exit(1);
+        } else {
+            w.open(argv[1]);
+        }
     }
 
     return a.exec();
