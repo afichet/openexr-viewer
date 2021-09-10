@@ -49,7 +49,6 @@ MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , m_openFileTabs(new QTabWidget(this))
-
   , m_statusBarMessage(new QLabel(this))
 {
     ui->setupUi(this);

@@ -58,7 +58,10 @@ RGBFramebufferModel::~RGBFramebufferModel() {}
 void RGBFramebufferModel::load(
   Imf::MultiPartInputFile &file, int partId, bool hasAlpha)
 {
-    QFuture<void> imageLoading = QtConcurrent::run([this, &file, partId, hasAlpha]() {
+    QFuture<void> imageLoading = QtConcurrent::run([this,
+                                                    &file,
+                                                    partId,
+                                                    hasAlpha]() {
         try {
             Imf::InputPart part(file, partId);
 
