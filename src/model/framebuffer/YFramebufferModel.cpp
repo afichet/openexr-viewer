@@ -152,6 +152,19 @@ void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
     m_imageLoadingWatcher->setFuture(imageLoading);
 }
 
+std::string YFramebufferModel::getColorInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return "";
+    }
+
+    std::stringstream ss;
+    ss << "x: " << x << " y: " << y << " | "
+       << "value = " << m_pixelBuffer[y * width() + x];
+
+    return ss.str();
+}
+
 void YFramebufferModel::setMinValue(double value)
 {
     m_min = value;

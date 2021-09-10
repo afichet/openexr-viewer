@@ -55,6 +55,13 @@ class RGBFramebufferModel: public FramebufferModel
     virtual void
     load(Imf::MultiPartInputFile &file, int partId, bool hasAlpha = false);
 
+    virtual std::string getColorInfo(int x, int y) const;
+
+    virtual float getRedInfo(int x, int y) const;
+    virtual float getGreenInfo(int x, int y) const;
+    virtual float getBlueInfo(int x, int y) const;
+    virtual float getAlphaInfo(int x, int y) const;
+
   public slots:
     void setExposure(double value);
 

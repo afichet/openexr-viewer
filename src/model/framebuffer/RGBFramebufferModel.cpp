@@ -341,7 +341,7 @@ void RGBFramebufferModel::load(
                     for (int i = 0; i < m_height * m_width; i++) {
                         m_pixelBuffer[4 * i + 1] = m_pixelBuffer[4 * i + 0];
                         m_pixelBuffer[4 * i + 2] = m_pixelBuffer[4 * i + 0];
-                        m_pixelBuffer[4 * i + 3] = 255;
+                        m_pixelBuffer[4 * i + 3] = 1.f;
                     }
                 } break;
             }
@@ -360,6 +360,62 @@ void RGBFramebufferModel::load(
 
     m_imageLoadingWatcher->setFuture(imageLoading);
 }
+
+std::string RGBFramebufferModel::getColorInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return "";
+    }
+
+    std::stringstream ss;
+    ss << "x: " << x << " y: " << y << " | "
+       << " R: " << m_pixelBuffer[4 * (y * width() + x) + 0]
+       << " G: " << m_pixelBuffer[4 * (y * width() + x) + 1]
+       << " B: " << m_pixelBuffer[4 * (y * width() + x) + 2]
+       << " A: " << m_pixelBuffer[4 * (y * width() + x) + 3];
+
+    return ss.str();
+}
+
+
+float RGBFramebufferModel::getRedInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return 0;
+    }
+
+    return m_pixelBuffer[4 * (y * width() + x) + 0];
+}
+
+
+float RGBFramebufferModel::getGreenInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return 0;
+    }
+
+    return m_pixelBuffer[4 * (y * width() + x) + 1];
+}
+
+
+float RGBFramebufferModel::getBlueInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return 0;
+    }
+
+    return m_pixelBuffer[4 * (y * width() + x) + 2];
+}
+
+float RGBFramebufferModel::getAlphaInfo(int x, int y) const
+{
+    if (x < 0 || x >= width() || y < 0 || y >= height()) {
+        return 0;
+    }
+
+    return m_pixelBuffer[4 * (y * width() + x) + 3];
+}
+
 
 void RGBFramebufferModel::setExposure(double value)
 {

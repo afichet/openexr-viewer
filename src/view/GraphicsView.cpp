@@ -290,6 +290,9 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
         hBar->setValue(bar_values.first);
         vBar->setValue(bar_values.second);
         _startDrag = event->pos();
+    } else {
+        QPointF imgCoords = mapToScene(event->pos());
+        emit queryPixelInfo(imgCoords.x(), imgCoords.y());
     }
 }
 

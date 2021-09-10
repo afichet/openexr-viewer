@@ -51,6 +51,7 @@ class YFramebufferModel: public FramebufferModel
 
     double getDatasetMin() const { return m_datasetMin; }
     double getDatasetMax() const { return m_datasetMax; }
+    virtual std::string getColorInfo(int x, int y) const;
 
   public slots:
     void setMinValue(double value);

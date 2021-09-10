@@ -37,12 +37,14 @@ HeaderItem::HeaderItem(
   const QVector<QVariant> &data,
   QString                  partName,
   int                      partID,
-  QString                  itemName)
+  QString                  itemName,
+  LayerItem               *layerItem)
   : m_itemData(data)
   , m_parentItem(parentItem)
   , m_partName(partName)
   , m_itemName(itemName)
   , m_partID(partID)
+  , m_layerItem(layerItem)
 {
     // If not root item
     if (m_parentItem) {

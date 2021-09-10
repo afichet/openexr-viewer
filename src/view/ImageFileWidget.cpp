@@ -447,9 +447,11 @@ void ImageFileWidget::openLayer(const LayerItem *item)
 
 void ImageFileWidget::onAttributeDoubleClicked(const QModelIndex &index)
 {
-    // HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
-    // TODO Deactivate for now
-    // openItem(item);
+     HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
+
+     if (item->getLayerItem() != nullptr) {
+         openLayer(item->getLayerItem());
+     }
 }
 
 

@@ -65,6 +65,7 @@ class GraphicsView: public QGraphicsView
   signals:
     void zoomLevelChanged(double zoom);
     void openFileOnDropEvent(const QString &filename);
+    void queryPixelInfo(int x, int y);
 
   protected:
     void wheelEvent(QWheelEvent *event) override;

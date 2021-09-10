@@ -55,6 +55,8 @@ class YFramebufferWidget: public QWidget
     void openFileOnDropEvent(const QString &filename);
 
   private slots:
+    void onQueryPixelInfo(int x, int y);
+
     void on_sbMinValue_valueChanged(double arg1);
 
     void on_sbMaxValue_valueChanged(double arg1);

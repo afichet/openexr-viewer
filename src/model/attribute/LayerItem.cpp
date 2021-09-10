@@ -329,7 +329,8 @@ HeaderItem *LayerItem::constructItemHierarchy(
           {QString::fromStdString(m_leafName), "", "framebuffer"},
           QString::fromStdString(partName),
           partID,
-          QString::fromStdString(m_leafName));
+          QString::fromStdString(m_leafName),
+          this);
     }
 
     HeaderItem *currRoot = nullptr;
@@ -356,190 +357,12 @@ HeaderItem *LayerItem::constructItemHierarchy(
           {".", "", "framebuffer"},
           QString::fromStdString(partName),
           partID,
-          QString::fromStdString(m_leafName));
-    }
-
-    QStringList ignoredKeys;
-
-    // If we find RGB final leaf, we make a virtual group
-    if (hasRGBAChildLeafs()) {
-        HeaderItem *rgbaRoot = new HeaderItem(
-          currRoot,
-          {"RGBA", "", "RGB framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          QString::fromStdString(m_rootName));
-
-        new HeaderItem(
-          rgbaRoot,
-          {"R", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "R");
-        new HeaderItem(
-          rgbaRoot,
-          {"G", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "G");
-        new HeaderItem(
-          rgbaRoot,
-          {"B", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "B");
-        new HeaderItem(
-          rgbaRoot,
-          {"A", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "A");
-
-        ignoredKeys.append("R");
-        ignoredKeys.append("G");
-        ignoredKeys.append("B");
-        ignoredKeys.append("A");
-    } else if (hasRGBChildLeafs()) {
-        HeaderItem *rgbRoot = new HeaderItem(
-          currRoot,
-          {"RGB", "", "RGB framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          QString::fromStdString(m_rootName));
-
-        new HeaderItem(
-          rgbRoot,
-          {"R", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "R");
-        new HeaderItem(
-          rgbRoot,
-          {"G", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "G");
-        new HeaderItem(
-          rgbRoot,
-          {"B", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "B");
-
-        ignoredKeys.append("R");
-        ignoredKeys.append("G");
-        ignoredKeys.append("B");
-    }
-
-    // Same for Luminance Chroma images
-    // Not an else, can be both
-    // Note if there is both + Alpha channel, that is quite odd, alpha is then
-    // shared between to groups
-    if (hasYCAChildLeafs()) {
-        HeaderItem *ycaRoot = new HeaderItem(
-          currRoot,
-          {"YCA", "", "YC framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          QString::fromStdString(m_rootName));
-
-        new HeaderItem(
-          ycaRoot,
-          {"Y", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "Y");
-        new HeaderItem(
-          ycaRoot,
-          {"RY", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "RY");
-        new HeaderItem(
-          ycaRoot,
-          {"BY", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "BY");
-        new HeaderItem(
-          ycaRoot,
-          {"A", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "A");
-
-        ignoredKeys.append("Y");
-        ignoredKeys.append("RY");
-        ignoredKeys.append("BY");
-        ignoredKeys.append("A");
-    } else if (hasYCChildLeafs()) {
-        HeaderItem *ycRoot = new HeaderItem(
-          currRoot,
-          {"YC", "", "YC framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          QString::fromStdString(m_rootName));
-
-        new HeaderItem(
-          ycRoot,
-          {"Y", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "Y");
-        new HeaderItem(
-          ycRoot,
-          {"RY", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "RY");
-        new HeaderItem(
-          ycRoot,
-          {"BY", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "BY");
-
-        ignoredKeys.append("Y");
-        ignoredKeys.append("RY");
-        ignoredKeys.append("BY");
-    } else if (hasYAChildLeafs()) {
-        HeaderItem *yaRoot = new HeaderItem(
-          currRoot,
-          {"YA", "", "Y framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          QString::fromStdString(m_rootName));
-
-        new HeaderItem(
-          yaRoot,
-          {"Y", "", "Luminance framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "Y");
-        new HeaderItem(
-          yaRoot,
-          {"A", "", "framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "A");
-
-        ignoredKeys.append("Y");
-        ignoredKeys.append("A");
-    } else if (hasYChildLeaf()) {
-        new HeaderItem(
-          currRoot,
-          {"Y", "", "Luminance framebuffer"},
-          QString::fromStdString(partName),
-          partID,
-          "Y");
-
-        ignoredKeys.append("Y");
+          QString::fromStdString(m_leafName),
+          this);
     }
 
     for (LayerItem* it: m_childItems) {
-        if (!ignoredKeys.contains(QString::fromStdString(it->m_leafName)) || it->childCount() != 0) {
-            it->constructItemHierarchy(currRoot, partName, partID);
-        }
+        it->constructItemHierarchy(currRoot, partName, partID);
     }
 
     return currRoot;

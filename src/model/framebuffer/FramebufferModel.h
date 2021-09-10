@@ -58,6 +58,8 @@ class FramebufferModel: public QObject
     QRect getDisplayWindow() const;
     QRect getDataWindow() const;
 
+    virtual std::string getColorInfo(int x, int y) const = 0;
+
   signals:
     void imageChanged();
     void imageLoaded();

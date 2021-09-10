@@ -33,6 +33,8 @@
 #include "RGBFramebufferWidget.h"
 #include "ui_RGBFramebufferWidget.h"
 
+#include "GraphicsView.h"
+
 RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
   : QWidget(parent)
   , ui(new Ui::RGBFramebufferWidget)
@@ -40,12 +42,17 @@ RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // clang-format off
     connect(
-      ui->graphicsView,
-      SIGNAL(openFileOnDropEvent(QString)),
-      this,
-      SLOT(onOpenFileOnDropEvent(QString)));
+      ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+      this,             SLOT(onOpenFileOnDropEvent(QString)));
+
+    connect(
+        ui->graphicsView, SIGNAL(queryPixelInfo(int, int)),
+        this,             SLOT(onQueryPixelInfo(int, int)));
+    // clang-format on
 }
+
 
 RGBFramebufferWidget::~RGBFramebufferWidget()
 {
@@ -54,26 +61,38 @@ RGBFramebufferWidget::~RGBFramebufferWidget()
     if (m_model) delete m_model;
 }
 
+
 void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
 {
     m_model = model;
     ui->graphicsView->setModel(m_model);
+    onQueryPixelInfo(0, 0);
 }
+
+
+void RGBFramebufferWidget::onQueryPixelInfo(int x, int y)
+{
+    ui->pixelValueLabel->setText(QString::fromStdString(m_model->getColorInfo(x, y)));
+}
+
 
 void RGBFramebufferWidget::on_sbExposure_valueChanged(double arg1)
 {
     m_model->setExposure(arg1);
 }
 
+
 void RGBFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
 {
     emit openFileOnDropEvent(filename);
 }
 
+
 void RGBFramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
 {
     ui->graphicsView->showDataWindow(arg1 == Qt::Checked);
 }
+
 
 void RGBFramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
 {

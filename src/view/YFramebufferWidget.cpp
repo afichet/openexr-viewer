@@ -42,11 +42,15 @@ YFramebufferWidget::YFramebufferWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // clang-format off
     connect(
-      ui->graphicsView,
-      SIGNAL(openFileOnDropEvent(QString)),
-      this,
-      SLOT(onOpenFileOnDropEvent(QString)));
+        ui->graphicsView, SIGNAL(openFileOnDropEvent(QString)),
+        this,             SLOT(onOpenFileOnDropEvent(QString)));
+
+    connect(
+        ui->graphicsView, SIGNAL(queryPixelInfo(int, int)),
+        this,             SLOT(onQueryPixelInfo(int, int)));
+    // clang-format on
 
     for (int i = 0; i < ColormapModule::N_MAPS; i++) {
         ui->cbColormap->addItem(QString::fromStdString(
@@ -54,17 +58,26 @@ YFramebufferWidget::YFramebufferWidget(QWidget *parent)
     }
 }
 
+
 YFramebufferWidget::~YFramebufferWidget()
 {
     delete ui;
     if (m_model) delete m_model;
 }
 
+
 void YFramebufferWidget::setModel(YFramebufferModel *model)
 {
     m_model = model;
     ui->graphicsView->setModel(model);
 }
+
+
+void YFramebufferWidget::onQueryPixelInfo(int x, int y)
+{
+    ui->selectInfoLabel->setText(QString::fromStdString(m_model->getColorInfo(x, y)));
+}
+
 
 void YFramebufferWidget::on_sbMinValue_valueChanged(double arg1)
 {
@@ -73,12 +86,14 @@ void YFramebufferWidget::on_sbMinValue_valueChanged(double arg1)
     if (m_model) m_model->setMinValue(arg1);
 }
 
+
 void YFramebufferWidget::on_sbMaxValue_valueChanged(double arg1)
 {
     ui->sbMinValue->setMaximum(arg1);
     ui->scaleWidget->setMax(arg1);
     if (m_model) m_model->setMaxValue(arg1);
 }
+
 
 void YFramebufferWidget::on_buttonAuto_clicked()
 {
@@ -88,10 +103,12 @@ void YFramebufferWidget::on_buttonAuto_clicked()
     }
 }
 
+
 void YFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
 {
     emit openFileOnDropEvent(filename);
 }
+
 
 void YFramebufferWidget::on_cbColormap_currentIndexChanged(int index)
 {
@@ -102,15 +119,18 @@ void YFramebufferWidget::on_cbColormap_currentIndexChanged(int index)
     if (m_model) m_model->setColormap(cmap);
 }
 
+
 void YFramebufferWidget::on_cbShowDataWindow_stateChanged(int arg1)
 {
     ui->graphicsView->showDataWindow(arg1 == Qt::Checked);
 }
 
+
 void YFramebufferWidget::on_cbShowDisplayWindow_stateChanged(int arg1)
 {
     ui->graphicsView->showDisplayWindow(arg1 == Qt::Checked);
 }
+
 
 void YFramebufferWidget::on_cbScale_stateChanged(int arg1)
 {
