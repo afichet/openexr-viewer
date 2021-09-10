@@ -60,7 +60,7 @@ YFramebufferModel::~YFramebufferModel()
 
 void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
 {
-    QFuture<void> imageLoading = QtConcurrent::run([&]() {
+    QFuture<void> imageLoading = QtConcurrent::run([this, &file, partId]() {
         try {
             Imf::InputPart part(file, partId);
 
