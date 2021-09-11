@@ -141,4 +141,4 @@ van der Walt, and (in the case of viridis) Eric Firing. These are
 licensed under CC0 license
 (http://creativecommons.org/publicdomain/zero/1.0/).
 - Turbo from https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f by Anton Mikhailov licensed under Apache-2.0.
-- Some icons made by DinosoftLabs from www.flaticon.com 
+- Most icons made by DinosoftLabs from www.flaticon.com 
