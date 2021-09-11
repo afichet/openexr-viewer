@@ -3,13 +3,12 @@ OpenEXR Viewer
 
 [![openexr-viewer](https://snapcraft.io/openexr-viewer/badge.svg)](https://snapcraft.io/openexr-viewer)
 
-
 A simple viewer for OpenEXR files with detailed metadata probing.
 
 You can display various types of layers, automatically combines RGB,
 Luminance-Chroma and Y layers.
 
-![Screenshot from 2021-05-23 01-53-47](https://user-images.githubusercontent.com/7930348/119243717-bbb39200-bb69-11eb-8ad2-b8937cb31508.png)
+![Screenshot from 2021-09-11 01-58-27](https://user-images.githubusercontent.com/7930348/132928984-fd31c2c3-c66f-43c9-b63b-2f1836a09fe8.png)
 
 Disclaimer
 ==========
@@ -142,3 +141,4 @@ van der Walt, and (in the case of viridis) Eric Firing. These are
 licensed under CC0 license
 (http://creativecommons.org/publicdomain/zero/1.0/).
 - Turbo from https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f by Anton Mikhailov licensed under Apache-2.0.
+- Some icons made by DinosoftLabs from www.flaticon.com 
