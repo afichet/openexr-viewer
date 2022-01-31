@@ -40,14 +40,14 @@ class GraphicsScene: public QGraphicsScene
   public:
     virtual ~GraphicsScene();
 
-    GraphicsScene(QObject *parent = 0);
+    GraphicsScene(QObject* parent = 0);
 
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent* event);
 
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent* event);
 
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent* event);
 
   signals:
-    void openFileOnDropEvent(const QString &filename);
+    void openFileOnDropEvent(const QString& filename);
 };

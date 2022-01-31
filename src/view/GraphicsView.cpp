@@ -43,7 +43,7 @@
 #include <QScrollBar>
 #include <QUrl>
 
-GraphicsView::GraphicsView(QWidget *parent)
+GraphicsView::GraphicsView(QWidget* parent)
   : QGraphicsView(parent)
   , _model(nullptr)
   , _imageItem(nullptr)
@@ -52,7 +52,7 @@ GraphicsView::GraphicsView(QWidget *parent)
   , _showDataWindow(true)
   , _showDisplayWindow(true)
 {
-    GraphicsScene *scene = new GraphicsScene;
+    GraphicsScene* scene = new GraphicsScene;
     setScene(scene);
     //  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     setMouseTracking(true);
@@ -70,7 +70,7 @@ GraphicsView::~GraphicsView()
     //    delete _model;
 }
 
-void GraphicsView::setModel(const FramebufferModel *model)
+void GraphicsView::setModel(const FramebufferModel* model)
 {
     _model = model;
 
@@ -123,7 +123,7 @@ void GraphicsView::onImageChanged()
         _imageItem = nullptr;
     }
 
-    const QImage &loadedImage = _model->getLoadedImage();
+    const QImage& loadedImage = _model->getLoadedImage();
 
     // We need to resize the image according to pixelAspectRatio
     // Small optim, no need to process the transform is aspect ratio = 1
@@ -190,7 +190,7 @@ void GraphicsView::autoscale()
     _autoscale = true;
 }
 
-void GraphicsView::open(const QString &filename)
+void GraphicsView::open(const QString& filename)
 {
     emit openFileOnDropEvent(filename);
 }
@@ -227,7 +227,7 @@ void GraphicsView::showDataWindow(bool show)
 
 //}
 
-void GraphicsView::wheelEvent(QWheelEvent *event)
+void GraphicsView::wheelEvent(QWheelEvent* event)
 {
     if ((event->modifiers() & Qt::ControlModifier) != 0U) {
         QGraphicsView::wheelEvent(event);
@@ -246,7 +246,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
     }
 }
 
-void GraphicsView::resizeEvent(QResizeEvent *)
+void GraphicsView::resizeEvent(QResizeEvent*)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
@@ -259,7 +259,7 @@ void GraphicsView::resizeEvent(QResizeEvent *)
     }
 }
 
-void GraphicsView::mousePressEvent(QMouseEvent *event)
+void GraphicsView::mousePressEvent(QMouseEvent* event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
@@ -273,15 +273,15 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void GraphicsView::mouseMoveEvent(QMouseEvent *event)
+void GraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     if (
       ((event->buttons() & Qt::MiddleButton) != 0U)
       || ((event->buttons() & Qt::LeftButton) != 0U)) {
-        QScrollBar *        hBar  = horizontalScrollBar();
-        QScrollBar *        vBar  = verticalScrollBar();
+        QScrollBar*         hBar  = horizontalScrollBar();
+        QScrollBar*         vBar  = verticalScrollBar();
         QPoint              delta = event->pos() - _startDrag;
         std::pair<int, int> bar_values;
         bar_values.first
@@ -296,14 +296,14 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void GraphicsView::mouseReleaseEvent(QMouseEvent *)
+void GraphicsView::mouseReleaseEvent(QMouseEvent*)
 {
     if (_model == nullptr || !_model->isImageLoaded()) return;
 
     setCursor(Qt::ArrowCursor);
 }
 
-void GraphicsView::dropEvent(QDropEvent *ev)
+void GraphicsView::dropEvent(QDropEvent* ev)
 {
     if (_model == nullptr) return;
 
@@ -326,12 +326,12 @@ void GraphicsView::dropEvent(QDropEvent *ev)
     }
 }
 
-void GraphicsView::dragEnterEvent(QDragEnterEvent *ev)
+void GraphicsView::dragEnterEvent(QDragEnterEvent* ev)
 {
     ev->acceptProposedAction();
 }
 
-void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
+void GraphicsView::drawBackground(QPainter* painter, const QRectF&)
 {
     const int polySize = 16;
 
@@ -358,7 +358,7 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &)
     }
 }
 
-void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
+void GraphicsView::drawForeground(QPainter* painter, const QRectF& rect)
 {
     if (_model) {
         if (_showDisplayWindow) {

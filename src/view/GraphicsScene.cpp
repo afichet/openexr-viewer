@@ -39,21 +39,21 @@
 #include <QMimeData>
 #include <QUrl>
 
-GraphicsScene::GraphicsScene(QObject *parent): QGraphicsScene(parent) {}
+GraphicsScene::GraphicsScene(QObject* parent): QGraphicsScene(parent) {}
 
 GraphicsScene::~GraphicsScene() {}
 
-void GraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+void GraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 {
     event->setAccepted(true);
 }
 
-void GraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+void GraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 {
     event->setAccepted(true);
 }
 
-void GraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *ev)
+void GraphicsScene::dropEvent(QGraphicsSceneDragDropEvent* ev)
 {
     QList<QUrl> urls = ev->mimeData()->urls();
 

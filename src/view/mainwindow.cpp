@@ -45,7 +45,7 @@
 #include <model/attribute/HeaderModel.h>
 #include <model/attribute/LayerItem.h>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , m_openFileTabs(new QTabWidget(this))
@@ -78,17 +78,22 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::open(const QString &filename)
+void MainWindow::open(const QString& filename)
 {
     QString filename_no_path = QFileInfo(filename).fileName();
 
-    ImageFileWidget *fileWidget = new ImageFileWidget(m_openFileTabs);
-    fileWidget->open(filename);
+    ImageFileWidget* fileWidget = new ImageFileWidget(filename, m_openFileTabs);
     fileWidget->setSplitterImageState(m_splitterImageState);
     fileWidget->setSplitterPropertiesState(m_splitterPropertiesState);
 
     m_openFileTabs->addTab(fileWidget, filename_no_path);
     m_openFileTabs->setCurrentWidget(fileWidget);
+
+    connect(
+      fileWidget,
+      SIGNAL(openFileOnDropEvent(QString)),
+      this,
+      SLOT(open(QString)));
 }
 
 
@@ -112,14 +117,14 @@ void MainWindow::on_action_Quit_triggered()
 }
 
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
     writeSettings();
     event->accept();
 }
 
 
-void MainWindow::dropEvent(QDropEvent *ev)
+void MainWindow::dropEvent(QDropEvent* ev)
 {
     QList<QUrl> urls = ev->mimeData()->urls();
 
@@ -140,7 +145,7 @@ void MainWindow::dropEvent(QDropEvent *ev)
 }
 
 
-void MainWindow::dragEnterEvent(QDragEnterEvent *ev)
+void MainWindow::dragEnterEvent(QDragEnterEvent* ev)
 {
     ev->acceptProposedAction();
 }
@@ -155,10 +160,10 @@ void MainWindow::writeSettings()
       "OpenEXR Viewer");
 
     // A bit hacky...
-    QWidget *activeWidget = m_openFileTabs->currentWidget();
+    QWidget* activeWidget = m_openFileTabs->currentWidget();
 
     if (activeWidget) {
-        ImageFileWidget *widget = (ImageFileWidget *)activeWidget;
+        ImageFileWidget* widget = (ImageFileWidget*)activeWidget;
 
         m_currentOpenedFolder     = widget->getOpenedFolder();
         m_splitterImageState      = widget->getSplitterImageState();
@@ -204,7 +209,7 @@ void MainWindow::readSettings()
 void MainWindow::onTabCloseRequested(int idx)
 {
     // Saves state in case this is the last opened tab
-    ImageFileWidget *widget = (ImageFileWidget *)m_openFileTabs->widget(idx);
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->widget(idx);
 
     m_currentOpenedFolder     = widget->getOpenedFolder();
     m_splitterImageState      = widget->getSplitterImageState();
@@ -216,8 +221,7 @@ void MainWindow::onTabCloseRequested(int idx)
 
 void MainWindow::on_action_Tabbed_triggered()
 {
-    ImageFileWidget *widget
-      = (ImageFileWidget *)m_openFileTabs->currentWidget();
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setTabbed();
@@ -227,8 +231,7 @@ void MainWindow::on_action_Tabbed_triggered()
 
 void MainWindow::on_action_Cascade_triggered()
 {
-    ImageFileWidget *widget
-      = (ImageFileWidget *)m_openFileTabs->currentWidget();
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setCascade();
@@ -238,8 +241,7 @@ void MainWindow::on_action_Cascade_triggered()
 
 void MainWindow::on_action_Tiled_triggered()
 {
-    ImageFileWidget *widget
-      = (ImageFileWidget *)m_openFileTabs->currentWidget();
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
 
     if (widget) {
         widget->setTiled();
@@ -249,8 +251,7 @@ void MainWindow::on_action_Tiled_triggered()
 
 void MainWindow::on_action_Refresh_triggered()
 {
-    ImageFileWidget *widget
-      = (ImageFileWidget *)m_openFileTabs->currentWidget();
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
     widget->refresh();
 }
 
@@ -267,8 +268,7 @@ void MainWindow::onCurrentChanged(int index)
     ui->action_Refresh->setEnabled(true);
     ui->action_Close->setEnabled(true);
 
-    ImageFileWidget *widget
-      = (ImageFileWidget *)m_openFileTabs->currentWidget();
+    ImageFileWidget* widget = (ImageFileWidget*)m_openFileTabs->currentWidget();
 
     m_currentOpenedFolder     = widget->getOpenedFolder();
     m_splitterImageState      = widget->getSplitterImageState();
