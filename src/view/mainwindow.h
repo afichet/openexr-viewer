@@ -61,6 +61,7 @@ class MainWindow: public QMainWindow
     ~MainWindow();
 
   public slots:
+    void open(std::istream& stream);
     void open(const QString& filename);
 
   private slots:

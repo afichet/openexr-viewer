@@ -47,6 +47,88 @@ ImageFileWidget::ImageFileWidget(const QString& filename, QWidget* parent)
   : QWidget(parent)
   , m_img(nullptr)
   , m_openedFolder(QDir::homePath())
+  , m_isStream(false)
+{
+    setupLayout();
+
+    // clang-format off
+    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
+
+    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
+    // clang-format on
+
+
+    // Open the file
+    open(filename);
+}
+
+
+ImageFileWidget::ImageFileWidget(std::istream& stream, QWidget* parent)
+  : QWidget(parent)
+  , m_img(nullptr)
+  , m_openedFolder(QDir::homePath())
+  , m_isStream(true)
+{
+    setupLayout();
+
+    // clang-format off
+    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
+
+    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
+    // clang-format on
+
+
+    // Open the file
+
+    open(stream);
+}
+
+
+ImageFileWidget::~ImageFileWidget()
+{
+    delete m_img;
+}
+
+
+
+void ImageFileWidget::refresh()
+{
+    // TODO:
+    // Better refresh handling: keep all window open, close those with no valid
+    // layer...
+    if (!m_isStream) {
+        open(m_openedFilename);
+    }
+}
+
+
+
+void ImageFileWidget::setTabbed()
+{
+    m_mdiArea->setViewMode(QMdiArea::TabbedView);
+    m_mdiArea->setTabsMovable(true);
+}
+
+
+void ImageFileWidget::setCascade()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->cascadeSubWindows();
+}
+
+
+void ImageFileWidget::setTiled()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->tileSubWindows();
+}
+
+
+void ImageFileWidget::setupLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -80,58 +162,6 @@ ImageFileWidget::ImageFileWidget(const QString& filename, QWidget* parent)
     layout->addWidget(m_splitterImageView);
 
     setLayout(layout);
-
-    // clang-format off
-    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
-            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
-
-    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
-            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
-    // clang-format on
-
-
-    // Open the file
-    m_openedFilename = filename;
-
-    refresh();
-}
-
-
-ImageFileWidget::~ImageFileWidget()
-{
-    delete m_img;
-}
-
-
-
-void ImageFileWidget::refresh()
-{
-    // TODO:
-    // Better refresh handling: keep all window open, close those with no valid
-    // layer...
-    open();
-}
-
-
-
-void ImageFileWidget::setTabbed()
-{
-    m_mdiArea->setViewMode(QMdiArea::TabbedView);
-    m_mdiArea->setTabsMovable(true);
-}
-
-
-void ImageFileWidget::setCascade()
-{
-    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
-    m_mdiArea->cascadeSubWindows();
-}
-
-
-void ImageFileWidget::setTiled()
-{
-    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
-    m_mdiArea->tileSubWindows();
 }
 
 
@@ -268,6 +298,7 @@ void ImageFileWidget::openLayer(const LayerItem* item)
               SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -298,6 +329,7 @@ void ImageFileWidget::openLayer(const LayerItem* item)
               SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -330,6 +362,7 @@ void ImageFileWidget::openLayer(const LayerItem* item)
               SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -361,6 +394,7 @@ void ImageFileWidget::openLayer(const LayerItem* item)
               SLOT(onOpenFileDropEvent(QString)));
 
             graphicViewBW->setModel(imageModelBW);
+
             imageModelBW->load(m_img->getEXR(), item->getPart());
 
             subWindow = m_mdiArea->addSubWindow(graphicViewBW);
@@ -389,11 +423,13 @@ void ImageFileWidget::openLayer(const LayerItem* item)
 }
 
 
-
-void ImageFileWidget::open()
+void ImageFileWidget::open(const QString& filename)
 {
+    assert(!m_isStream);
+
     // Open the file
-    m_openedFolder = QFileInfo(m_openedFilename).absolutePath();
+    m_openedFilename = filename;
+    m_openedFolder   = QFileInfo(m_openedFilename).absolutePath();
 
     // Attempt opening the image
     OpenEXRImage* imageLoaded = nullptr;
@@ -421,6 +457,46 @@ void ImageFileWidget::open()
 
     m_img = imageLoaded;
 
+    afterOpen();
+}
+
+
+void ImageFileWidget::open(std::istream& stream)
+{
+    assert(m_isStream);
+
+    // Attempt opening the image
+    OpenEXRImage* imageLoaded = nullptr;
+
+    try {
+        imageLoaded = new OpenEXRImage(stream, this);
+    } catch (std::exception& e) {
+        onLoadFailed(e.what());
+
+        delete imageLoaded;
+
+        return;
+    }
+
+    // No error so far, continue normal execution
+    if (m_img) {
+        m_mdiArea->closeAllSubWindows();
+        m_attributesTreeView->setModel(nullptr);
+        m_layersTreeView->setModel(nullptr);
+        delete m_img;
+        m_img = nullptr;
+    }
+
+    //    m_statusBarMessage->setText(filename);
+
+    m_img = imageLoaded;
+
+    afterOpen();
+}
+
+
+void ImageFileWidget::afterOpen()
+{
     m_attributesTreeView->setModel(m_img->getHeaderModel());
     m_attributesTreeView->expandAll();
     m_attributesTreeView->resizeColumnToContents(0);
@@ -429,6 +505,12 @@ void ImageFileWidget::open()
     m_layersTreeView->expandAll();
     m_layersTreeView->resizeColumnToContents(0);
 
+    openDefaultLayer();
+}
+
+
+void ImageFileWidget::openDefaultLayer()
+{
     // Detect if there is a root RGB or YC layer group
     LayerItem const* r = m_img->getLayerModel()->getRoot();
 

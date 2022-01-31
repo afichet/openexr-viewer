@@ -31,27 +31,49 @@
  */
 
 #include "OpenEXRImage.h"
+#include "StdIStream.h"
 
 #include <OpenEXR/ImfChannelList.h>
 #include <OpenEXR/ImfHeader.h>
 
 #include <Imath/ImathBox.h>
 
+
 OpenEXRImage::OpenEXRImage(const QString& filename, QObject* parent)
   : QObject(parent)
   , m_filename(filename)
-  , m_exrIn(filename.toStdString().c_str())
+  , m_isStream(false)
+  , m_exrIn(new Imf::MultiPartInputFile(filename.toStdString().c_str()))
   , m_headerModel(nullptr)
   , m_layerModel(nullptr)
 {
-    m_headerModel = new HeaderModel(m_exrIn, m_exrIn.parts(), this);
-    m_headerModel->addFile(m_exrIn, filename);
+    m_headerModel = new HeaderModel(*m_exrIn, m_exrIn->parts(), this);
+    m_headerModel->addFile(*m_exrIn, filename);
 
-    m_layerModel = new LayerModel(m_exrIn, this);
+    m_layerModel = new LayerModel(*m_exrIn, this);
 }
+
+
+OpenEXRImage::OpenEXRImage(std::istream& stream, QObject* parent)
+  : QObject(parent)
+  , m_isStream(true)
+  //  , m_exrIn(StdIStream(stream))
+  , m_headerModel(nullptr)
+  , m_layerModel(nullptr)
+{
+    StdIStream s(stream);
+    m_exrIn = new Imf::MultiPartInputFile(s);
+
+    m_headerModel = new HeaderModel(*m_exrIn, m_exrIn->parts(), this);
+    m_headerModel->addFile(*m_exrIn, "Stream");
+
+    m_layerModel = new LayerModel(*m_exrIn, this);
+}
+
 
 OpenEXRImage::~OpenEXRImage()
 {
     delete m_headerModel;
     delete m_layerModel;
+    delete m_exrIn;
 }

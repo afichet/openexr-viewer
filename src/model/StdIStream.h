@@ -30,53 +30,22 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <view/mainwindow.h>
+#pragma once
 
-#include <QApplication>
-#include <QFile>
+#include <OpenEXR/ImfIO.h>
 
-#if defined(WIN32)
+#include <istream>
 
-#    include <Windows.h>
-
-int CALLBACK WinMain(
-  _In_ HINSTANCE /*hInstance*/,
-  _In_ HINSTANCE /*hPrevInstance*/,
-  _In_ LPSTR /*lpCmdLine*/,
-  _In_ int /*nCmdShow*/
-)
+class StdIStream: public Imf::IStream
 {
-    int    argc = __argc;
-    char** argv = __argv;
-#else
-int main(int argc, char* argv[])
-{
-#endif
-    QApplication a(argc, argv);
+  public:
+    StdIStream(std::istream& stream);
+    virtual bool     read(char c[/*n*/], int n);
+    virtual uint64_t tellg();
+    virtual void     seekg(uint64_t pos);
 
-    QFile f(":/dark_flat/theme.css");
+    virtual bool isMemoryMapped() const { return false; }
 
-    if (!f.exists()) {
-        qWarning() << "Unable to set stylesheet, file not found";
-    } else {
-        f.open(QFile::ReadOnly | QFile::Text);
-        QTextStream ts(&f);
-        a.setStyleSheet(ts.readAll());
-    }
-
-    MainWindow w;
-    w.show();
-
-    if (argc > 1) {
-        if (strcmp(argv[1], "--") == 0) {
-            std::cerr << "Reading from stdin not yet supported." << std::endl;
-            exit(1);
-            // Read from stdin
-            w.open(std::cin);
-        } else {
-            w.open(argv[1]);
-        }
-    }
-
-    return a.exec();
-}
+  private:
+    std::istream& m_stream;
+};

@@ -78,6 +78,25 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::open(std::istream& stream)
+{
+    //QString filename_no_path = QFileInfo(filename).fileName();
+
+    ImageFileWidget* fileWidget = new ImageFileWidget(stream, m_openFileTabs);
+    fileWidget->setSplitterImageState(m_splitterImageState);
+    fileWidget->setSplitterPropertiesState(m_splitterPropertiesState);
+
+    m_openFileTabs->addTab(fileWidget, "Stream");
+    m_openFileTabs->setCurrentWidget(fileWidget);
+
+    connect(
+      fileWidget,
+      SIGNAL(openFileOnDropEvent(QString)),
+      this,
+      SLOT(open(QString)));
+}
+
+
 void MainWindow::open(const QString& filename)
 {
     QString filename_no_path = QFileInfo(filename).fileName();

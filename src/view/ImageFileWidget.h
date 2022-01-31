@@ -47,6 +47,8 @@ class ImageFileWidget: public QWidget
     explicit ImageFileWidget(
       const QString& filename, QWidget* parent = nullptr);
 
+    explicit ImageFileWidget(std::istream& stream, QWidget* parent = nullptr);
+
     virtual ~ImageFileWidget();
 
     QString getOpenedFolder() const { return m_openedFolder; }
@@ -72,6 +74,7 @@ class ImageFileWidget: public QWidget
         m_splitterProperties->restoreState(state);
     }
 
+    bool isStream() const { return m_isStream; }
 
   signals:
     void openFileOnDropEvent(const QString& filename);
@@ -86,13 +89,19 @@ class ImageFileWidget: public QWidget
 
 
   protected:
+    void setupLayout();
+
     static QString getTitle(const LayerItem* item);
     QString        getTitle(int partId, const std::string& layer) const;
     void           openAttribute(const HeaderItem* item);
 
     void openLayer(const LayerItem* item);
 
-    void open();
+    void open(const QString& filename);
+    void open(std::istream& stream);
+
+    void afterOpen();
+    void openDefaultLayer();
 
   private slots:
     void onAttributeDoubleClicked(const QModelIndex& index);
@@ -112,4 +121,6 @@ class ImageFileWidget: public QWidget
     OpenEXRImage* m_img;
     QString       m_openedFolder;
     QString       m_openedFilename;
+
+    bool m_isStream;
 };

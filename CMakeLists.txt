@@ -115,6 +115,9 @@ set(PROJECT_SOURCES
     src/model/framebuffer/RGBFramebufferModel.cpp
     src/model/framebuffer/RGBFramebufferModel.h
 
+    # Stream
+    src/model/StdIStream.cpp
+    src/model/StdIStream.h
 
     # ------------------------------------------------------------------------
     # Utilities
