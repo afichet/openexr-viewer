@@ -45,11 +45,11 @@
 #include <ImfHeader.h>
 
 LayerItem::LayerItem(
-  Imf::MultiPartInputFile &file,
-  LayerItem *              pParent,
-  const std::string &      leafName,
-  const std::string &      originalChannelName,
-  const Imf::Channel *     pChannel,
+  Imf::MultiPartInputFile& file,
+  LayerItem*               pParent,
+  const std::string&       leafName,
+  const std::string&       originalChannelName,
+  const Imf::Channel*      pChannel,
   int                      part)
   : m_pParentItem(pParent)
   , m_part(part)
@@ -71,31 +71,31 @@ LayerItem::LayerItem(
 
 LayerItem::~LayerItem()
 {
-    for (LayerItem *it : m_childItems) {
+    for (LayerItem* it : m_childItems) {
         delete it;
     }
 
     delete[] m_previewBuffer;
 }
 
-LayerItem *LayerItem::addLeaf(
-  Imf::MultiPartInputFile &file,
-  const std::string &      channelName,
-  const Imf::Channel *     pChannel,
+LayerItem* LayerItem::addLeaf(
+  Imf::MultiPartInputFile& file,
+  const std::string&       channelName,
+  const Imf::Channel*      pChannel,
   int                      part)
 {
     QStringList channelHierachy
       = QString::fromStdString(channelName).split(".");
 
-    LayerItem *pLeafPtr = this;
+    LayerItem* pLeafPtr = this;
 
-    for (auto &leafName : channelHierachy) {
-        LayerItem *pExistingLeaf = pLeafPtr->child(leafName.toStdString());
+    for (auto& leafName : channelHierachy) {
+        LayerItem* pExistingLeaf = pLeafPtr->child(leafName.toStdString());
 
         if (pExistingLeaf != nullptr) {
             pLeafPtr = pExistingLeaf;
         } else {
-            LayerItem *pNewLeaf = new LayerItem(
+            LayerItem* pNewLeaf = new LayerItem(
               file,
               pLeafPtr,
               leafName.toStdString(),
@@ -140,11 +140,11 @@ void LayerItem::groupLayers()
 {
     if (hasRGBAChildLeafs()) {
         // TODO: Get channel name... a bit hacky for now
-        LayerItem * item = child(LayerItem::R);
+        LayerItem*  item = child(LayerItem::R);
         std::string layerName
           = item->m_channelName.substr(0, item->m_channelName.size() - 1);
 
-        LayerItem *rgbaRoot = new LayerItem(
+        LayerItem* rgbaRoot = new LayerItem(
           m_fileHandle,
           this,
           "RGBA",
@@ -172,18 +172,18 @@ void LayerItem::groupLayers()
         m_childItems[aIdx]->m_pParentItem = rgbaRoot;
         m_childItems.erase(std::next(m_childItems.begin(), aIdx));
 
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             if (it->m_type != LayerType::RGBA) {
                 it->groupLayers();
             }
         }
     } else if (hasRGBChildLeafs()) {
         // TODO: Get channel name... a bit hacky for now
-        LayerItem * item = child(LayerItem::R);
+        LayerItem*  item = child(LayerItem::R);
         std::string layerName
           = item->m_channelName.substr(0, item->m_channelName.size() - 1);
 
-        LayerItem *rgbRoot = new LayerItem(
+        LayerItem* rgbRoot = new LayerItem(
           m_fileHandle,
           this,
           "RGB",
@@ -206,18 +206,18 @@ void LayerItem::groupLayers()
         m_childItems[bIdx]->m_pParentItem = rgbRoot;
         m_childItems.erase(std::next(m_childItems.begin(), bIdx));
 
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             if (it->m_type != LayerType::RGB) {
                 it->groupLayers();
             }
         }
     } else if (hasYCAChildLeafs()) {
         // TODO: Get channel name... a bit hacky for now
-        LayerItem * item = child(LayerItem::Y);
+        LayerItem*  item = child(LayerItem::Y);
         std::string layerName
           = item->m_channelName.substr(0, item->m_channelName.size() - 1);
 
-        LayerItem *ycaRoot = new LayerItem(
+        LayerItem* ycaRoot = new LayerItem(
           m_fileHandle,
           this,
           "YCA",
@@ -245,7 +245,7 @@ void LayerItem::groupLayers()
         m_childItems[aIdx]->m_pParentItem = ycaRoot;
         m_childItems.erase(std::next(m_childItems.begin(), aIdx));
 
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             if (it->m_type != LayerType::YCA) {
                 it->groupLayers();
             }
@@ -253,11 +253,11 @@ void LayerItem::groupLayers()
 
     } else if (hasYCChildLeafs()) {
         // TODO: Get channel name... a bit hacky for now
-        LayerItem * item = child(LayerItem::Y);
+        LayerItem*  item = child(LayerItem::Y);
         std::string layerName
           = item->m_channelName.substr(0, item->m_channelName.size() - 1);
 
-        LayerItem *ycRoot
+        LayerItem* ycRoot
           = new LayerItem(m_fileHandle, this, "YC", layerName, nullptr, m_part);
 
         int yIdx = childIndex(LayerItem::Y);
@@ -275,18 +275,18 @@ void LayerItem::groupLayers()
         m_childItems[byIdx]->m_pParentItem = ycRoot;
         m_childItems.erase(std::next(m_childItems.begin(), byIdx));
 
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             if (it->m_type != LayerType::YC) {
                 it->groupLayers();
             }
         }
     } else if (hasYAChildLeafs()) {
         // TODO: Get channel name... a bit hacky for now
-        LayerItem * item = child(LayerItem::Y);
+        LayerItem*  item = child(LayerItem::Y);
         std::string layerName
           = item->m_channelName.substr(0, item->m_channelName.size() - 1);
 
-        LayerItem *yaRoot
+        LayerItem* yaRoot
           = new LayerItem(m_fileHandle, this, "YA", layerName, nullptr, m_part);
 
         int yIdx = childIndex(LayerItem::Y);
@@ -299,22 +299,22 @@ void LayerItem::groupLayers()
         m_childItems[aIdx]->m_pParentItem = yaRoot;
         m_childItems.erase(std::next(m_childItems.begin(), aIdx));
 
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             if (it->m_type != LayerType::YA) {
                 it->groupLayers();
             }
         }
     } else {
         // No grouping so far...
-        for (LayerItem *it : m_childItems) {
+        for (LayerItem* it : m_childItems) {
             it->groupLayers();
         }
     }
 }
 
 
-HeaderItem *LayerItem::constructItemHierarchy(
-  HeaderItem *parent, const std::string &partName, int partID)
+HeaderItem* LayerItem::constructItemHierarchy(
+  HeaderItem* parent, const std::string& partName, int partID)
 {
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
@@ -328,7 +328,7 @@ HeaderItem *LayerItem::constructItemHierarchy(
           this);
     }
 
-    HeaderItem *currRoot = nullptr;
+    HeaderItem* currRoot = nullptr;
 
     // Avoid empty root on top level
     if (m_pParentItem) {
@@ -358,7 +358,7 @@ HeaderItem *LayerItem::constructItemHierarchy(
           this);
     }
 
-    for (LayerItem *it : m_childItems) {
+    for (LayerItem* it : m_childItems) {
         it->constructItemHierarchy(currRoot, partName, partID);
     }
 
@@ -369,15 +369,15 @@ HeaderItem *LayerItem::constructItemHierarchy(
  * Child introspection and access functions
  * ------------------------------------------------------------------------- */
 
-LayerItem *LayerItem::child(int index) const
+LayerItem* LayerItem::child(int index) const
 {
     return m_childItems[index];
 }
 
 
-LayerItem *LayerItem::child(const std::string &name) const
+LayerItem* LayerItem::child(const std::string& name) const
 {
-    for (LayerItem *it : m_childItems) {
+    for (LayerItem* it : m_childItems) {
         if (it->m_leafName == name) {
             return it;
         }
@@ -387,9 +387,9 @@ LayerItem *LayerItem::child(const std::string &name) const
 }
 
 
-LayerItem *LayerItem::child(const LayerType &type) const
+LayerItem* LayerItem::child(const LayerType& type) const
 {
-    for (LayerItem *it : m_childItems) {
+    for (LayerItem* it : m_childItems) {
         if (it->m_type == type) {
             return it;
         }
@@ -399,7 +399,7 @@ LayerItem *LayerItem::child(const LayerType &type) const
 }
 
 
-int LayerItem::childIndex(const std::string &name) const
+int LayerItem::childIndex(const std::string& name) const
 {
     for (size_t i = 0; i < m_childItems.size(); i++) {
         if (m_childItems[i]->m_leafName == name) {
@@ -411,7 +411,7 @@ int LayerItem::childIndex(const std::string &name) const
 }
 
 
-int LayerItem::childIndex(const LayerType &type) const
+int LayerItem::childIndex(const LayerType& type) const
 {
     for (size_t i = 0; i < m_childItems.size(); i++) {
         if (m_childItems[i]->m_type == type) {
@@ -429,7 +429,7 @@ int LayerItem::childCount() const
 }
 
 
-bool LayerItem::hasChild(const std::string &name) const
+bool LayerItem::hasChild(const std::string& name) const
 {
     if (child(name) != nullptr) {
         return true;
@@ -439,9 +439,9 @@ bool LayerItem::hasChild(const std::string &name) const
 }
 
 
-bool LayerItem::hasChildLeaf(const std::string &name) const
+bool LayerItem::hasChildLeaf(const std::string& name) const
 {
-    LayerItem *childItem = child(name);
+    LayerItem* childItem = child(name);
 
     if (childItem != nullptr) {
         return childItem->m_pChannel != nullptr;
@@ -451,9 +451,9 @@ bool LayerItem::hasChildLeaf(const std::string &name) const
 }
 
 
-bool LayerItem::hasChildLeaf(const LayerType &type) const
+bool LayerItem::hasChildLeaf(const LayerType& type) const
 {
-    LayerItem *childItem = child(type);
+    LayerItem* childItem = child(type);
 
     if (childItem != nullptr) {
         return childItem->m_pChannel != nullptr;
@@ -526,7 +526,7 @@ std::string LayerItem::getOriginalFullName() const
 int LayerItem::getPart() const
 {
     return (m_part == -1) ? 0 : m_part;   // TODO
-    LayerItem const *item = this;
+    LayerItem const* item = this;
 
     // Go to the parent untill getting a part
     while (item->m_type != PART) {
@@ -565,7 +565,7 @@ std::string LayerItem::getPartName() const
 }
 
 
-const QImage &LayerItem::getPreview() const
+const QImage& LayerItem::getPreview() const
 {
     return m_preview;
 }
@@ -622,12 +622,12 @@ LayerItem::LayerType LayerItem::constructType()
 }
 
 
-void LayerItem::createThumbnails(LayerItem *item)
+void LayerItem::createThumbnails(LayerItem* item)
 {
     item->createThumbnail();
 
     //#pragma omp parallel for
-    for (LayerItem *it : m_childItems) {
+    for (LayerItem* it : m_childItems) {
         it->createThumbnails(it);
     }
 }

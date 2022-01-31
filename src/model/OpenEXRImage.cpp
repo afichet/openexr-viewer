@@ -37,7 +37,7 @@
 
 #include <Imath/ImathBox.h>
 
-OpenEXRImage::OpenEXRImage(const QString &filename, QObject *parent)
+OpenEXRImage::OpenEXRImage(const QString& filename, QObject* parent)
   : QObject(parent)
   , m_filename(filename)
   , m_exrIn(filename.toStdString().c_str())

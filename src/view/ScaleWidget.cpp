@@ -35,7 +35,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-ScaleWidget::ScaleWidget(QWidget *parent)
+ScaleWidget::ScaleWidget(QWidget* parent)
   : QWidget(parent)
   , m_min(0.)
   , m_max(1.)
@@ -76,7 +76,7 @@ void ScaleWidget::setColormap(ColormapModule::Map map)
     update();
 }
 
-void ScaleWidget::paintEvent(QPaintEvent *e)
+void ScaleWidget::paintEvent(QPaintEvent* e)
 {
     QWidget::paintEvent(e);
 
@@ -133,7 +133,7 @@ void ScaleWidget::paintEvent(QPaintEvent *e)
     }
 }
 
-void ScaleWidget::resizeEvent(QResizeEvent *e)
+void ScaleWidget::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
 

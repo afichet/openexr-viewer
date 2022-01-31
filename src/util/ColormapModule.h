@@ -51,8 +51,8 @@ class ColormapModule
         N_MAPS
     };
 
-    static Colormap *create(const std::string &name);
-    static Colormap *create(Map map);
+    static Colormap* create(const std::string& name);
+    static Colormap* create(Map map);
 
     static std::string toString(Map map);
 };

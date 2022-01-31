@@ -50,18 +50,18 @@ class LayerModel: public QAbstractItemModel
         N_LAYER_INFO
     };
 
-    LayerModel(Imf::MultiPartInputFile &file, QObject *parent);
+    LayerModel(Imf::MultiPartInputFile& file, QObject* parent);
 
     ~LayerModel();
 
-    LayerItem *getRoot() const { return m_rootItem; }
+    LayerItem* getRoot() const { return m_rootItem; }
 
     /**
      * Qt logic for accessing the model
      */
-    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     QVariant headerData(
       int             section,
@@ -71,16 +71,16 @@ class LayerModel: public QAbstractItemModel
     QModelIndex index(
       int                row,
       int                column,
-      const QModelIndex &parent = QModelIndex()) const override;
+      const QModelIndex& parent = QModelIndex()) const override;
 
-    QModelIndex parent(const QModelIndex &index) const override;
+    QModelIndex parent(const QModelIndex& index) const override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
   private:
-    LayerItem *m_rootItem;
+    LayerItem* m_rootItem;
 
-    Imf::MultiPartInputFile &m_fileHandle;
+    Imf::MultiPartInputFile& m_fileHandle;
 };

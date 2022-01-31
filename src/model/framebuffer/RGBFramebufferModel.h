@@ -46,14 +46,14 @@ class RGBFramebufferModel: public FramebufferModel
     };
 
     RGBFramebufferModel(
-      const std::string &parentLayerName,
+      const std::string& parentLayerName,
       LayerType          layerType = Layer_RGB,
-      QObject *          parent    = nullptr);
+      QObject*           parent    = nullptr);
 
     virtual ~RGBFramebufferModel();
 
     virtual void
-    load(Imf::MultiPartInputFile &file, int partId, bool hasAlpha = false);
+    load(Imf::MultiPartInputFile& file, int partId, bool hasAlpha = false);
 
     virtual std::string getColorInfo(int x, int y) const;
 

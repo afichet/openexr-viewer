@@ -37,7 +37,7 @@
 #include <cstddef>
 #include <fstream>
 
-FramebufferModel::FramebufferModel(QObject *parent)
+FramebufferModel::FramebufferModel(QObject* parent)
   : QObject(parent)
   , m_pixelBuffer(nullptr)
   , m_width(0)

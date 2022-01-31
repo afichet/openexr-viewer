@@ -35,7 +35,7 @@
 
 #include "GraphicsView.h"
 
-RGBFramebufferWidget::RGBFramebufferWidget(QWidget *parent)
+RGBFramebufferWidget::RGBFramebufferWidget(QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::RGBFramebufferWidget)
   , m_model(nullptr)
@@ -62,7 +62,7 @@ RGBFramebufferWidget::~RGBFramebufferWidget()
 }
 
 
-void RGBFramebufferWidget::setModel(RGBFramebufferModel *model)
+void RGBFramebufferWidget::setModel(RGBFramebufferModel* model)
 {
     m_model = model;
     ui->graphicsView->setModel(m_model);
@@ -83,7 +83,7 @@ void RGBFramebufferWidget::on_sbExposure_valueChanged(double arg1)
 }
 
 
-void RGBFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+void RGBFramebufferWidget::onOpenFileOnDropEvent(const QString& filename)
 {
     emit openFileOnDropEvent(filename);
 }

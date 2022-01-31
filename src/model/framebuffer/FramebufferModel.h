@@ -44,10 +44,10 @@ class FramebufferModel: public QObject
     Q_OBJECT
 
   public:
-    FramebufferModel(QObject *parent = nullptr);
+    FramebufferModel(QObject* parent = nullptr);
     virtual ~FramebufferModel();
 
-    const QImage &getLoadedImage() const { return m_image; }
+    const QImage& getLoadedImage() const { return m_image; }
 
     bool isImageLoaded() const { return m_isImageLoaded; }
 
@@ -67,7 +67,7 @@ class FramebufferModel: public QObject
     void loadFailed(QString message);
 
   protected:
-    float *m_pixelBuffer;
+    float* m_pixelBuffer;
     QImage m_image;
 
     int m_width, m_height;
@@ -76,8 +76,8 @@ class FramebufferModel: public QObject
 
     double m_exposure;
 
-    QFutureWatcher<void> *m_imageLoadingWatcher;
-    QFutureWatcher<void> *m_imageEditingWatcher;
+    QFutureWatcher<void>* m_imageLoadingWatcher;
+    QFutureWatcher<void>* m_imageEditingWatcher;
 
     QRect m_dataWindow;
     QRect m_displayWindow;

@@ -67,19 +67,19 @@ class LayerItem
     };
 
     LayerItem(
-      Imf::MultiPartInputFile &file,
-      LayerItem *              pParent             = nullptr,
-      const std::string &      leafName            = "",
-      const std::string &      originalChannelName = "",
-      const Imf::Channel *     pChannel            = nullptr,
+      Imf::MultiPartInputFile& file,
+      LayerItem*               pParent             = nullptr,
+      const std::string&       leafName            = "",
+      const std::string&       originalChannelName = "",
+      const Imf::Channel*      pChannel            = nullptr,
       int                      part                = -1);
 
     ~LayerItem();
 
-    LayerItem *addLeaf(
-      Imf::MultiPartInputFile &file,
-      const std::string &      channelName,
-      const Imf::Channel *     pChannel,
+    LayerItem* addLeaf(
+      Imf::MultiPartInputFile& file,
+      const std::string&       channelName,
+      const Imf::Channel*      pChannel,
       int                      part = -1);
 
 
@@ -88,25 +88,25 @@ class LayerItem
     // Perfoms the grouping of known layer groups: RGB, RGBA, YC, YCA...
     void groupLayers();
 
-    HeaderItem *constructItemHierarchy(
-      HeaderItem *parent, const std::string &partName, int partID);
+    HeaderItem* constructItemHierarchy(
+      HeaderItem* parent, const std::string& partName, int partID);
 
-    LayerItem *child(int index) const;
-    LayerItem *child(const std::string &name) const;
-    LayerItem *child(const LayerType &type) const;
+    LayerItem* child(int index) const;
+    LayerItem* child(const std::string& name) const;
+    LayerItem* child(const LayerType& type) const;
 
-    int childIndex(const std::string &name) const;
-    int childIndex(const LayerType &type) const;
+    int childIndex(const std::string& name) const;
+    int childIndex(const LayerType& type) const;
 
     int childCount() const;
 
-    const std::vector<LayerItem *> &children() const { return m_childItems; }
+    const std::vector<LayerItem*>& children() const { return m_childItems; }
 
-    LayerItem *parentItem() { return m_pParentItem; }
+    LayerItem* parentItem() { return m_pParentItem; }
 
-    bool hasChild(const std::string &name) const;
-    bool hasChildLeaf(const std::string &name) const;
-    bool hasChildLeaf(const LayerType &type) const;
+    bool hasChild(const std::string& name) const;
+    bool hasChildLeaf(const std::string& name) const;
+    bool hasChildLeaf(const LayerType& type) const;
 
     bool hasRGBChildLeafs() const;
     bool hasRGBAChildLeafs() const;
@@ -125,7 +125,7 @@ class LayerItem
     bool        hasPartName() const;
     std::string getPartName() const;
 
-    const QImage &getPreview() const;
+    const QImage& getPreview() const;
 
     //    void printHierarchy(std::string front) const;
 
@@ -134,11 +134,11 @@ class LayerItem
   private:
     LayerType constructType();
 
-    void createThumbnails(LayerItem *item);
+    void createThumbnails(LayerItem* item);
     void createThumbnail();
 
-    std::vector<LayerItem *> m_childItems;
-    LayerItem *              m_pParentItem;
+    std::vector<LayerItem*> m_childItems;
+    LayerItem*              m_pParentItem;
 
     // Id of the part
     const int m_part;
@@ -154,11 +154,11 @@ class LayerItem
 
     LayerType m_type;
 
-    Imf::MultiPartInputFile &m_fileHandle;
-    const Imf::Channel *     m_pChannel;
+    Imf::MultiPartInputFile& m_fileHandle;
+    const Imf::Channel*      m_pChannel;
 
     int m_previewSize;
 
     QImage m_preview;
-    uchar *m_previewBuffer;
+    uchar* m_previewBuffer;
 };

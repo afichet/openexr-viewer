@@ -40,9 +40,9 @@
 
 #include <cstring>
 
-Colormap *ColormapModule::create(const std::string &name)
+Colormap* ColormapModule::create(const std::string& name)
 {
-    const char *colormap_name = name.c_str();
+    const char* colormap_name = name.c_str();
 
     if (strcmp(colormap_name, "bbgr") == 0) {
         return new BBGRColormap();
@@ -59,7 +59,7 @@ Colormap *ColormapModule::create(const std::string &name)
     }
 }
 
-Colormap *ColormapModule::create(Map map)
+Colormap* ColormapModule::create(Map map)
 {
     switch (map) {
         case GRAYSCALE:

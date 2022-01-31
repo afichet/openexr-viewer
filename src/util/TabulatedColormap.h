@@ -52,7 +52,7 @@ class TabulatedColormap: public Colormap
 
     TabulatedColormap(TabMap map);
 
-    TabulatedColormap(const char *name);
+    TabulatedColormap(const char* name);
 
     virtual ~TabulatedColormap();
 
@@ -61,7 +61,7 @@ class TabulatedColormap: public Colormap
     //    RGB[3]) const;
 
   protected:
-    void init(float *array, int n_elems);
+    void init(float* array, int n_elems);
 
   private:
     std::vector<float> _array;
