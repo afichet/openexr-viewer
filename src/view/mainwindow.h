@@ -57,25 +57,26 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
   public slots:
-    void open(const QString &filename);
+    void open(std::istream& stream);
+    void open(const QString& filename);
 
   private slots:
     void on_action_Open_triggered();
     void on_action_Quit_triggered();
 
   protected:
-    void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent* event) override;
     //    void showEvent(QShowEvent* event) override;
 
 
 
   private:
-    void dropEvent(QDropEvent *event) override;
-    void dragEnterEvent(QDragEnterEvent *ev) override;
+    void dropEvent(QDropEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* ev) override;
 
     void writeSettings();
     void readSettings();
@@ -98,11 +99,11 @@ class MainWindow: public QMainWindow
     void on_action_Close_triggered();
 
   private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow* ui;
 
-    QTabWidget *m_openFileTabs;
+    QTabWidget* m_openFileTabs;
 
-    QLabel *m_statusBarMessage;
+    QLabel* m_statusBarMessage;
 
     QString m_currentOpenedFolder;
 

@@ -46,13 +46,13 @@ class YFramebufferWidget: public QWidget
     Q_OBJECT
 
   public:
-    explicit YFramebufferWidget(QWidget *parent = nullptr);
+    explicit YFramebufferWidget(QWidget* parent = nullptr);
     ~YFramebufferWidget();
 
-    void setModel(YFramebufferModel *model);
+    void setModel(YFramebufferModel* model);
 
   signals:
-    void openFileOnDropEvent(const QString &filename);
+    void openFileOnDropEvent(const QString& filename);
 
   private slots:
     void onQueryPixelInfo(int x, int y);
@@ -63,7 +63,7 @@ class YFramebufferWidget: public QWidget
 
     void on_buttonAuto_clicked();
 
-    void onOpenFileOnDropEvent(const QString &filename);
+    void onOpenFileOnDropEvent(const QString& filename);
 
     void on_cbColormap_currentIndexChanged(int index);
 
@@ -74,6 +74,6 @@ class YFramebufferWidget: public QWidget
     void on_cbScale_stateChanged(int arg1);
 
   private:
-    Ui::YFramebufferWidget *ui;
-    YFramebufferModel *     m_model;
+    Ui::YFramebufferWidget* ui;
+    YFramebufferModel*      m_model;
 };

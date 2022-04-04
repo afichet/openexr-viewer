@@ -33,12 +33,12 @@
 #include "HeaderItem.h"
 
 HeaderItem::HeaderItem(
-  HeaderItem *             parentItem,
-  const QVector<QVariant> &data,
+  HeaderItem*              parentItem,
+  const QVector<QVariant>& data,
   QString                  partName,
   int                      partID,
   QString                  itemName,
-  LayerItem *              layerItem)
+  LayerItem*               layerItem)
   : m_itemData(data)
   , m_parentItem(parentItem)
   , m_partName(partName)
@@ -88,7 +88,7 @@ void HeaderItem::setData(QVector<QVariant> data)
     m_itemData = data;
 }
 
-HeaderItem *HeaderItem::child(int row)
+HeaderItem* HeaderItem::child(int row)
 {
     if (row < 0 || row >= m_childItems.size()) {
         return nullptr;
@@ -120,13 +120,13 @@ int HeaderItem::row() const
 {
     if (m_parentItem) {
         return m_parentItem->m_childItems.indexOf(
-          const_cast<HeaderItem *>(this));
+          const_cast<HeaderItem*>(this));
     }
 
     return 0;
 }
 
-HeaderItem *HeaderItem::parentItem()
+HeaderItem* HeaderItem::parentItem()
 {
     return m_parentItem;
 }

@@ -42,11 +42,11 @@ class GraphicsView: public QGraphicsView
 {
     Q_OBJECT
   public:
-    GraphicsView(QWidget *parent = nullptr);
+    GraphicsView(QWidget* parent = nullptr);
     virtual ~GraphicsView();
 
   public slots:
-    void setModel(const FramebufferModel *model);
+    void setModel(const FramebufferModel* model);
 
     void onImageLoaded();
     void onImageChanged();
@@ -57,35 +57,35 @@ class GraphicsView: public QGraphicsView
 
     void autoscale();
 
-    void open(const QString &filename);
+    void open(const QString& filename);
 
     void showDisplayWindow(bool show);
     void showDataWindow(bool show);
 
   signals:
     void zoomLevelChanged(double zoom);
-    void openFileOnDropEvent(const QString &filename);
+    void openFileOnDropEvent(const QString& filename);
     void queryPixelInfo(int x, int y);
 
   protected:
-    void wheelEvent(QWheelEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+    void wheelEvent(QWheelEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
-    void dropEvent(QDropEvent *ev) override;
-    void dragEnterEvent(QDragEnterEvent *ev) override;
+    void dropEvent(QDropEvent* ev) override;
+    void dragEnterEvent(QDragEnterEvent* ev) override;
 
-    virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
-    virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+    virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
+    virtual void drawForeground(QPainter* painter, const QRectF& rect) override;
 
     virtual void scrollContentsBy(int dx, int dy) override;
 
   private:
-    const FramebufferModel *_model;
-    QGraphicsPixmapItem *   _imageItem;
+    const FramebufferModel* _model;
+    QGraphicsPixmapItem*    _imageItem;
     //    QGraphicsRectItem *_datawindowItem;
     //    QGraphicsRectItem *_displaywindowItem;
 

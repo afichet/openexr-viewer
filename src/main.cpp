@@ -47,9 +47,9 @@ int CALLBACK WinMain(
 )
 {
     int    argc = __argc;
-    char **argv = __argv;
+    char** argv = __argv;
 #else
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 #endif
     QApplication a(argc, argv);
@@ -68,10 +68,11 @@ int main(int argc, char *argv[])
     w.show();
 
     if (argc > 1) {
-        if (strcmp(argv[1], "-") == 0) {
-            // TODO: read from stdin
-            std::cerr << "Reading from stdin not yet supported!" << std::endl;
+        if (strcmp(argv[1], "--") == 0) {
+            std::cerr << "Reading from stdin not yet supported." << std::endl;
             exit(1);
+            // Read from stdin
+            w.open(std::cin);
         } else {
             w.open(argv[1]);
         }

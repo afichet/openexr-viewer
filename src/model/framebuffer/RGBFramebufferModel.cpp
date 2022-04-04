@@ -46,7 +46,7 @@
 #include <Imath/ImathBox.h>
 
 RGBFramebufferModel::RGBFramebufferModel(
-  const std::string &parentLayerName, LayerType layerType, QObject *parent)
+  const std::string& parentLayerName, LayerType layerType, QObject* parent)
   : FramebufferModel(parent)
   , m_parentLayer(parentLayerName)
   , m_layerType(layerType)
@@ -56,7 +56,7 @@ RGBFramebufferModel::RGBFramebufferModel(
 RGBFramebufferModel::~RGBFramebufferModel() {}
 
 void RGBFramebufferModel::load(
-  Imf::MultiPartInputFile &file, int partId, bool hasAlpha)
+  Imf::MultiPartInputFile& file, int partId, bool hasAlpha)
 {
     QFuture<void> imageLoading = QtConcurrent::run([this,
                                                     &file,
@@ -83,7 +83,7 @@ void RGBFramebufferModel::load(
 
             // Check if there is specific chromaticities tied to the color
             // representation in this part.
-            const Imf::ChromaticitiesAttribute *c
+            const Imf::ChromaticitiesAttribute* c
               = part.header().findTypedAttribute<Imf::ChromaticitiesAttribute>(
                 "chromaticities");
 
@@ -190,12 +190,12 @@ void RGBFramebufferModel::load(
 
                     Imf::FrameBuffer framebuffer;
 
-                    Imf::Rgba *buff1 = new Imf::Rgba[m_width * m_height];
-                    Imf::Rgba *buff2 = new Imf::Rgba[m_width * m_height];
+                    Imf::Rgba* buff1 = new Imf::Rgba[m_width * m_height];
+                    Imf::Rgba* buff2 = new Imf::Rgba[m_width * m_height];
 
-                    float *yBuffer  = new float[m_width * m_height];
-                    float *ryBuffer = new float[m_width / 2 * m_height / 2];
-                    float *byBuffer = new float[m_width / 2 * m_height / 2];
+                    float* yBuffer  = new float[m_width * m_height];
+                    float* ryBuffer = new float[m_width / 2 * m_height / 2];
+                    float* byBuffer = new float[m_width / 2 * m_height / 2];
 
                     Imf::Slice ySlice = Imf::Slice::Make(
                       Imf::PixelType::FLOAT,
@@ -238,6 +238,29 @@ void RGBFramebufferModel::load(
                     for (int y = 0; y < m_height; y++) {
                         for (int x = 0; x < m_width; x++) {
                             const float l = yBuffer[y * m_width + x];
+
+                            /*
+                            float ry = 0, by = 0;
+
+                            if (y % 2 == 0) {
+                                if (x % 2 == 0) {
+                                    ry = ryBuffer[y / 2 * m_width / 2 + x / 2];
+                                    by = byBuffer[y / 2 * m_width / 2 + x / 2];
+                                } else {
+                                    ry = .5 * (ryBuffer[y / 2 * m_width / 2 + x / 2] + ryBuffer[y / 2 * m_width / 2 + x / 2 + 1]);
+                                    by = .5 * (byBuffer[y / 2 * m_width / 2 + x / 2] + byBuffer[y / 2 * m_width / 2 + x / 2 + 1]);
+                                }
+                            } else {
+                                if (x % 2 == 0) {
+                                    ry = .5 * (ryBuffer[y / 2 * m_width / 2 + x / 2] + ryBuffer[(y / 2 + 1) * m_width / 2 + x / 2]);
+                                    by = .5 * (byBuffer[y / 2 * m_width / 2 + x / 2] + byBuffer[(y / 2 + 1) * m_width / 2 + x / 2]);
+                                } else {
+                                    ry = .25 * (ryBuffer[y / 2 * m_width / 2 + x / 2] + ryBuffer[(y / 2 + 1) * m_width / 2 + x / 2] + ryBuffer[y / 2 * m_width / 2 + x / 2 + 1] + ryBuffer[(y / 2 + 1) * m_width / 2 + x / 2 + 1]);
+                                    by = .25 * (byBuffer[y / 2 * m_width / 2 + x / 2] + byBuffer[(y / 2 + 1) * m_width / 2 + x / 2] + byBuffer[y / 2 * m_width / 2 + x / 2 + 1] + byBuffer[(y / 2 + 1) * m_width / 2 + x / 2 + 1]);
+                                }
+                            }
+                            */
+
                             const float ry
                               = ryBuffer[y / 2 * m_width / 2 + x / 2];
                             const float by
@@ -267,7 +290,7 @@ void RGBFramebufferModel::load(
                     // Fix over saturated pixels
                     #pragma omp parallel for
                     for (int y = 0; y < m_height; y++) {
-                        const Imf::Rgba *scanlines[3];
+                        const Imf::Rgba* scanlines[3];
 
                         if (y == 0) {
                             scanlines[0] = &buff1[(y + 1) * m_width];
@@ -354,7 +377,7 @@ void RGBFramebufferModel::load(
             emit imageLoaded();
 
             updateImage();
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             emit loadFailed(e.what());
             return;
         }
@@ -445,7 +468,7 @@ void RGBFramebufferModel::updateImage()
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
         for (int y = 0; y < m_image.height(); y++) {
-            unsigned char *line = m_image.scanLine(y);
+            unsigned char* line = m_image.scanLine(y);
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {

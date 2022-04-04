@@ -39,7 +39,7 @@
 #include <OpenEXR/ImfIDManifest.h>
 
 HeaderModel::HeaderModel(
-  Imf::MultiPartInputFile &file, int n_parts, QObject *parent)
+  Imf::MultiPartInputFile& file, int n_parts, QObject* parent)
   : QAbstractItemModel(parent)
   , m_rootItem(new HeaderItem(nullptr, {tr("Name"), tr("Value"), tr("Type")}))
   , m_fileHandle(file)
@@ -52,20 +52,20 @@ HeaderModel::~HeaderModel()
 {
     delete m_rootItem;
 
-    for (LayerItem *it : m_partRootLayer) {
+    for (LayerItem* it : m_partRootLayer) {
         delete it;
     }
 }
 
 void HeaderModel::addFile(
-  const Imf::MultiPartInputFile &file, const QString &filename)
+  const Imf::MultiPartInputFile& file, const QString& filename)
 {
     QString rootValue = QString::number(file.parts()) + " part";
     if (file.parts() > 1) {
         rootValue += "s";
     }
 
-    HeaderItem *fileRoot = new HeaderItem(
+    HeaderItem* fileRoot = new HeaderItem(
       m_rootItem,
       {QFileInfo(filename).fileName(), rootValue, "file"});
 
@@ -73,7 +73,7 @@ void HeaderModel::addFile(
 
     if (nParts > 1) {
         for (int i = 0; i < nParts; i++) {
-            const Imf::Header &exrHeader = file.header(i);
+            const Imf::Header& exrHeader = file.header(i);
 
             std::string partName = "Untitled part";
 
@@ -82,13 +82,13 @@ void HeaderModel::addFile(
             }
 
             QString     partValue = "[" + QString::number(i) + "]";
-            HeaderItem *partRoot
+            HeaderItem* partRoot
               = new HeaderItem(fileRoot, {partName.c_str(), partValue, "part"});
 
             addHeader(exrHeader, partRoot, QString::fromStdString(partName), i);
         }
     } else if (nParts == 1) {
-        const Imf::Header &exrHeader = file.header(0);
+        const Imf::Header& exrHeader = file.header(0);
 
         std::string partName = "Untitled part";
 
@@ -103,7 +103,7 @@ void HeaderModel::addFile(
 }
 
 
-QVariant HeaderModel::data(const QModelIndex &index, int role) const
+QVariant HeaderModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) {
         return QVariant();
@@ -113,12 +113,12 @@ QVariant HeaderModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
+    HeaderItem* item = static_cast<HeaderItem*>(index.internalPointer());
 
     return item->data(index.column());
 }
 
-Qt::ItemFlags HeaderModel::flags(const QModelIndex &index) const
+Qt::ItemFlags HeaderModel::flags(const QModelIndex& index) const
 {
     if (!index.isValid()) {
         return Qt::NoItemFlags;
@@ -138,19 +138,19 @@ QVariant HeaderModel::headerData(
 }
 
 QModelIndex
-HeaderModel::index(int row, int column, const QModelIndex &parent) const
+HeaderModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent)) return QModelIndex();
 
-    HeaderItem *parentItem;
+    HeaderItem* parentItem;
 
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<HeaderItem *>(parent.internalPointer());
+        parentItem = static_cast<HeaderItem*>(parent.internalPointer());
     }
 
-    HeaderItem *childItem = parentItem->child(row);
+    HeaderItem* childItem = parentItem->child(row);
 
     if (childItem) {
         return createIndex(row, column, childItem);
@@ -159,14 +159,14 @@ HeaderModel::index(int row, int column, const QModelIndex &parent) const
     return QModelIndex();
 }
 
-QModelIndex HeaderModel::parent(const QModelIndex &index) const
+QModelIndex HeaderModel::parent(const QModelIndex& index) const
 {
     if (!index.isValid()) {
         return QModelIndex();
     }
 
-    HeaderItem *childItem  = static_cast<HeaderItem *>(index.internalPointer());
-    HeaderItem *parentItem = childItem->parentItem();
+    HeaderItem* childItem  = static_cast<HeaderItem*>(index.internalPointer());
+    HeaderItem* parentItem = childItem->parentItem();
 
     if (parentItem == m_rootItem) {
         return QModelIndex();
@@ -175,9 +175,9 @@ QModelIndex HeaderModel::parent(const QModelIndex &index) const
     return createIndex(parentItem->row(), 0, parentItem);
 }
 
-int HeaderModel::rowCount(const QModelIndex &parent) const
+int HeaderModel::rowCount(const QModelIndex& parent) const
 {
-    HeaderItem *parentItem;
+    HeaderItem* parentItem;
 
     if (parent.column() > 0) {
         return 0;
@@ -186,16 +186,16 @@ int HeaderModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<HeaderItem *>(parent.internalPointer());
+        parentItem = static_cast<HeaderItem*>(parent.internalPointer());
     }
 
     return parentItem->childCount();
 }
 
-int HeaderModel::columnCount(const QModelIndex &parent) const
+int HeaderModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) {
-        return static_cast<HeaderItem *>(parent.internalPointer())
+        return static_cast<HeaderItem*>(parent.internalPointer())
           ->columnCount();
     }
 
@@ -204,8 +204,8 @@ int HeaderModel::columnCount(const QModelIndex &parent) const
 
 
 void HeaderModel::addHeader(
-  const Imf::Header &header,
-  HeaderItem *       root,
+  const Imf::Header& header,
+  HeaderItem*        root,
   const QString      partName,
   int                partID)
 {
@@ -229,10 +229,10 @@ void HeaderModel::addHeader(
         return addItem(_name, typedAttr, _parent, _partName, _partID);         \
     }
 
-HeaderItem *HeaderModel::addItem(
-  const char *          name,
-  const Imf::Attribute &attribute,
-  HeaderItem *          parent,
+HeaderItem* HeaderModel::addItem(
+  const char*           name,
+  const Imf::Attribute& attribute,
+  HeaderItem*           parent,
   QString               partName,
   int                   part_number)
 {
@@ -272,7 +272,7 @@ HeaderItem *HeaderModel::addItem(
     // clang-format on
 
     // We've tried everything we knew so far... this is an unknown attribute
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "Unsupported", attribute.typeName()},
       partName,
@@ -285,14 +285,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Box2i
-HeaderItem *HeaderModel::addItem(
-  const char *               name,
-  const Imf::Box2iAttribute &attr,
-  HeaderItem *               parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                name,
+  const Imf::Box2iAttribute& attr,
+  HeaderItem*                parent,
   QString                    partName,
   int                        part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::Box2iAttribute::staticTypeName()},
       partName,
@@ -348,14 +348,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Box2f
-HeaderItem *HeaderModel::addItem(
-  const char *               name,
-  const Imf::Box2fAttribute &attr,
-  HeaderItem *               parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                name,
+  const Imf::Box2fAttribute& attr,
+  HeaderItem*                parent,
   QString                    partName,
   int                        part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::Box2fAttribute::staticTypeName()},
       partName,
@@ -411,14 +411,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Channel list
-HeaderItem *HeaderModel::addItem(
-  const char *                     name,
-  const Imf::ChannelListAttribute &attr,
-  HeaderItem *                     parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                      name,
+  const Imf::ChannelListAttribute& attr,
+  HeaderItem*                      parent,
   QString                          partName,
   int                              part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(parent);
+    HeaderItem* attrItem = new HeaderItem(parent);
 
     std::stringstream ss;
 
@@ -465,14 +465,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Chromaticities
-HeaderItem *HeaderModel::addItem(
-  const char *                        name,
-  const Imf::ChromaticitiesAttribute &attr,
-  HeaderItem *                        parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                         name,
+  const Imf::ChromaticitiesAttribute& attr,
+  HeaderItem*                         parent,
   QString                             partName,
   int                                 part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::ChromaticitiesAttribute::staticTypeName()},
       partName,
@@ -524,10 +524,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Compression
-HeaderItem *HeaderModel::addItem(
-  const char *                     name,
-  const Imf::CompressionAttribute &attr,
-  HeaderItem *                     parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                      name,
+  const Imf::CompressionAttribute& attr,
+  HeaderItem*                      parent,
   QString                          partName,
   int                              part_number)
 {
@@ -567,7 +567,7 @@ HeaderItem *HeaderModel::addItem(
             ss << "unknown compression type: " << attr.value();
             break;
     }
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::CompressionAttribute::staticTypeName()},
       partName,
@@ -579,10 +579,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Deep image state
-HeaderItem *HeaderModel::addItem(
-  const char *                        name,
-  const Imf::DeepImageStateAttribute &attr,
-  HeaderItem *                        parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                         name,
+  const Imf::DeepImageStateAttribute& attr,
+  HeaderItem*                         parent,
   QString                             partName,
   int                                 part_number)
 {
@@ -605,7 +605,7 @@ HeaderItem *HeaderModel::addItem(
             break;
     }
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::DeepImageStateAttribute::staticTypeName()},
       partName,
@@ -617,17 +617,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Double
-HeaderItem *HeaderModel::addItem(
-  const char *                name,
-  const Imf::DoubleAttribute &attr,
-  HeaderItem *                parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                 name,
+  const Imf::DoubleAttribute& attr,
+  HeaderItem*                 parent,
   QString                     partName,
   int                         part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::DoubleAttribute::staticTypeName()},
       partName,
@@ -639,10 +639,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Envmap
-HeaderItem *HeaderModel::addItem(
-  const char *                name,
-  const Imf::EnvmapAttribute &attr,
-  HeaderItem *                parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                 name,
+  const Imf::EnvmapAttribute& attr,
+  HeaderItem*                 parent,
   QString                     partName,
   int                         part_number)
 {
@@ -659,7 +659,7 @@ HeaderItem *HeaderModel::addItem(
             break;
     }
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::EnvmapAttribute::staticTypeName()},
       partName,
@@ -671,17 +671,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Float
-HeaderItem *HeaderModel::addItem(
-  const char *               name,
-  const Imf::FloatAttribute &attr,
-  HeaderItem *               parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                name,
+  const Imf::FloatAttribute& attr,
+  HeaderItem*                parent,
   QString                    partName,
   int                        part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::FloatAttribute::staticTypeName()},
       partName,
@@ -693,14 +693,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Float vector
-HeaderItem *HeaderModel::addItem(
-  const char *                     name,
-  const Imf::FloatVectorAttribute &attr,
-  HeaderItem *                     parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                      name,
+  const Imf::FloatVectorAttribute& attr,
+  HeaderItem*                      parent,
   QString                          partName,
   int                              part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(parent);
+    HeaderItem* attrItem = new HeaderItem(parent);
 
     size_t            floatCount = 0;
     std::stringstream ss;
@@ -735,14 +735,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // IDManifest
-HeaderItem *HeaderModel::addItem(
-  const char *                    name,
-  const Imf::IDManifestAttribute &attr,
-  HeaderItem *                    parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                     name,
+  const Imf::IDManifestAttribute& attr,
+  HeaderItem*                     parent,
   QString                         partName,
   int                             part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::IDManifestAttribute::staticTypeName()},
       partName,
@@ -757,7 +757,7 @@ HeaderItem *HeaderModel::addItem(
 
         const Imf::IDManifest::ChannelGroupManifest chManifest = manifest[i];
 
-        HeaderItem *manifestGroup = new HeaderItem(
+        HeaderItem* manifestGroup = new HeaderItem(
           attrItem,
           {sI.str().c_str(), "", "ChannelGroupManifest"},
           partName,
@@ -765,14 +765,14 @@ HeaderItem *HeaderModel::addItem(
           name);
 
         // Channels
-        HeaderItem *manifestGroupChannels = new HeaderItem(
+        HeaderItem* manifestGroupChannels = new HeaderItem(
           manifestGroup,
           {"channels", "", ""},
           partName,
           part_number,
           name);
 
-        for (const auto &ch : chManifest.getChannels()) {
+        for (const auto& ch : chManifest.getChannels()) {
             new HeaderItem(
               manifestGroupChannels,
               {"", ch.c_str(), Imf::StringAttribute::staticTypeName()},
@@ -782,9 +782,9 @@ HeaderItem *HeaderModel::addItem(
         }
 
         // Components
-        const std::vector<std::string> &components = chManifest.getComponents();
+        const std::vector<std::string>& components = chManifest.getComponents();
 
-        HeaderItem *manifestGroupComponents = new HeaderItem(
+        HeaderItem* manifestGroupComponents = new HeaderItem(
           manifestGroup,
           {"components",
            QString::number(components.size()),
@@ -869,17 +869,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Int
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::IntAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::IntAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::IntAttribute::staticTypeName()},
       partName,
@@ -891,14 +891,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Key code
-HeaderItem *HeaderModel::addItem(
-  const char *                 name,
-  const Imf::KeyCodeAttribute &attr,
-  HeaderItem *                 parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                  name,
+  const Imf::KeyCodeAttribute& attr,
+  HeaderItem*                  parent,
   QString                      partName,
   int                          part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::KeyCodeAttribute::staticTypeName()},
       partName,
@@ -959,10 +959,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Line order
-HeaderItem *HeaderModel::addItem(
-  const char *                   name,
-  const Imf::LineOrderAttribute &attr,
-  HeaderItem *                   parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                    name,
+  const Imf::LineOrderAttribute& attr,
+  HeaderItem*                    parent,
   QString                        partName,
   int                            part_number)
 {
@@ -983,7 +983,7 @@ HeaderItem *HeaderModel::addItem(
             ss << "unknown line order: " << attr.value();
             break;
     }
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::LineOrderAttribute::staticTypeName()},
       partName,
@@ -995,16 +995,16 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Matrix33f
-HeaderItem *HeaderModel::addItem(
-  const char *              name,
-  const Imf::M33fAttribute &attr,
-  HeaderItem *              parent,
+HeaderItem* HeaderModel::addItem(
+  const char*               name,
+  const Imf::M33fAttribute& attr,
+  HeaderItem*               parent,
   QString                   partName,
   int                       part_number)
 {
     // TODO
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::M33fAttribute::staticTypeName()},
       partName,
@@ -1031,14 +1031,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Matrix33d
-HeaderItem *HeaderModel::addItem(
-  const char *              name,
-  const Imf::M33dAttribute &attr,
-  HeaderItem *              parent,
+HeaderItem* HeaderModel::addItem(
+  const char*               name,
+  const Imf::M33dAttribute& attr,
+  HeaderItem*               parent,
   QString                   partName,
   int                       part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::M33dAttribute::staticTypeName()},
       partName,
@@ -1065,14 +1065,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Matrix44f
-HeaderItem *HeaderModel::addItem(
-  const char *              name,
-  const Imf::M44fAttribute &attr,
-  HeaderItem *              parent,
+HeaderItem* HeaderModel::addItem(
+  const char*               name,
+  const Imf::M44fAttribute& attr,
+  HeaderItem*               parent,
   QString                   partName,
   int                       part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::M44fAttribute::staticTypeName()},
       partName,
@@ -1100,14 +1100,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Matrix44d
-HeaderItem *HeaderModel::addItem(
-  const char *              name,
-  const Imf::M44dAttribute &attr,
-  HeaderItem *              parent,
+HeaderItem* HeaderModel::addItem(
+  const char*               name,
+  const Imf::M44dAttribute& attr,
+  HeaderItem*               parent,
   QString                   partName,
   int                       part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::M44dAttribute::staticTypeName()},
       partName,
@@ -1135,10 +1135,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Preview image
-HeaderItem *HeaderModel::addItem(
-  const char *                      name,
-  const Imf::PreviewImageAttribute &attr,
-  HeaderItem *                      parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                       name,
+  const Imf::PreviewImageAttribute& attr,
+  HeaderItem*                       parent,
   QString                           partName,
   int                               part_number)
 {
@@ -1147,7 +1147,7 @@ HeaderItem *HeaderModel::addItem(
 
     ss << attr.value().width() << "x" << attr.value().height() << std::endl;
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::PreviewImageAttribute::staticTypeName()},
       partName,
@@ -1159,10 +1159,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Rational
-HeaderItem *HeaderModel::addItem(
-  const char *                  name,
-  const Imf::RationalAttribute &attr,
-  HeaderItem *                  parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                   name,
+  const Imf::RationalAttribute& attr,
+  HeaderItem*                   parent,
   QString                       partName,
   int                           part_number)
 {
@@ -1188,7 +1188,7 @@ HeaderItem *HeaderModel::addItem(
         ss << n << "/" << d;
     }
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::RationalAttribute::staticTypeName()},
       partName,
@@ -1200,14 +1200,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // String
-HeaderItem *HeaderModel::addItem(
-  const char *                name,
-  const Imf::StringAttribute &attr,
-  HeaderItem *                parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                 name,
+  const Imf::StringAttribute& attr,
+  HeaderItem*                 parent,
   QString                     partName,
   int                         part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, attr.value().c_str(), Imf::StringAttribute::staticTypeName()},
       partName,
@@ -1219,14 +1219,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // String vector
-HeaderItem *HeaderModel::addItem(
-  const char *                      name,
-  const Imf::StringVectorAttribute &attr,
-  HeaderItem *                      parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                       name,
+  const Imf::StringVectorAttribute& attr,
+  HeaderItem*                       parent,
   QString                           partName,
   int                               part_number)
 {
-    HeaderItem *      attrItem = new HeaderItem(parent);
+    HeaderItem*       attrItem = new HeaderItem(parent);
     std::stringstream ss;
     // TODO
 
@@ -1265,14 +1265,14 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Tile description
-HeaderItem *HeaderModel::addItem(
-  const char *                         name,
-  const Imf::TileDescriptionAttribute &attr,
-  HeaderItem *                         parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                          name,
+  const Imf::TileDescriptionAttribute& attr,
+  HeaderItem*                          parent,
   QString                              partName,
   int                                  part_number)
 {
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, "", Imf::TileDescriptionAttribute::staticTypeName()},
       partName,
@@ -1360,10 +1360,10 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Timecode
-HeaderItem *HeaderModel::addItem(
-  const char *                  name,
-  const Imf::TimeCodeAttribute &attr,
-  HeaderItem *                  parent,
+HeaderItem* HeaderModel::addItem(
+  const char*                   name,
+  const Imf::TimeCodeAttribute& attr,
+  HeaderItem*                   parent,
   QString                       partName,
   int                           part_number)
 {
@@ -1372,7 +1372,7 @@ HeaderItem *HeaderModel::addItem(
     ss << attr.value().hours() << ":" << attr.value().minutes() << ":"
        << attr.value().seconds() << " f" << attr.value().frame();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::TimeCodeAttribute::staticTypeName()},
       partName,
@@ -1504,17 +1504,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector2i
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V2iAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V2iAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V2iAttribute::staticTypeName()},
       partName,
@@ -1526,17 +1526,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector2f
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V2fAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V2fAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V2fAttribute::staticTypeName()},
       partName,
@@ -1548,17 +1548,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector2d
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V2dAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V2dAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V2dAttribute::staticTypeName()},
       partName,
@@ -1570,17 +1570,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector3i
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V3iAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V3iAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V3iAttribute::staticTypeName()},
       partName,
@@ -1592,17 +1592,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector3f
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V3fAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V3fAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V3fAttribute::staticTypeName()},
       partName,
@@ -1614,17 +1614,17 @@ HeaderItem *HeaderModel::addItem(
 
 
 // Vector3d
-HeaderItem *HeaderModel::addItem(
-  const char *             name,
-  const Imf::V3dAttribute &attr,
-  HeaderItem *             parent,
+HeaderItem* HeaderModel::addItem(
+  const char*              name,
+  const Imf::V3dAttribute& attr,
+  HeaderItem*              parent,
   QString                  partName,
   int                      part_number)
 {
     std::stringstream ss;
     ss << attr.value();
 
-    HeaderItem *attrItem = new HeaderItem(
+    HeaderItem* attrItem = new HeaderItem(
       parent,
       {name, ss.str().c_str(), Imf::V3dAttribute::staticTypeName()},
       partName,

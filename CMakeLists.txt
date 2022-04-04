@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 project(openexr-viewer 
-    VERSION 0.5.1
+    VERSION 0.5.2
     DESCRIPTION "Simple Viewer for OpenEXR files with detailed metadata display"
     HOMEPAGE_URL "https://github.com/afichet/openexr-viewer"
     LANGUAGES CXX 
@@ -115,6 +115,9 @@ set(PROJECT_SOURCES
     src/model/framebuffer/RGBFramebufferModel.cpp
     src/model/framebuffer/RGBFramebufferModel.h
 
+    # Stream
+    src/model/StdIStream.cpp
+    src/model/StdIStream.h
 
     # ------------------------------------------------------------------------
     # Utilities

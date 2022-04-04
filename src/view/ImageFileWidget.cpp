@@ -36,18 +36,101 @@
 #include <QDir>
 #include <QMdiSubWindow>
 #include <QMessageBox>
+#include <QString>
 
 #include <model/OpenEXRImage.h>
 
 #include "RGBFramebufferWidget.h"
 #include "YFramebufferWidget.h"
 
-ImageFileWidget::ImageFileWidget(QWidget *parent)
+ImageFileWidget::ImageFileWidget(const QString& filename, QWidget* parent)
   : QWidget(parent)
   , m_img(nullptr)
   , m_openedFolder(QDir::homePath())
+  , m_isStream(false)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    setupLayout();
+
+    // clang-format off
+    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
+
+    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
+    // clang-format on
+
+
+    // Open the file
+    open(filename);
+}
+
+
+ImageFileWidget::ImageFileWidget(std::istream& stream, QWidget* parent)
+  : QWidget(parent)
+  , m_img(nullptr)
+  , m_openedFolder(QDir::homePath())
+  , m_isStream(true)
+{
+    setupLayout();
+
+    // clang-format off
+    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
+
+    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
+            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
+    // clang-format on
+
+
+    // Open the file
+
+    open(stream);
+}
+
+
+ImageFileWidget::~ImageFileWidget()
+{
+    delete m_img;
+}
+
+
+
+void ImageFileWidget::refresh()
+{
+    // TODO:
+    // Better refresh handling: keep all window open, close those with no valid
+    // layer...
+    if (!m_isStream) {
+        open(m_openedFilename);
+    }
+}
+
+
+
+void ImageFileWidget::setTabbed()
+{
+    m_mdiArea->setViewMode(QMdiArea::TabbedView);
+    m_mdiArea->setTabsMovable(true);
+}
+
+
+void ImageFileWidget::setCascade()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->cascadeSubWindows();
+}
+
+
+void ImageFileWidget::setTiled()
+{
+    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
+    m_mdiArea->tileSubWindows();
+}
+
+
+void ImageFileWidget::setupLayout()
+{
+    QVBoxLayout* layout = new QVBoxLayout(this);
 
     m_splitterImageView  = new QSplitter(this);
     m_splitterProperties = new QSplitter(Qt::Vertical, m_splitterImageView);
@@ -79,176 +162,10 @@ ImageFileWidget::ImageFileWidget(QWidget *parent)
     layout->addWidget(m_splitterImageView);
 
     setLayout(layout);
-
-    // clang-format off
-    connect(m_attributesTreeView, SIGNAL(doubleClicked(QModelIndex)),
-            this                , SLOT(onAttributeDoubleClicked(QModelIndex)));
-
-    connect(m_layersTreeView    , SIGNAL(doubleClicked(QModelIndex)),
-            this                , SLOT(onLayerDoubleClicked(QModelIndex)));
-    // clang-format on
 }
 
 
-ImageFileWidget::~ImageFileWidget()
-{
-    delete m_img;
-}
-
-
-void ImageFileWidget::open(const QString &filename)
-{
-    m_openedFilename = filename;
-    m_openedFolder   = QFileInfo(filename).absolutePath();
-
-    // Attempt opening the image
-    OpenEXRImage *imageLoaded = nullptr;
-
-    try {
-        imageLoaded = new OpenEXRImage(filename, this);
-    } catch (std::exception &e) {
-        onLoadFailed(e.what());
-
-        delete imageLoaded;
-
-        return;
-    }
-
-    // No error so far, continue normal execution
-    if (m_img) {
-        m_mdiArea->closeAllSubWindows();
-        m_attributesTreeView->setModel(nullptr);
-        m_layersTreeView->setModel(nullptr);
-        delete m_img;
-        m_img = nullptr;
-    }
-
-    //    m_statusBarMessage->setText(filename);
-
-    m_img = imageLoaded;
-
-    m_attributesTreeView->setModel(m_img->getHeaderModel());
-    m_attributesTreeView->expandAll();
-    m_attributesTreeView->resizeColumnToContents(0);
-
-    m_layersTreeView->setModel(m_img->getLayerModel());
-    m_layersTreeView->expandAll();
-    m_layersTreeView->resizeColumnToContents(0);
-
-    // Detect if there is a root RGB or YC layer group
-    LayerItem const *r = m_img->getLayerModel()->getRoot();
-
-    if (r != nullptr) {
-        const LayerItem *child = nullptr;
-
-        child = r->child(LayerItem::RGBA);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        child = r->child(LayerItem::RGB);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        child = r->child(LayerItem::YCA);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        child = r->child(LayerItem::YC);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        child = r->child(LayerItem::YA);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        child = r->child(LayerItem::Y);
-        if (child) {
-            openLayer(child);
-            return;
-        }
-
-        // When all children are parts, try to find a part with a displayable layer
-        // TODO: factorize the code
-        for (LayerItem *rr : r->children()) {
-            child = rr->child(LayerItem::RGBA);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-
-            child = rr->child(LayerItem::RGB);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-
-            child = rr->child(LayerItem::YCA);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-
-            child = rr->child(LayerItem::YC);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-
-            child = rr->child(LayerItem::YA);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-
-            child = rr->child(LayerItem::Y);
-            if (child) {
-                openLayer(child);
-                return;
-            }
-        }
-    }
-}
-
-void ImageFileWidget::refresh()
-{
-    // TODO:
-    // Better refresh handling: keep all window open, close those with no valid
-    // layer...
-    open(m_openedFilename);
-}
-
-
-void ImageFileWidget::setTabbed()
-{
-    m_mdiArea->setViewMode(QMdiArea::TabbedView);
-    m_mdiArea->setTabsMovable(true);
-}
-
-
-void ImageFileWidget::setCascade()
-{
-    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
-    m_mdiArea->cascadeSubWindows();
-}
-
-
-void ImageFileWidget::setTiled()
-{
-    m_mdiArea->setViewMode(QMdiArea::SubWindowView);
-    m_mdiArea->tileSubWindows();
-}
-
-QString ImageFileWidget::getTitle(const LayerItem *item)
+QString ImageFileWidget::getTitle(const LayerItem* item)
 {
     QString layerName;
 
@@ -331,7 +248,7 @@ QString ImageFileWidget::getTitle(const LayerItem *item)
 }
 
 
-void ImageFileWidget::openAttribute(const HeaderItem *item)
+void ImageFileWidget::openAttribute(const HeaderItem* item)
 {
     if (item->getLayerItem() != nullptr) {
         openLayer(item->getLayerItem());
@@ -339,12 +256,12 @@ void ImageFileWidget::openAttribute(const HeaderItem *item)
 }
 
 
-void ImageFileWidget::openLayer(const LayerItem *item)
+void ImageFileWidget::openLayer(const LayerItem* item)
 {
     QString title = getTitle(item);
 
     // Check if the window already exists
-    for (auto &w : m_mdiArea->subWindowList()) {
+    for (auto& w : m_mdiArea->subWindowList()) {
         if (w->windowTitle() == title) {
             w->setFocus();
             return;
@@ -352,12 +269,12 @@ void ImageFileWidget::openLayer(const LayerItem *item)
     }
 
     // If the window does not exist yet, create it
-    YFramebufferWidget *  graphicViewBW = nullptr;
-    YFramebufferModel *   imageModelBW  = nullptr;
-    RGBFramebufferWidget *graphicView   = nullptr;
-    RGBFramebufferModel * imageModel    = nullptr;
+    YFramebufferWidget*   graphicViewBW = nullptr;
+    YFramebufferModel*    imageModelBW  = nullptr;
+    RGBFramebufferWidget* graphicView   = nullptr;
+    RGBFramebufferModel*  imageModel    = nullptr;
 
-    QMdiSubWindow *subWindow = nullptr;
+    QMdiSubWindow* subWindow = nullptr;
 
     switch (item->getType()) {
         case LayerItem::RGB:
@@ -378,9 +295,10 @@ void ImageFileWidget::openLayer(const LayerItem *item)
               graphicView,
               SIGNAL(openFileOnDropEvent(QString)),
               this,
-              SLOT(open(QString)));
+              SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -408,9 +326,10 @@ void ImageFileWidget::openLayer(const LayerItem *item)
               graphicView,
               SIGNAL(openFileOnDropEvent(QString)),
               this,
-              SLOT(open(QString)));
+              SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -440,9 +359,10 @@ void ImageFileWidget::openLayer(const LayerItem *item)
               graphicView,
               SIGNAL(openFileOnDropEvent(QString)),
               this,
-              SLOT(open(QString)));
+              SLOT(onOpenFileDropEvent(QString)));
 
             graphicView->setModel(imageModel);
+
             imageModel->load(
               m_img->getEXR(),
               item->getPart(),
@@ -471,9 +391,10 @@ void ImageFileWidget::openLayer(const LayerItem *item)
               graphicViewBW,
               SIGNAL(openFileOnDropEvent(QString)),
               this,
-              SLOT(open(QString)));
+              SLOT(onOpenFileDropEvent(QString)));
 
             graphicViewBW->setModel(imageModelBW);
+
             imageModelBW->load(m_img->getEXR(), item->getPart());
 
             subWindow = m_mdiArea->addSubWindow(graphicViewBW);
@@ -502,21 +423,194 @@ void ImageFileWidget::openLayer(const LayerItem *item)
 }
 
 
-void ImageFileWidget::onAttributeDoubleClicked(const QModelIndex &index)
+void ImageFileWidget::open(const QString& filename)
 {
-    HeaderItem *item = static_cast<HeaderItem *>(index.internalPointer());
+    assert(!m_isStream);
+
+    // Open the file
+    m_openedFilename = filename;
+    m_openedFolder   = QFileInfo(m_openedFilename).absolutePath();
+
+    // Attempt opening the image
+    OpenEXRImage* imageLoaded = nullptr;
+
+    try {
+        imageLoaded = new OpenEXRImage(m_openedFilename, this);
+    } catch (std::exception& e) {
+        onLoadFailed(e.what());
+
+        delete imageLoaded;
+
+        return;
+    }
+
+    // No error so far, continue normal execution
+    if (m_img) {
+        m_mdiArea->closeAllSubWindows();
+        m_attributesTreeView->setModel(nullptr);
+        m_layersTreeView->setModel(nullptr);
+        delete m_img;
+        m_img = nullptr;
+    }
+
+    //    m_statusBarMessage->setText(filename);
+
+    m_img = imageLoaded;
+
+    afterOpen();
+}
+
+
+void ImageFileWidget::open(std::istream& stream)
+{
+    assert(m_isStream);
+
+    // Attempt opening the image
+    OpenEXRImage* imageLoaded = nullptr;
+
+    try {
+        imageLoaded = new OpenEXRImage(stream, this);
+    } catch (std::exception& e) {
+        onLoadFailed(e.what());
+
+        delete imageLoaded;
+
+        return;
+    }
+
+    // No error so far, continue normal execution
+    if (m_img) {
+        m_mdiArea->closeAllSubWindows();
+        m_attributesTreeView->setModel(nullptr);
+        m_layersTreeView->setModel(nullptr);
+        delete m_img;
+        m_img = nullptr;
+    }
+
+    //    m_statusBarMessage->setText(filename);
+
+    m_img = imageLoaded;
+
+    afterOpen();
+}
+
+
+void ImageFileWidget::afterOpen()
+{
+    m_attributesTreeView->setModel(m_img->getHeaderModel());
+    m_attributesTreeView->expandAll();
+    m_attributesTreeView->resizeColumnToContents(0);
+
+    m_layersTreeView->setModel(m_img->getLayerModel());
+    m_layersTreeView->expandAll();
+    m_layersTreeView->resizeColumnToContents(0);
+
+    openDefaultLayer();
+}
+
+
+void ImageFileWidget::openDefaultLayer()
+{
+    // Detect if there is a root RGB or YC layer group
+    LayerItem const* r = m_img->getLayerModel()->getRoot();
+
+    if (r != nullptr) {
+        const LayerItem* child = nullptr;
+
+        child = r->child(LayerItem::RGBA);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        child = r->child(LayerItem::RGB);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        child = r->child(LayerItem::YCA);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        child = r->child(LayerItem::YC);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        child = r->child(LayerItem::YA);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        child = r->child(LayerItem::Y);
+        if (child) {
+            openLayer(child);
+            return;
+        }
+
+        // When all children are parts, try to find a part with a displayable layer
+        // TODO: factorize the code
+        for (LayerItem* rr : r->children()) {
+            child = rr->child(LayerItem::RGBA);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+
+            child = rr->child(LayerItem::RGB);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+
+            child = rr->child(LayerItem::YCA);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+
+            child = rr->child(LayerItem::YC);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+
+            child = rr->child(LayerItem::YA);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+
+            child = rr->child(LayerItem::Y);
+            if (child) {
+                openLayer(child);
+                return;
+            }
+        }
+    }
+}
+
+
+void ImageFileWidget::onAttributeDoubleClicked(const QModelIndex& index)
+{
+    HeaderItem* item = static_cast<HeaderItem*>(index.internalPointer());
     openAttribute(item);
 }
 
 
-void ImageFileWidget::onLayerDoubleClicked(const QModelIndex &index)
+void ImageFileWidget::onLayerDoubleClicked(const QModelIndex& index)
 {
-    LayerItem *item = static_cast<LayerItem *>(index.internalPointer());
+    LayerItem* item = static_cast<LayerItem*>(index.internalPointer());
     openLayer(item);
 }
 
 
-void ImageFileWidget::onLoadFailed(const QString &msg)
+void ImageFileWidget::onLoadFailed(const QString& msg)
 {
     std::cerr << "Loading error: " << msg.toStdString() << std::endl;
 
@@ -525,4 +619,10 @@ void ImageFileWidget::onLoadFailed(const QString &msg)
     msgBox.setInformativeText(
       tr("The loading process ended with the following error:") + " " + msg);
     msgBox.exec();
+}
+
+
+void ImageFileWidget::onOpenFileDropEvent(const QString& filename)
+{
+    emit openFileOnDropEvent(filename);
 }

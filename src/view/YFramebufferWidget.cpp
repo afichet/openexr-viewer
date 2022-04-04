@@ -35,7 +35,7 @@
 
 #include <util/ColormapModule.h>
 
-YFramebufferWidget::YFramebufferWidget(QWidget *parent)
+YFramebufferWidget::YFramebufferWidget(QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::YFramebufferWidget)
   , m_model(nullptr)
@@ -66,7 +66,7 @@ YFramebufferWidget::~YFramebufferWidget()
 }
 
 
-void YFramebufferWidget::setModel(YFramebufferModel *model)
+void YFramebufferWidget::setModel(YFramebufferModel* model)
 {
     m_model = model;
     ui->graphicsView->setModel(model);
@@ -105,7 +105,7 @@ void YFramebufferWidget::on_buttonAuto_clicked()
 }
 
 
-void YFramebufferWidget::onOpenFileOnDropEvent(const QString &filename)
+void YFramebufferWidget::onOpenFileOnDropEvent(const QString& filename)
 {
     emit openFileOnDropEvent(filename);
 }

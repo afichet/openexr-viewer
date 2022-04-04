@@ -45,26 +45,26 @@ class RGBFramebufferWidget: public QWidget
     Q_OBJECT
 
   public:
-    explicit RGBFramebufferWidget(QWidget *parent = nullptr);
+    explicit RGBFramebufferWidget(QWidget* parent = nullptr);
     ~RGBFramebufferWidget();
 
-    void setModel(RGBFramebufferModel *model);
+    void setModel(RGBFramebufferModel* model);
 
   signals:
-    void openFileOnDropEvent(const QString &filename);
+    void openFileOnDropEvent(const QString& filename);
 
   private slots:
     void onQueryPixelInfo(int x, int y);
 
     void on_sbExposure_valueChanged(double arg1);
 
-    void onOpenFileOnDropEvent(const QString &filename);
+    void onOpenFileOnDropEvent(const QString& filename);
 
     void on_cbShowDataWindow_stateChanged(int arg1);
 
     void on_cbShowDisplayWindow_stateChanged(int arg1);
 
   private:
-    Ui::RGBFramebufferWidget *ui;
-    RGBFramebufferModel *     m_model;
+    Ui::RGBFramebufferWidget* ui;
+    RGBFramebufferModel*      m_model;
 };

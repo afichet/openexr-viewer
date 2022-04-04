@@ -44,7 +44,10 @@ class ImageFileWidget: public QWidget
 {
     Q_OBJECT
   public:
-    explicit ImageFileWidget(QWidget *parent = nullptr);
+    explicit ImageFileWidget(
+      const QString& filename, QWidget* parent = nullptr);
+
+    explicit ImageFileWidget(std::istream& stream, QWidget* parent = nullptr);
 
     virtual ~ImageFileWidget();
 
@@ -56,7 +59,7 @@ class ImageFileWidget: public QWidget
         return m_splitterImageView->saveState();
     }
 
-    void setSplitterImageState(const QByteArray &state)
+    void setSplitterImageState(const QByteArray& state)
     {
         m_splitterImageView->restoreState(state);
     }
@@ -66,41 +69,58 @@ class ImageFileWidget: public QWidget
         return m_splitterProperties->saveState();
     }
 
-    void setSplitterPropertiesState(const QByteArray &state)
+    void setSplitterPropertiesState(const QByteArray& state)
     {
         m_splitterProperties->restoreState(state);
     }
 
+    bool isStream() const { return m_isStream; }
+
+  signals:
+    void openFileOnDropEvent(const QString& filename);
+
+
   public slots:
-    void open(const QString &filename);
     void refresh();
 
     void setTabbed();
     void setCascade();
     void setTiled();
 
+
   protected:
-    static QString getTitle(const LayerItem *item);
-    QString        getTitle(int partId, const std::string &layer) const;
-    void           openAttribute(const HeaderItem *item);
+    void setupLayout();
 
-    void openLayer(const LayerItem *item);
+    static QString getTitle(const LayerItem* item);
+    QString        getTitle(int partId, const std::string& layer) const;
+    void           openAttribute(const HeaderItem* item);
 
+    void openLayer(const LayerItem* item);
+
+    void open(const QString& filename);
+    void open(std::istream& stream);
+
+    void afterOpen();
+    void openDefaultLayer();
 
   private slots:
-    void onAttributeDoubleClicked(const QModelIndex &index);
-    void onLayerDoubleClicked(const QModelIndex &index);
+    void onAttributeDoubleClicked(const QModelIndex& index);
+    void onLayerDoubleClicked(const QModelIndex& index);
 
-    void onLoadFailed(const QString &msg);
+    void onLoadFailed(const QString& msg);
+
+    void onOpenFileDropEvent(const QString& filename);
 
   private:
-    QSplitter *m_splitterImageView;
-    QSplitter *m_splitterProperties;
-    QTreeView *m_attributesTreeView;
-    QTreeView *m_layersTreeView;
-    QMdiArea * m_mdiArea;
+    QSplitter* m_splitterImageView;
+    QSplitter* m_splitterProperties;
+    QTreeView* m_attributesTreeView;
+    QTreeView* m_layersTreeView;
+    QMdiArea*  m_mdiArea;
 
-    OpenEXRImage *m_img;
+    OpenEXRImage* m_img;
     QString       m_openedFolder;
     QString       m_openedFilename;
+
+    bool m_isStream;
 };

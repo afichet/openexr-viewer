@@ -32,44 +32,20 @@
 
 #pragma once
 
-#include "FramebufferModel.h"
+#include <OpenEXR/ImfIO.h>
 
-#include <util/ColormapModule.h>
-#include <OpenEXR/ImfMultiPartInputFile.h>
+#include <istream>
 
-class YFramebufferModel: public FramebufferModel
+class StdIStream: public Imf::IStream
 {
   public:
-    YFramebufferModel(const std::string& layerName, QObject* parent = nullptr);
+    StdIStream(std::istream& stream);
+    virtual bool     read(char c[/*n*/], int n);
+    virtual uint64_t tellg();
+    virtual void     seekg(uint64_t pos);
 
-    virtual ~YFramebufferModel();
-
-    virtual void load(Imf::MultiPartInputFile& file, int partId);
-
-    const std::string& getLayerName() const { return m_layer; }
-    int                getPartId() const { return m_partID; }
-
-    double              getDatasetMin() const { return m_datasetMin; }
-    double              getDatasetMax() const { return m_datasetMax; }
-    virtual std::string getColorInfo(int x, int y) const;
-
-  public slots:
-    void setMinValue(double value);
-    void setMaxValue(double value);
-    void setColormap(ColormapModule::Map map);
-
-  protected:
-    void updateImage();
+    virtual bool isMemoryMapped() const { return false; }
 
   private:
-    int         m_partID;
-    std::string m_layer;
-
-    double m_min;
-    double m_max;
-
-    double m_datasetMin;
-    double m_datasetMax;
-
-    Colormap* m_cmap;
+    std::istream& m_stream;
 };

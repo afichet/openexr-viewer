@@ -66,24 +66,21 @@
 class HeaderModel: public QAbstractItemModel
 {
   public:
-    HeaderModel(Imf::MultiPartInputFile &file, int n_parts, QObject *parent);
+    HeaderModel(Imf::MultiPartInputFile& file, int n_parts, QObject* parent);
 
     ~HeaderModel();
 
-    void addFile(const Imf::MultiPartInputFile &file, const QString &filename);
+    void addFile(const Imf::MultiPartInputFile& file, const QString& filename);
 
-    const std::vector<LayerItem *> &getLayers() const
-    {
-        return m_partRootLayer;
-    }
+    const std::vector<LayerItem*>& getLayers() const { return m_partRootLayer; }
 
 
     /**
      * Qt logic for accessing the model
      */
-    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     QVariant headerData(
       int             section,
@@ -93,278 +90,278 @@ class HeaderModel: public QAbstractItemModel
     QModelIndex index(
       int                row,
       int                column,
-      const QModelIndex &parent = QModelIndex()) const override;
+      const QModelIndex& parent = QModelIndex()) const override;
 
-    QModelIndex parent(const QModelIndex &index) const override;
+    QModelIndex parent(const QModelIndex& index) const override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
   private:
     void addHeader(
-      const Imf::Header &header,
-      HeaderItem *       root,
+      const Imf::Header& header,
+      HeaderItem*        root,
       const QString      partName,
       int                partID);
 
     // General function. Delegates to one of the specialised
     // function
-    HeaderItem *addItem(
-      const char *          name,
-      const Imf::Attribute &attr,
-      HeaderItem *          parent,
+    HeaderItem* addItem(
+      const char*           name,
+      const Imf::Attribute& attr,
+      HeaderItem*           parent,
       QString               partName,
       int                   part_number);
 
     // Box2i
-    HeaderItem *addItem(
-      const char *               name,
-      const Imf::Box2iAttribute &attr,
-      HeaderItem *               parent,
+    HeaderItem* addItem(
+      const char*                name,
+      const Imf::Box2iAttribute& attr,
+      HeaderItem*                parent,
       QString                    partName,
       int                        part_number);
 
     // Box2f
-    HeaderItem *addItem(
-      const char *               name,
-      const Imf::Box2fAttribute &attr,
-      HeaderItem *               parent,
+    HeaderItem* addItem(
+      const char*                name,
+      const Imf::Box2fAttribute& attr,
+      HeaderItem*                parent,
       QString                    partName,
       int                        part_number);
 
     // Channel List
-    HeaderItem *addItem(
-      const char *                     name,
-      const Imf::ChannelListAttribute &attr,
-      HeaderItem *                     parent,
+    HeaderItem* addItem(
+      const char*                      name,
+      const Imf::ChannelListAttribute& attr,
+      HeaderItem*                      parent,
       QString                          partName,
       int                              part_number);
 
     // Chromaticities
-    HeaderItem *addItem(
-      const char *                        name,
-      const Imf::ChromaticitiesAttribute &attr,
-      HeaderItem *                        parent,
+    HeaderItem* addItem(
+      const char*                         name,
+      const Imf::ChromaticitiesAttribute& attr,
+      HeaderItem*                         parent,
       QString                             partName,
       int                                 part_number);
 
     // Compression
-    HeaderItem *addItem(
-      const char *                     name,
-      const Imf::CompressionAttribute &attr,
-      HeaderItem *                     parent,
+    HeaderItem* addItem(
+      const char*                      name,
+      const Imf::CompressionAttribute& attr,
+      HeaderItem*                      parent,
       QString                          partName,
       int                              part_number);
 
     // Deep image state
-    HeaderItem *addItem(
-      const char *                        name,
-      const Imf::DeepImageStateAttribute &attr,
-      HeaderItem *                        parent,
+    HeaderItem* addItem(
+      const char*                         name,
+      const Imf::DeepImageStateAttribute& attr,
+      HeaderItem*                         parent,
       QString                             partName,
       int                                 part_number);
 
     // Double
-    HeaderItem *addItem(
-      const char *                name,
-      const Imf::DoubleAttribute &attr,
-      HeaderItem *                parent,
+    HeaderItem* addItem(
+      const char*                 name,
+      const Imf::DoubleAttribute& attr,
+      HeaderItem*                 parent,
       QString                     partName,
       int                         part_number);
 
     // Envmap
-    HeaderItem *addItem(
-      const char *                name,
-      const Imf::EnvmapAttribute &attr,
-      HeaderItem *                parent,
+    HeaderItem* addItem(
+      const char*                 name,
+      const Imf::EnvmapAttribute& attr,
+      HeaderItem*                 parent,
       QString                     partName,
       int                         part_number);
 
     // Float
-    HeaderItem *addItem(
-      const char *               name,
-      const Imf::FloatAttribute &attr,
-      HeaderItem *               parent,
+    HeaderItem* addItem(
+      const char*                name,
+      const Imf::FloatAttribute& attr,
+      HeaderItem*                parent,
       QString                    partName,
       int                        part_number);
 
     // Float vector
-    HeaderItem *addItem(
-      const char *                     name,
-      const Imf::FloatVectorAttribute &attr,
-      HeaderItem *                     parent,
+    HeaderItem* addItem(
+      const char*                      name,
+      const Imf::FloatVectorAttribute& attr,
+      HeaderItem*                      parent,
       QString                          partName,
       int                              part_number);
 
     // IDManifest
-    HeaderItem *addItem(
-      const char *                    name,
-      const Imf::IDManifestAttribute &attr,
-      HeaderItem *                    parent,
+    HeaderItem* addItem(
+      const char*                     name,
+      const Imf::IDManifestAttribute& attr,
+      HeaderItem*                     parent,
       QString                         partName,
       int                             part_number);
 
     // Int
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::IntAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::IntAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Key code
-    HeaderItem *addItem(
-      const char *                 name,
-      const Imf::KeyCodeAttribute &attr,
-      HeaderItem *                 parent,
+    HeaderItem* addItem(
+      const char*                  name,
+      const Imf::KeyCodeAttribute& attr,
+      HeaderItem*                  parent,
       QString                      partName,
       int                          part_number);
 
     // Line order
-    HeaderItem *addItem(
-      const char *                   name,
-      const Imf::LineOrderAttribute &attr,
-      HeaderItem *                   parent,
+    HeaderItem* addItem(
+      const char*                    name,
+      const Imf::LineOrderAttribute& attr,
+      HeaderItem*                    parent,
       QString                        partName,
       int                            part_number);
 
     // Matrix33f
-    HeaderItem *addItem(
-      const char *              name,
-      const Imf::M33fAttribute &attr,
-      HeaderItem *              parent,
+    HeaderItem* addItem(
+      const char*               name,
+      const Imf::M33fAttribute& attr,
+      HeaderItem*               parent,
       QString                   partName,
       int                       part_number);
 
     // Matrix33d
-    HeaderItem *addItem(
-      const char *              name,
-      const Imf::M33dAttribute &attr,
-      HeaderItem *              parent,
+    HeaderItem* addItem(
+      const char*               name,
+      const Imf::M33dAttribute& attr,
+      HeaderItem*               parent,
       QString                   partName,
       int                       part_number);
 
     // Matrix44f
-    HeaderItem *addItem(
-      const char *              name,
-      const Imf::M44fAttribute &attr,
-      HeaderItem *              parent,
+    HeaderItem* addItem(
+      const char*               name,
+      const Imf::M44fAttribute& attr,
+      HeaderItem*               parent,
       QString                   partName,
       int                       part_number);
 
     // Matrix44d
-    HeaderItem *addItem(
-      const char *              name,
-      const Imf::M44dAttribute &attr,
-      HeaderItem *              parent,
+    HeaderItem* addItem(
+      const char*               name,
+      const Imf::M44dAttribute& attr,
+      HeaderItem*               parent,
       QString                   partName,
       int                       part_number);
 
     // Preview image
-    HeaderItem *addItem(
-      const char *                      name,
-      const Imf::PreviewImageAttribute &attr,
-      HeaderItem *                      parent,
+    HeaderItem* addItem(
+      const char*                       name,
+      const Imf::PreviewImageAttribute& attr,
+      HeaderItem*                       parent,
       QString                           partName,
       int                               part_number);
 
     // Rational
-    HeaderItem *addItem(
-      const char *                  name,
-      const Imf::RationalAttribute &attr,
-      HeaderItem *                  parent,
+    HeaderItem* addItem(
+      const char*                   name,
+      const Imf::RationalAttribute& attr,
+      HeaderItem*                   parent,
       QString                       partName,
       int                           part_number);
 
     // String
-    HeaderItem *addItem(
-      const char *                name,
-      const Imf::StringAttribute &attr,
-      HeaderItem *                parent,
+    HeaderItem* addItem(
+      const char*                 name,
+      const Imf::StringAttribute& attr,
+      HeaderItem*                 parent,
       QString                     partName,
       int                         part_number);
 
     // String vector
-    HeaderItem *addItem(
-      const char *                      name,
-      const Imf::StringVectorAttribute &attr,
-      HeaderItem *                      parent,
+    HeaderItem* addItem(
+      const char*                       name,
+      const Imf::StringVectorAttribute& attr,
+      HeaderItem*                       parent,
       QString                           partName,
       int                               part_number);
 
 
     // Tile description
-    HeaderItem *addItem(
-      const char *                         name,
-      const Imf::TileDescriptionAttribute &attr,
-      HeaderItem *                         parent,
+    HeaderItem* addItem(
+      const char*                          name,
+      const Imf::TileDescriptionAttribute& attr,
+      HeaderItem*                          parent,
       QString                              partName,
       int                                  part_number);
 
     // Timecode
-    HeaderItem *addItem(
-      const char *                  name,
-      const Imf::TimeCodeAttribute &attr,
-      HeaderItem *                  parent,
+    HeaderItem* addItem(
+      const char*                   name,
+      const Imf::TimeCodeAttribute& attr,
+      HeaderItem*                   parent,
       QString                       partName,
       int                           part_number);
 
     // Vector2i
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V2iAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V2iAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Vector2f
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V2fAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V2fAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Vector2d
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V2dAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V2dAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Vector3i
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V3iAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V3iAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Vector3f
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V3fAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V3fAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
     // Vector3d
-    HeaderItem *addItem(
-      const char *             name,
-      const Imf::V3dAttribute &attr,
-      HeaderItem *             parent,
+    HeaderItem* addItem(
+      const char*              name,
+      const Imf::V3dAttribute& attr,
+      HeaderItem*              parent,
       QString                  partName,
       int                      part_number);
 
 
 
   private:
-    HeaderItem *                          m_rootItem;
+    HeaderItem*                           m_rootItem;
     std::vector<std::vector<std::string>> m_headerItems;
 
-    std::vector<LayerItem *> m_partRootLayer;
+    std::vector<LayerItem*> m_partRootLayer;
 
-    Imf::MultiPartInputFile &m_fileHandle;
+    Imf::MultiPartInputFile& m_fileHandle;
 };

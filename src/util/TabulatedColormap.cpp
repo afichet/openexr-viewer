@@ -64,7 +64,7 @@ TabulatedColormap::TabulatedColormap(TabMap map)
     }
 }
 
-TabulatedColormap::TabulatedColormap(const char *name)
+TabulatedColormap::TabulatedColormap(const char* name)
 {
     if (strcmp(name, "turbo") == 0) {
         init(turbo_colormap_data, 256);
@@ -115,7 +115,7 @@ void TabulatedColormap::getRGBValue(float v, float RGB[]) const
 //    getRGBValue((v - v_min) / (v_max - v_min), RGB);
 //}
 
-void TabulatedColormap::init(float *array, int n_elems)
+void TabulatedColormap::init(float* array, int n_elems)
 {
     _array.resize(3 * n_elems);
     memcpy(_array.data(), array, 3 * n_elems * sizeof(float));

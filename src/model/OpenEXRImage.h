@@ -46,20 +46,26 @@ class OpenEXRImage: public QObject
     Q_OBJECT
 
   public:
-    OpenEXRImage(const QString &filename, QObject *parent);
+    OpenEXRImage(const QString& filename, QObject* parent);
+    OpenEXRImage(std::istream& stream, QObject* parent);
+
     ~OpenEXRImage();
 
-    HeaderModel *getHeaderModel() const { return m_headerModel; }
-    LayerModel * getLayerModel() const { return m_layerModel; }
+    HeaderModel* getHeaderModel() const { return m_headerModel; }
+    LayerModel*  getLayerModel() const { return m_layerModel; }
 
-    Imf::MultiPartInputFile &getEXR() { return m_exrIn; }
+    Imf::MultiPartInputFile& getEXR() { return *m_exrIn; }
 
-    const QString &getFilename() const { return m_filename; }
+    const QString& getFilename() const { return m_filename; }
+
+    bool isStream() const { return m_isStream; }
 
   private:
-    QString                 m_filename;
-    Imf::MultiPartInputFile m_exrIn;
+    QString m_filename;
+    bool    m_isStream;
 
-    HeaderModel *m_headerModel;
-    LayerModel * m_layerModel;
+    Imf::MultiPartInputFile* m_exrIn;
+
+    HeaderModel* m_headerModel;
+    LayerModel*  m_layerModel;
 };

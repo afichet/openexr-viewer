@@ -45,7 +45,7 @@
 #include <Imath/ImathBox.h>
 
 YFramebufferModel::YFramebufferModel(
-  const std::string &layerName, QObject *parent)
+  const std::string& layerName, QObject* parent)
   : FramebufferModel(parent)
   , m_layer(layerName)
   , m_min(0.f)
@@ -58,7 +58,7 @@ YFramebufferModel::~YFramebufferModel()
     delete m_cmap;
 }
 
-void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
+void YFramebufferModel::load(Imf::MultiPartInputFile& file, int partId)
 {
     QFuture<void> imageLoading = QtConcurrent::run([this, &file, partId]() {
         try {
@@ -142,7 +142,7 @@ void YFramebufferModel::load(Imf::MultiPartInputFile &file, int partId)
             emit imageLoaded();
 
             updateImage();
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             emit loadFailed(e.what());
             return;
         }
@@ -217,7 +217,7 @@ void YFramebufferModel::updateImage()
 
     QFuture<void> imageConverting = QtConcurrent::run([=]() {
         for (int y = 0; y < m_image.height(); y++) {
-            unsigned char *line = m_image.scanLine(y);
+            unsigned char* line = m_image.scanLine(y);
 
             #pragma omp parallel for
             for (int x = 0; x < m_image.width(); x++) {
