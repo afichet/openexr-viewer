@@ -79,3 +79,4 @@ apps:
       - gsettings
       - network
       - network-bind
+      - removable-media
