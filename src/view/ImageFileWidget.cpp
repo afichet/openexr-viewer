@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,6 @@ ImageFileWidget::ImageFileWidget(const QString& filename, QWidget* parent)
             this                , SLOT(onLayerDoubleClicked(QModelIndex)));
     // clang-format on
 
-
     // Open the file
     open(filename);
 }
@@ -83,7 +82,6 @@ ImageFileWidget::ImageFileWidget(std::istream& stream, QWidget* parent)
 
 
     // Open the file
-
     open(stream);
 }
 

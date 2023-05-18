@@ -214,12 +214,9 @@ void HeaderModel::addHeader(
 
     m_partRootLayer[partID] = nullptr;
 
-    size_t n_headerFields = 0;
-
     for (Imf::Header::ConstIterator it = header.begin(); it != header.end();
          it++) {
         addItem(it.name(), it.attribute(), root, partName, partID);
-        ++n_headerFields;
     }
 }
 
@@ -440,6 +437,7 @@ HeaderItem* HeaderModel::addItem(
           m_fileHandle,
           chIt.name(),
           &chIt.channel());
+
         ++channelCount;
     }
 
