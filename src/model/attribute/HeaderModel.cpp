@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -432,7 +432,7 @@ HeaderItem* HeaderModel::addItem(
     }
 
     m_partRootLayer[part_number] = new LayerItem(m_fileHandle);
-
+    // TODO: add layer type
     for (Imf::ChannelList::ConstIterator chIt = attr.value().begin();
          chIt != attr.value().end();
          chIt++) {
@@ -534,34 +534,34 @@ HeaderItem* HeaderModel::addItem(
     std::stringstream ss;
     switch (attr.value()) {
         case Imf::Compression::NO_COMPRESSION:
-            ss << "no compression";
+            ss << "No compression";
             break;
         case Imf::Compression::RLE_COMPRESSION:
-            ss << "run length encoding";
+            ss << "RLE (lossless - run length encoding)";
             break;
         case Imf::Compression::ZIPS_COMPRESSION:
-            ss << "zlib compression, one scan line at a time";
+            ss << "ZIPS (lossless - zlib compression, one scan line at a time)";
             break;
         case Imf::Compression::ZIP_COMPRESSION:
-            ss << "zlib compression, in blocks of 16 scan lines";
+            ss << "ZIP (lossless - zlib compression, in blocks of 16 scan lines)";
             break;
         case Imf::Compression::PIZ_COMPRESSION:
-            ss << "piz-based wavelet compression";
+            ss << "PIZ (lossless - piz-based wavelet compression)";
             break;
         case Imf::Compression::PXR24_COMPRESSION:
-            ss << "lossy 24-bit float compression";
+            ss << "PXR24 (lossy - 24-bit float compression)";
             break;
         case Imf::Compression::B44_COMPRESSION:
-            ss << "lossy 4-by-4 pixel block compression";
+            ss << "B44 (lossy - 4-by-4 pixel block compression)";
             break;
         case Imf::Compression::B44A_COMPRESSION:
-            ss << "lossy 4-by-4 pixel block compression";
+            ss << "B44A (lossy - 4-by-4 pixel block compression)";
             break;
         case Imf::Compression::DWAA_COMPRESSION:
-            ss << "lossy DCT based compression, in blocks of 32 scanlines";
+            ss << "DWAA (lossy - DCT based compression, in blocks of 32 scanlines)";
             break;
         case Imf::Compression::DWAB_COMPRESSION:
-            ss << "lossy DCT based compression, in blocks of 256 scanlines";
+            ss << "DWAB (lossy - DCT based compression, in blocks of 256 scanlines)";
             break;
         default:
             ss << "unknown compression type: " << attr.value();
