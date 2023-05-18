@@ -1,5 +1,6 @@
 build/
 CMakeLists.txt.user
+.vscode
 
 # Prerequisites
 *.d
