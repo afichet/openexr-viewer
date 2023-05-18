@@ -452,7 +452,7 @@ HeaderItem* HeaderModel::addItem(
     QVector<QVariant> itemData = {
       name,
       QString(ss.str().c_str()),
-      Imf::Box2fAttribute::staticTypeName()};
+      Imf::ChannelListAttribute::staticTypeName()};
     attrItem->setData(itemData);
     attrItem->setItemName(name);
     attrItem->setPartName(partName);
