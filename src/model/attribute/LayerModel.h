@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ class LayerModel: public QAbstractItemModel
     {
         LAYER = 0,
         TYPE,
+        PIXELTYPE,
         N_LAYER_INFO
     };
 

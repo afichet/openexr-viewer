@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,7 @@ LayerItem::LayerItem(
     }
 
     m_type = constructType();
+
 }
 
 LayerItem::~LayerItem()
@@ -947,4 +948,15 @@ void LayerItem::createThumbnail()
         } break;
     }
     */
+}
+
+
+Imf::PixelType LayerItem::getPixelType() const
+{
+    // We check if this is layer or if that's a group
+    if (m_pChannel) {
+        return m_pChannel->type;
+    } else {
+        return Imf::PixelType::NUM_PIXELTYPES;
+    }
 }

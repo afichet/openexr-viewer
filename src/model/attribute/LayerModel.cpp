@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -128,7 +128,7 @@ QVariant LayerModel::data(const QModelIndex& index, int role) const
                         case LayerItem::PART:
                             return QIcon(":/svg/100-folder-27.svg");
 
-                        // This shall never happen but avoid warning message from compiler
+                        // This shall never happen but avoids warning message from compiler
                         case LayerItem::N_LAYERTYPES:
                             return QVariant();
                     }
@@ -164,7 +164,13 @@ QVariant LayerModel::data(const QModelIndex& index, int role) const
                         case LayerItem::GENERAL: return tr("Framebuffer");
                         default: return QVariant();
                     }
-
+                case PIXELTYPE:
+                    switch(item->getPixelType()) {
+                        case Imf::PixelType::UINT:  return tr("uint32");
+                        case Imf::PixelType::HALF:  return tr("half");
+                        case Imf::PixelType::FLOAT: return tr("float");
+                        default: return QVariant();
+                    }
                 default:
                     return QVariant();
             }
@@ -210,6 +216,8 @@ LayerModel::headerData(int section, Qt::Orientation orientation, int role) const
                 return "Layer";
             case TYPE:
                 return "Type";
+            case PIXELTYPE:
+                return "Pixel Type";
             default:
                 return QVariant();
         }

@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) 2021 Alban Fichet <alban dot fichet at gmx dot fr>
+ * Copyright (c) 2021 - 2023 Alban Fichet <alban dot fichet at gmx dot fr>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,6 +130,8 @@ class LayerItem
     //    void printHierarchy(std::string front) const;
 
     LayerType getType() const { return m_type; }
+
+    Imf::PixelType getPixelType() const;
 
   private:
     LayerType constructType();
