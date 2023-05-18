@@ -320,9 +320,18 @@ HeaderItem* LayerItem::constructItemHierarchy(
     if (m_childItems.size() == 0) {
         // This is a terminal leaf
         assert(m_pChannel != nullptr);
+
+        QString type = "framebuffer";
+        switch (m_pChannel->type) {
+            case Imf::PixelType::UINT:  type += " (uint32)"; break;
+            case Imf::PixelType::HALF:  type += " (half)";   break;
+            case Imf::PixelType::FLOAT: type += " (float)";  break;
+            default: break;
+        }
+
         return new HeaderItem(
           parent,
-          {QString::fromStdString(m_leafName), "", "framebuffer"},
+          {QString::fromStdString(m_leafName), "", type},
           QString::fromStdString(partName),
           partID,
           QString::fromStdString(m_leafName),
@@ -350,9 +359,18 @@ HeaderItem* LayerItem::constructItemHierarchy(
         // Both are valid but I prefer the nested representation
         // OpenEXRItem* leafNode = new OpenEXRItem(parent, {m_rootName, "",
         // "framebuffer"});
+
+        QString type = "framebuffer";
+        switch (m_pChannel->type) {
+            case Imf::PixelType::UINT:  type += " (uint32)"; break;
+            case Imf::PixelType::HALF:  type += " (half)";   break;
+            case Imf::PixelType::FLOAT: type += " (float)";  break;
+            default: break;
+        }
+
         new HeaderItem(
           currRoot,
-          {".", "", "framebuffer"},
+          {".", "", type},
           QString::fromStdString(partName),
           partID,
           QString::fromStdString(m_leafName),
