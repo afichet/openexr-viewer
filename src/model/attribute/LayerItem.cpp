@@ -346,7 +346,7 @@ HeaderItem* LayerItem::constructItemHierarchy(
           parent,
           {QString::fromStdString(m_leafName),
            (int)childCount(),
-           "channellist"},
+           "virtual channel group"},
           QString::fromStdString(partName),
           partID,
           QString::fromStdString(m_leafName));
