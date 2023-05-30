@@ -147,9 +147,9 @@ void MainWindow::dropEvent(QDropEvent* ev)
 {
     QList<QUrl> urls = ev->mimeData()->urls();
 
-    if (!urls.empty()) {
-        QString filename = urls[0].toString();
-        QString startFileTypeString =
+    for (const QUrl& url: urls) {
+        QString filename = url.toString();
+        const QString startFileTypeString =
 #ifdef _WIN32
           "file:///";
 #else
