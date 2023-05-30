@@ -31,7 +31,7 @@
  */
 
 #include <view/mainwindow.h>
-
+#include <config.h>
 #include <QApplication>
 #include <QFile>
 
@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 {
 #endif
     QApplication a(argc, argv);
+    a.setApplicationVersion(CMAKE_PROJECT_VERSION);
 
     QFile f(":/dark_flat/theme.css");
 

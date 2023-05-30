@@ -1,5 +1,6 @@
 #include "about.h"
 #include "ui_about.h"
+#include <config.h>
 
 About::About(QWidget* parent): QDialog(parent), ui(new Ui::About)
 {
@@ -7,10 +8,9 @@ About::About(QWidget* parent): QDialog(parent), ui(new Ui::About)
 
     ui->textBrowser->setHtml(
       "<h1>OpenEXR Viewer</h1>"
-      "<p><em>"
-      //TODO + tr("Version ") + QApplication::applicationVersion() + "</em></p>"
+      "<p><em>" + tr("Version ") + QApplication::applicationVersion() + "</em></p>"
       + tr(" \
-        BSD 3-Clause License \
+        <p>BSD 3-Clause License \
         \
         <p>Copyright (c) 2021 - 2022, Alban Fichet <br/> \
         All rights reserved. </p>\

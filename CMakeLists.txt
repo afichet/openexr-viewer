@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(openexr-viewer 
-    VERSION 0.5.2
+project(openexr-viewer
+    VERSION 0.6.0
     DESCRIPTION "Simple Viewer for OpenEXR files with detailed metadata display"
     HOMEPAGE_URL "https://github.com/afichet/openexr-viewer"
-    LANGUAGES CXX 
+    LANGUAGES CXX
     )
 
 set(CMAKE_AUTOUIC ON)
@@ -58,6 +58,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 # ----------------------------------------------------------------------------
 # Source
 # ----------------------------------------------------------------------------
+message(${CMAKE_PROJECT_VERSION})
+
+configure_file(src/config.h.in config.h)
 
 set(PROJECT_SOURCES
     src/main.cpp
@@ -166,7 +169,7 @@ else()
     else()
         add_executable(openexr-viewer
             ${PROJECT_SOURCES}
-        )    
+        )
     endif()
 endif()
 
@@ -187,6 +190,7 @@ endif ()
 
 target_include_directories(openexr-viewer PRIVATE src)
 target_include_directories(openexr-viewer PRIVATE 3rdparty/data)
+target_include_directories(openexr-viewer PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_link_libraries(openexr-viewer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(openexr-viewer PRIVATE Imath::Imath OpenEXR::OpenEXR)
@@ -226,17 +230,17 @@ if (UNIX AND NOT APPLE)
 
     # Application desktop entry
     install(
-        FILES 
+        FILES
             deploy/linux/openexr-viewer.desktop
-        DESTINATION 
+        DESTINATION
             share/applications
     )
 
     # MIME data
     install(
-        FILES 
+        FILES
             deploy/linux/openexr-viewer.xml
-        DESTINATION 
+        DESTINATION
             share/mime/packages
     )
 
@@ -261,9 +265,9 @@ elseif (APPLE)
     macdeployqt(openexr-viewer)
 elseif (WIN32)
     install(
-        TARGETS 
-            openexr-viewer 
-        DESTINATION 
+        TARGETS
+            openexr-viewer
+        DESTINATION
             ${CMAKE_INSTALL_BINDIR}
     )
 
@@ -278,7 +282,7 @@ elseif (WIN32)
             $<TARGET_FILE:OpenEXR::IlmThread>
             $<TARGET_FILE:OpenEXR::OpenEXR>
             ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} # Windows DLLs
-        DESTINATION 
+        DESTINATION
             ${CMAKE_INSTALL_BINDIR}
     )
 
@@ -313,6 +317,7 @@ if(CPACK_GENERATOR MATCHES "NSIS")
   set(CPACK_NSIS_MODIFY_PATH OFF)
   set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
   set(CPACK_NSIS_MUI_FINISHPAGE_RUN "openexr-viewer.exe")
+  set(CPACK_PACKAGE_VENDOR "Lambda")
 endif(CPACK_GENERATOR MATCHES "NSIS")
 
 if("${CPACK_GENERATOR}" STREQUAL "PackageMaker")
