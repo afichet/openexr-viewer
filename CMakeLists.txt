@@ -276,7 +276,7 @@ elseif (WIN32)
 
     install(
         FILES
-            "${ZLIB_ROOT}\\bin\\zlib.dll"       # Zlib
+            "${ZLIB_ROOT}/bin/zlib.dll"         # Zlib
             $<TARGET_FILE:Imath::Imath>         # OpenEXR
             $<TARGET_FILE:OpenEXR::Iex>
             $<TARGET_FILE:OpenEXR::IlmThread>

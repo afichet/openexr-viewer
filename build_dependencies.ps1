@@ -1,3 +1,5 @@
+$start_dir = $PWD
+
 mkdir build
 cd build
 
@@ -32,9 +34,11 @@ cd ../..
 cd openexr
 mkdir build
 cd build
-cmake .. ^
-  -DCMAKE_INSTALL_PREFIX="../../../lib"^
-  -DZLIB_ROOT="../../../lib"^
+cmake .. `
+  -DCMAKE_INSTALL_PREFIX="../../../lib" `
+  -DZLIB_ROOT="../../../lib" `
   -DImath_DIR="../../../lib/cmake/Imath"
 
 cmake --build . --target install --config Release
+
+cd $start_dir
