@@ -20,10 +20,23 @@ piece of software ;-)
 Installing
 ==========
 
-Windows and macOS
------------------
+Windows
+-------
 
-There is prebuilt releases for Windows and macOS. You just need to download the
+You can install OpenEXR Viewer from winget. Run in a terminal:
+
+```
+winget install openexr-viewer
+```
+
+Alternatively, there is an installer you can download from the release
+section: https://github.com/afichet/openexr-viewer/releases
+
+
+macOS
+-----
+
+There is prebuilt releases for macOS. You just need to download the
 installer in the releases section and run it.
 
 Get the releases here: https://github.com/afichet/openexr-viewer/releases
