@@ -81,6 +81,23 @@ void RGBFramebufferModel::load(
             m_displayWindow
               = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
 
+            // Check to avoid type overflow, width and height are 32bits int
+            // representing a 2 dimentional image. Can overflow the type when
+            // multiplied together.
+            // 0x1FFFFFFF is a save limit for 4 * 0x7FFFFFFF the max
+            // representable int since we need 4 channels.
+            // TODO: Use larger type when manipulating framebuffer
+            const uint64_t partial_size
+              = (uint64_t)m_width * (uint64_t)m_height;
+
+            if (partial_size > 0x1FFFFFFF) {
+                throw std::runtime_error(
+                  "The total image size is too large. May be supported in a "
+                  "future revision.");
+            }
+
+            m_pixelBuffer.resize(4 * m_width * m_height);
+
             // Check if there is specific chromaticities tied to the color
             // representation in this part.
             const Imf::ChromaticitiesAttribute* c
@@ -92,8 +109,6 @@ void RGBFramebufferModel::load(
             if (c != nullptr) {
                 chromaticities = c->value();
             }
-
-            m_pixelBuffer = new float[4 * m_width * m_height];
 
             // Check if there is alpha channel
             if (hasAlpha) {
@@ -190,12 +205,12 @@ void RGBFramebufferModel::load(
 
                     Imf::FrameBuffer framebuffer;
 
-                    Imf::Rgba* buff1 = new Imf::Rgba[m_width * m_height];
-                    Imf::Rgba* buff2 = new Imf::Rgba[m_width * m_height];
+                    std::vector<Imf::Rgba> buff1(m_width * m_height);
+                    std::vector<Imf::Rgba> buff2(m_width * m_height);
 
-                    float* yBuffer  = new float[m_width * m_height];
-                    float* ryBuffer = new float[m_width / 2 * m_height / 2];
-                    float* byBuffer = new float[m_width / 2 * m_height / 2];
+                    std::vector<float> yBuffer(m_width * m_height);
+                    std::vector<float> ryBuffer(m_width / 2 * m_height / 2);
+                    std::vector<float> byBuffer(m_width / 2 * m_height / 2);
 
                     Imf::Slice ySlice = Imf::Slice::Make(
                       Imf::PixelType::FLOAT,
@@ -335,12 +350,6 @@ void RGBFramebufferModel::load(
                             m_pixelBuffer[4 * (y * m_width + x) + 2] = rgb.z;
                         }
                     }
-
-                    delete[] yBuffer;
-                    delete[] ryBuffer;
-                    delete[] byBuffer;
-                    delete[] buff1;
-                    delete[] buff2;
                 }
 
                 break;
