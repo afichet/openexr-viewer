@@ -37,7 +37,7 @@
 #include <QObject>
 #include <QRect>
 #include <QVector>
-#include <array>
+#include <vector>
 
 class FramebufferModel: public QObject
 {
@@ -67,8 +67,8 @@ class FramebufferModel: public QObject
     void loadFailed(QString message);
 
   protected:
-    float* m_pixelBuffer;
-    QImage m_image;
+    std::vector<float> m_pixelBuffer;
+    QImage             m_image;
 
     // Right now, the width and height are defined as Vec2i in OpenEXR
     // i.e. int type.
