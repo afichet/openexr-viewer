@@ -90,12 +90,25 @@ void YFramebufferModel::load(Imf::MultiPartInputFile& file, int partId)
                   dispW_width / 2,
                   dispW_height / 2);
 
-                m_pixelBuffer = new float[m_width * m_height];
+                // Check to avoid type overflow, width and height are 32bits int
+                // representing a 2 dimentional image. Can overflow the type when
+                // multiplied together
+                // TODO: Use larger type when manipulating framebuffer
+                const uint64_t partial_size
+                  = (uint64_t)m_width * (uint64_t)m_height;
+
+                if (partial_size > 0x7FFFFFFF) {
+                    throw std::runtime_error(
+                      "The total image size is too large. May be supported in "
+                      "a future revision.");
+                }
+
+                m_pixelBuffer.resize(m_width * m_height);
 
                 // Luminance Chroma channels
                 graySlice = Imf::Slice::Make(
                   Imf::PixelType::FLOAT,
-                  m_pixelBuffer,
+                  m_pixelBuffer.data(),
                   datW,
                   sizeof(float),
                   m_width * sizeof(float),
@@ -112,11 +125,11 @@ void YFramebufferModel::load(Imf::MultiPartInputFile& file, int partId)
                 m_displayWindow
                   = QRect(dispW.min.x, dispW.min.y, dispW_width, dispW_height);
 
-                m_pixelBuffer = new float[m_width * m_height];
+                m_pixelBuffer.resize(m_width * m_height);
 
                 graySlice = Imf::Slice::Make(
                   Imf::PixelType::FLOAT,
-                  m_pixelBuffer,
+                  m_pixelBuffer.data(),
                   datW);
             }
 

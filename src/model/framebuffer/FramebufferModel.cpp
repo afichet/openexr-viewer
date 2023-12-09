@@ -39,7 +39,6 @@
 
 FramebufferModel::FramebufferModel(QObject* parent)
   : QObject(parent)
-  , m_pixelBuffer(nullptr)
   , m_width(0)
   , m_height(0)
   , m_isImageLoaded(false)
@@ -59,7 +58,4 @@ QRect FramebufferModel::getDataWindow() const
     return m_dataWindow;
 }
 
-FramebufferModel::~FramebufferModel()
-{
-    delete[] m_pixelBuffer;
-}
+FramebufferModel::~FramebufferModel() {}
