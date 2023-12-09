@@ -70,6 +70,8 @@ class FramebufferModel: public QObject
     float* m_pixelBuffer;
     QImage m_image;
 
+    // Right now, the width and height are defined as Vec2i in OpenEXR
+    // i.e. int type.
     int m_width, m_height;
 
     bool m_isImageLoaded;
