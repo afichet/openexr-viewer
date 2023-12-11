@@ -75,8 +75,8 @@ int main(int argc, char* argv[])
             // Read from stdin
             w.open(std::cin);
         } else {
-            for (int i = 1; i < argc; i++) {
-                w.open(argv[i]);
+            for (int i = 1; i < a.arguments().size(); i++) {
+                w.open(a.arguments()[i]);
             }
         }
     }
